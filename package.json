@@ -1,0 +1,17 @@
+{
+  "name": "webditor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"pnpm run fastapi-dev\" \"pnpm run next-dev\"",
+    "next-dev": "cd frontend && pnpm run dev",
+    "fastapi-dev": "source ./backend/.venv/bin/activate && fastapi dev ./backend/main.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
