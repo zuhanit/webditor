@@ -1,10 +1,13 @@
-[project]
+[tool.poetry]
 name = "backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.11"
-dependencies = []
+
+[tool.poetry.dependencies]
+python = ">=3.11, <3.14"
+eudplib = { file = "eudplib-0.80.0-cp310-abi3-macosx_11_0_arm64.whl" }
+fastapi = {extras = ["standard"], version = "^0.115.11"}
 
 [tool.ruff]
 indent-width = 2
