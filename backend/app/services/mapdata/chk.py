@@ -1,6 +1,6 @@
 from eudplib import GetChkTokenized, b2i1, b2i2, b2i4
 from pydantic import BaseModel
-from .unit import Unit
+from ...models.unit import Unit
 
 
 class Terrain(BaseModel):
