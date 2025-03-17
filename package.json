@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"pnpm run fastapi-dev\" \"pnpm run next-dev\"",
     "next-dev": "cd frontend && pnpm run dev",
-    "fastapi-dev": "source ./backend/.venv/bin/activate && fastapi dev ./backend/main.py"
+    "fastapi-dev": "source ./backend/.venv/bin/activate && cd backend && fastapi dev ./app/main.py"
   },
   "keywords": [],
   "author": "",
