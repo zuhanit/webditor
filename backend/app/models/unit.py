@@ -1,14 +1,15 @@
 from pydantic import BaseModel
 from typing import NamedTuple
-from app.models.scbase import SCBaseRawModel, SCBaseWebditorModel
-from app.models.weapon import Weapon
-
+from app.models.scbase import CHKModel, WebditorModel
+from app.models.weapon import RawWeapon
+import struct
 
 class Cost(NamedTuple):
   mineral: int
   gas: int
 
-class RawUnit(SCBaseRawModel):
+class RawUnit(CHKModel):
+
   use_default: int
   hit_points: int
   shield_points: int
@@ -31,11 +32,11 @@ class RawUnit(SCBaseRawModel):
       name="Test", #TODO: Use string_number property and convert to unit name on STRx.
       cost=Cost(self.mineral_cost, self.gas_cost),
       id=self.id,
-      weapon=Weapon(id=1, damage=1, upgrade_damage=1) #TODO: Weapon
+      weapon=RawWeapon(id=1, damage=1, upgrade_damage=1) #TODO: Weapon
     )
   
   @classmethod
-  def from_webditor(cls, webditor: SCBaseWebditorModel) -> "RawUnit":
+  def from_webditor(cls, webditor: WebditorModel) -> "RawUnit":
       if not isinstance(webditor, Unit):
         raise TypeError(f"Expected unit, got {type(webditor)}")
 
@@ -53,7 +54,8 @@ class RawUnit(SCBaseRawModel):
         id=webditor.id
       )
     
-class Unit(SCBaseWebditorModel):
+
+class Unit(WebditorModel):
   hit_points: int
   "Note the displayed value is this value / 256, with the low byte being a fractional HP value"
   shield_points: int
@@ -63,7 +65,7 @@ class Unit(SCBaseWebditorModel):
   name: str
   cost: Cost
   id: int
-  weapon: Weapon
+  weapon: RawWeapon 
   
   @property
   def to_raw(self) -> RawUnit:
@@ -82,7 +84,7 @@ class Unit(SCBaseWebditorModel):
     )
   
   @classmethod
-  def from_raw(cls, raw: SCBaseRawModel) -> "Unit":
+  def from_raw(cls, raw: CHKModel) -> "Unit":
     if not isinstance(raw, RawUnit):
       raise TypeError(f"Expected RawUnit, got {type(raw)}")
 
@@ -93,6 +95,6 @@ class Unit(SCBaseWebditorModel):
       build_time=raw.build_time,
       name="Aa",
       cost=Cost(raw.mineral_cost, raw.gas_cost),
-      weapon=Weapon(id=1, damage=1, upgrade_damage=1),
+      weapon=RawWeapon(id=1, damage=1, upgrade_damage=1),
       id=1
     )
