@@ -1,24 +1,24 @@
 from pydantic import BaseModel
 import abc
 
-class SCBaseRawModel(BaseModel, abc.ABC):
+class CHKModel(BaseModel, abc.ABC):
     @property
     @abc.abstractmethod
-    def to_webditor(self) -> "SCBaseWebditorModel":
+    def to_webditor(self) -> "WebditorModel":
         pass
 
     @classmethod
     @abc.abstractmethod
-    def from_webditor(cls, webditor: "SCBaseWebditorModel") -> "SCBaseRawModel":
+    def from_webditor(cls, webditor: "WebditorModel") -> "CHKModel":
         pass
 
-class SCBaseWebditorModel(BaseModel, abc.ABC):
+class WebditorModel(BaseModel, abc.ABC):
     @property
     @abc.abstractmethod
-    def to_raw(self) -> SCBaseRawModel:
+    def to_raw(self) -> CHKModel:
         pass
 
     @classmethod
     @abc.abstractmethod
-    def from_raw(cls, raw: SCBaseRawModel) -> "SCBaseWebditorModel":
+    def from_raw(cls, raw: CHKModel) -> "WebditorModel":
         pass
