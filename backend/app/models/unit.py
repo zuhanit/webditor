@@ -98,3 +98,46 @@ class Unit(WebditorModel):
       weapon=RawWeapon(id=1, damage=1, upgrade_damage=1),
       id=1
     )
+    
+class PlacedUnitRelationFlag(Flag):
+  nydus_link = 0b10000000
+  addon_link = 0b100000000
+
+class SpecialPropertiesFlag(Flag):
+  cloak         = 0b1
+  burrow        = 0b10
+  in_transit    = 0b100
+  hallucinated  = 0b1000
+  invincible    = 0b10000
+
+class ValidPropertiesFlag(Flag):
+  owner_player  = 0b1
+  hp            = 0b10
+  shields       = 0b100
+  energy        = 0b1000
+  resource      = 0b10000
+  amount        = 0b100000  
+  
+class UnitStateFlag(Flag):
+  cloaked       = 0b1
+  burrowed      = 0b10
+  is_transit    = 0b100
+  hallucinated  = 0b1000
+  invincible    = 0b10000 
+
+class PlacedUnit(BaseModel):
+  serial_number: int
+  position: Position2D
+  id: int
+  relation_type: PlacedUnitRelationFlag 
+  special_properties: SpecialPropertiesFlag
+  valid_properties: ValidPropertiesFlag
+  owner:  int
+  hp_percent: int
+  shield_percent: int
+  resource_amount: int
+  hangar: int
+  unit_state: UnitStateFlag
+  related_unit: int 
+  
+  
