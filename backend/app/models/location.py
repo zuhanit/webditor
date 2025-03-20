@@ -1,13 +1,8 @@
 from pydantic import BaseModel
 from typing_extensions import TypedDict
 from enum import Flag
-
-class Position(TypedDict):
-  Left: int
-  Top: int
-  Right: int
-  bottom: int
-  
+from app.models.spatial import RectPosition 
+ 
 class ElevationFlag(Flag):
   low_elevation     = 0b0000000000000001
   medium_elevation  = 0b0000000000000010
@@ -27,6 +22,6 @@ class ElevationFlag(Flag):
   unused9           = 0b1000000000000000
 
 class Location(BaseModel):
-  position: Position
+  position: RectPosition 
   name_id: int
   elevation_flags: ElevationFlag
