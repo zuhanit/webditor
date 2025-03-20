@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 
-class Weapon(BaseModel):
-  weapon_id: int
+class RawWeapon(BaseModel):
+  id: int
   damage: int
+  upgrade_damage: int
