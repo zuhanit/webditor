@@ -1,11 +1,8 @@
 from pydantic import BaseModel
-from typing import NamedTuple, TypeAlias, Literal
+from typing import TypeAlias, Literal
+from app.models.spatial import Size
 
-class Size(NamedTuple):
-  height: int
-  width: int
-
-class Tile(NamedTuple):
+class Tile(BaseModel):
   group: int
   id: int
 

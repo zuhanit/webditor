@@ -1,15 +1,15 @@
 from pydantic import BaseModel
-from typing import NamedTuple
 from app.models.scbase import CHKModel, WebditorModel
 from app.models.weapon import RawWeapon
+from app.models.spatial import Position2D
+from enum import Flag
 import struct
 
-class Cost(NamedTuple):
+class Cost(BaseModel):
   mineral: int
   gas: int
 
 class RawUnit(CHKModel):
-
   use_default: int
   hit_points: int
   shield_points: int
@@ -30,7 +30,7 @@ class RawUnit(CHKModel):
       armor_points=self.armor_points,
       build_time=self.build_time,
       name="Test", #TODO: Use string_number property and convert to unit name on STRx.
-      cost=Cost(self.mineral_cost, self.gas_cost),
+      cost=Cost(mineral=self.mineral_cost, gas=self.gas_cost),
       id=self.id,
       weapon=RawWeapon(id=1, damage=1, upgrade_damage=1) #TODO: Weapon
     )
@@ -52,8 +52,7 @@ class RawUnit(CHKModel):
         weapon_damage=webditor.weapon.damage,
         weapon_upgrade_damage=webditor.weapon.upgrade_damage,
         id=webditor.id
-      )
-    
+      )    
 
 class Unit(WebditorModel):
   hit_points: int
@@ -94,7 +93,7 @@ class Unit(WebditorModel):
       armor_points=raw.armor_points,
       build_time=raw.build_time,
       name="Aa",
-      cost=Cost(raw.mineral_cost, raw.gas_cost),
+      cost=Cost(mineral=raw.mineral_cost, gas=raw.gas_cost),
       weapon=RawWeapon(id=1, damage=1, upgrade_damage=1),
       id=1
     )
