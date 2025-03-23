@@ -128,15 +128,15 @@ class PlacedUnit(BaseModel):
   serial_number: int
   position: Position2D
   id: int
-  relation_type: PlacedUnitRelationFlag 
-  special_properties: SpecialPropertiesFlag
-  valid_properties: ValidPropertiesFlag
+  relation_type: int 
+  special_properties: int 
+  valid_properties: int 
   owner:  int
   hp_percent: int
   shield_percent: int
   resource_amount: int
   hangar: int
-  unit_state: UnitStateFlag
+  unit_state: int 
   related_unit: int 
   
   

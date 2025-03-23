@@ -10,4 +10,4 @@ class Sprite(BaseModel):
   id: int
   position: Position2D
   player: int
-  flags: SpriteFlag
+  flags: int
