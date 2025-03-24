@@ -1,10 +1,9 @@
-from eudplib import GetChkTokenized
+from eudplib.core.mapdata.chktok import CHK as EPCHK
 from typing import TypedDict
-from pydantic import BaseModel
 from app.models.unit import RawUnit, Unit, PlacedUnit
 from app.models.terrain import RawTerrain, Size, Tile, EraTilesetDict
 from app.models.player import Player, OwnrPlayerTypeDict, SidePlayerRaceDict
-from app.models.location import Location, ElevationFlag
+from app.models.location import Location
 from app.models.spatial import Position2D, RectPosition
 from app.models.sprite import Sprite
 from app.models.string import String
@@ -43,16 +42,20 @@ class PlayerSections(TypedDict):
   COLR: bytes
   CRGB: bytes
 
-class CHK(BaseModel):
+class CHK():
+  """
+  Base class for unpacking raw chk contents, transforming Model.
+  """
   units: list[Unit]
+  chkt: EPCHK
 
-  def __init__(self):
-    ...
+  def __init__(self, chkt: EPCHK):
+    self.chkt = chkt 
 
-  def unix_bytes_to_unit(self, unit_bytes: bytes) -> list[RawUnit]:
+  def get_units(self) -> list[RawUnit]:
     result: list[RawUnit] = []
 
-    unpacked = struct.unpack(CHK_FORMATDICT["UNIx"], unit_bytes)
+    unpacked = struct.unpack(CHK_FORMATDICT["UNIx"], self.chkt.getsection("UNIx"))
     for id in range(228):
       result.append(RawUnit(
         id=0,
@@ -70,9 +73,9 @@ class CHK(BaseModel):
 
     return result
   
-  def tileset_bytes_to_terrain(self, tileset_bytes: TerrainSections) -> RawTerrain:
-    dim = struct.unpack(CHK_FORMATDICT["DIM "], tileset_bytes["DIM"])
-    era = struct.unpack(CHK_FORMATDICT["ERA "], tileset_bytes["ERA"])
+  def get_terrain(self) -> RawTerrain:
+    dim = struct.unpack(CHK_FORMATDICT["DIM "], self.chkt.getsection("DIM "))
+    era = struct.unpack(CHK_FORMATDICT["ERA "], self.chkt.getsection("ERA "))
 
     dimension: Size = Size(width=dim[0], height=dim[1])
     tileset = era[0]
@@ -94,10 +97,10 @@ class CHK(BaseModel):
       tile_id=tile_id
     )
   
-  def player_bytes_to_player(self, player_bytes: PlayerSections) -> list[Player]:
-    ownr = struct.unpack(CHK_FORMATDICT["OWNR"], player_bytes["OWNR"])
-    side = struct.unpack(CHK_FORMATDICT["SIDE"], player_bytes["SIDE"])
-    colr = struct.unpack(CHK_FORMATDICT["COLR"], player_bytes["COLR"])
+  def get_players(self) -> list[Player]:
+    ownr = struct.unpack(CHK_FORMATDICT["OWNR"], self.chkt.getsection("OWNR"))
+    side = struct.unpack(CHK_FORMATDICT["SIDE"], self.chkt.getsection("SIDE"))
+    colr = struct.unpack(CHK_FORMATDICT["COLR"], self.chkt.getsection("COLR"))
     
     result: list[Player] = [Player(id=i, color=0, player_type="Computer", race="Inactive") for i in range(12)]
     
@@ -110,7 +113,8 @@ class CHK(BaseModel):
         
     return result
 
-  def mrgn_bytes_to_location(self, mrgn_bytes: bytes) -> list[Location]:
+  def get_locations(self) -> list[Location]:
+    mrgn_bytes = self.chkt.getsection("MRGN")
     format_size = struct.calcsize(CHK_FORMATDICT["MRGN"])
     location_count = len(mrgn_bytes) // format_size
     
@@ -130,7 +134,8 @@ class CHK(BaseModel):
     
     return result
   
-  def unit_bytes_to_placed_unit(self, unit_bytes: bytes) -> list[PlacedUnit]:
+  def get_paced_units(self) -> list[PlacedUnit]:
+    unit_bytes = self.chkt.getsection("UNIT")
     format_size = struct.calcsize(CHK_FORMATDICT["UNIT"])
     unit_count = len(unit_bytes) // format_size
     
@@ -158,7 +163,8 @@ class CHK(BaseModel):
     
     return result
 
-  def thg2_to_sprites(self, thg2_bytes: bytes) -> list[Sprite]:
+  def get_sprites(self) -> list[Sprite]:
+    thg2_bytes = self.chkt.getsection("THG2")
     format_size = struct.calcsize(CHK_FORMATDICT["THG2"])
     sprite_count = len(thg2_bytes) // format_size
     
@@ -177,7 +183,8 @@ class CHK(BaseModel):
       
     return result
     
-  def strx_to_string(self, str_bytes: bytes) -> list[String]:
+  def get_strings(self) -> list[String]:
+    str_bytes = self.chkt.getsection("STRx")
     string_count = struct.unpack("I", str_bytes[0:4])[0]
 
     result: list[String] = []
