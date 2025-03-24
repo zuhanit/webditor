@@ -77,8 +77,8 @@ class CHK(BaseModel):
     dimension: Size = Size(width=dim[0], height=dim[1])
     tileset = era[0]
     
-    tile_id: list[list[Tile]] = [[Tile(id=0, group=0)] * dimension.width for _ in range(dimension.height)]
-    mtxm =  struct.unpack(f"{dimension.height * dimension.width}H", tileset_bytes["MTXM"])
+    tile_id: list[Tile] = [Tile(group=0, id=0) for _ in range(dimension.height * dimension.width)]
+    mtxm =  struct.unpack(f"{dimension.height * dimension.width}H", self.chkt.getsection("MTXM"))
     
     for y in range(dimension.height - 1):
       for x in range(dimension.width - 1):
@@ -86,7 +86,7 @@ class CHK(BaseModel):
           group=mtxm[y * dimension.width + x] >> 4,
           id=mtxm[y * dimension.width + x] & 0xF
         )
-        tile_id[y][x] = tile
+        tile_id[y * dimension.width + x] = tile
   
     return RawTerrain(
       size=dimension,
