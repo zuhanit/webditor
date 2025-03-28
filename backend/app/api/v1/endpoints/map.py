@@ -41,13 +41,12 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
       path=filename,
       url=download_url,
       uploadedAt=datetime.datetime.now(datetime.UTC),
-      raw_map=raw_map
     )
 
     print(project.model_dump())
     db.collection("projects").add(project.model_dump(mode="json"))
-    
-    return {"url": download_url, "path": filename}
-    ...
+
+    return {"url": download_url, "path": filename, "raw_map": raw_map}
+
   except Exception as e:
     raise HTTPException(status_code=500, detail=str(e))
