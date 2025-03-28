@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing_extensions import TypedDict
 from enum import Flag
 from .spatial import RectPosition
 
