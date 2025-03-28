@@ -9,12 +9,12 @@ import uuid
 import datetime
 
 
-
 router = APIRouter()
+
 
 @router.post("/upload/")
 async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user)):
-  """ Get webditor-based transformed data by uploaded map. """
+  """Get webditor-based transformed data by uploaded map."""
   if not file.filename:
     raise HTTPException(status_code=403, detail="Invalid filename")
 
@@ -22,18 +22,18 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
     uid = user["uid"]
     filename = f"{uid}/{uuid.uuid4()}_{file.filename}"
     content = await file.read()
-    
+
     bucket = storage.bucket()
     blob = bucket.blob(filename)
     blob.upload_from_file(BytesIO(content), content_type=file.content_type)
     blob.make_public()
     download_url = blob.public_url
-    
+
     chkt = await get_chkt(BytesIO(content))
     chk = CHK(chkt)
-    
+
     raw_map = get_chk_data(chk)
-    
+
     db = firestore.client()
     project = Project(
       uid=uid,
@@ -43,7 +43,7 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
       uploadedAt=datetime.datetime.now(datetime.UTC),
       raw_map=raw_map
     )
-    
+
     print(project.model_dump())
     db.collection("projects").add(project.model_dump(mode="json"))
     

@@ -28,7 +28,7 @@ CHK_FORMATDICT: dict[str, str] = {
   "PTEC": "5B",
   "UPGx": "5B",
   "TECx": "B4H",
-  "VER": "H"
+  "VER": "H",
 }
 
 class TerrainSections(TypedDict):
@@ -36,16 +36,19 @@ class TerrainSections(TypedDict):
   ERA: bytes
   MTXM: bytes
 
+
 class PlayerSections(TypedDict):
   OWNR: bytes
   SIDE: bytes
   COLR: bytes
   CRGB: bytes
 
-class CHK():
+
+class CHK:
   """
   Base class for unpacking raw chk contents, transforming Model.
   """
+
   units: list[Unit]
   chkt: EPCHK
 

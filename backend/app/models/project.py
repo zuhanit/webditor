@@ -25,5 +25,3 @@ class Project(BaseModel):
   uid: str
   uploadedAt: datetime.datetime
   url: str
-  raw_map: RawMap
-  
