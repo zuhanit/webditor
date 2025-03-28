@@ -1,10 +1,14 @@
 from firebase_admin import auth
-from fastapi import  Header, HTTPException
+from fastapi import Header, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-def get_current_user(authorization: str = Header(...)):
+security = HTTPBearer()
+
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
   """Current user authentication by Firebase Authentication"""
   try:
-    token = authorization.split("Bearer ")[1]  # "Bearer <토큰>" 형식에서 토큰 추출
+    token = credentials.credentials
     decoded_token = auth.verify_id_token(token)
     return decoded_token
   except Exception:
