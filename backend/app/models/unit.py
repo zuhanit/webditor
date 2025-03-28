@@ -1,7 +1,8 @@
-from pydantic import BaseModel
-from app.models.scbase import CHKModel, WebditorModel
-from app.models.weapon import RawWeapon
-from app.models.spatial import Position2D
+from pydantic import BaseModel, Field
+from .player import Player
+from .object import Object
+from .components.weapon import Weapon
+from .entity import Entity
 from enum import Flag
 import struct
 

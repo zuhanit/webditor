@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import TypeAlias, Literal
+from .object import Object
 
 PlayerType: TypeAlias = Literal[
   "Inactive",

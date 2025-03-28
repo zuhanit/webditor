@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import TypeAlias, Literal
-from app.models.spatial import Size
+from .spatial import Size
+
 
 class Tile(BaseModel):
   group: int

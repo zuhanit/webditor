@@ -1,8 +1,9 @@
 from pydantic import BaseModel
 from typing_extensions import TypedDict
 from enum import Flag
-from app.models.spatial import RectPosition 
- 
+from .spatial import RectPosition
+
+
 class ElevationFlag(Flag):
   low_elevation     = 0b0000000000000001
   medium_elevation  = 0b0000000000000010

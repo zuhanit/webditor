@@ -1,6 +1,7 @@
 from pydantic import BaseModel
-from app.models.spatial import Position2D
-from enum import IntFlag 
+from .spatial import Position2D
+from enum import IntFlag
+
 
 class SpriteFlag(IntFlag):
   DRAW_AS_SPRITE = 0b0001000000000000  # Bit 12 (4096, 0x1000)
