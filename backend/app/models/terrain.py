@@ -40,7 +40,8 @@ class RawTerrain(BaseModel):
 
   size: Size
   tileset: Tileset
-  tile_id: list[Tile]
+  tile_id: list[list[Tile]]
+
 
 class Terrain(BaseModel):
   size: Size
