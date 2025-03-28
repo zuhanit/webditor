@@ -50,3 +50,14 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
 
   except Exception as e:
     raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/test_map")
+async def get_test_map():
+  with open("./hello12345.scx", "rb") as f:
+    chkt = await get_chkt(BytesIO(f.read()))
+    chk = CHK(chkt)
+
+    raw_map = get_chk_data(chk)
+
+    return raw_map.model_dump(mode="json")
