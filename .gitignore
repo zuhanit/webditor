@@ -13,3 +13,8 @@ backend/__pycache__/*
 
 **/*/secrets/
 /secrets/
+
+**/*/schemas/
+
+**/*/TileSet/
+preprocess/output/**/*
