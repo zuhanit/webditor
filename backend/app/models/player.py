@@ -11,8 +11,8 @@ PlayerType: TypeAlias = Literal[
   "Computer",
   "Human (Open Slot)",
   "Neutral",
-  "Closed Slot"
-  ]
+  "Closed Slot",
+]
 
 OwnrPlayerTypeDict: dict[int, PlayerType] = {
   0: "Inactive",
@@ -23,7 +23,7 @@ OwnrPlayerTypeDict: dict[int, PlayerType] = {
   5: "Computer",
   6: "Human (Open Slot)",
   7: "Neutral",
-  8: "Closed Slot"
+  8: "Closed Slot",
 }
 
 PlayerRace: TypeAlias = Literal[
@@ -34,7 +34,7 @@ PlayerRace: TypeAlias = Literal[
   "Invalid (Neutral)",
   "User Selectable",
   "Random",
-  "Inactive"
+  "Inactive",
 ]
 
 SidePlayerRaceDict: dict[int, PlayerRace] = {
@@ -45,12 +45,11 @@ SidePlayerRaceDict: dict[int, PlayerRace] = {
   4: "Invalid (Neutral)",
   5: "User Selectable",
   6: "Random",
-  7: "Inactive"
+  7: "Inactive",
 }
 
-class Player(BaseModel):
-  id: int
+
+class Player(Object):
   color: int
   player_type: PlayerType
   race: PlayerRace
-  
