@@ -6,12 +6,17 @@
   "scripts": {
     "dev": "concurrently \"pnpm run fastapi-dev\" \"pnpm run next-dev\"",
     "next-dev": "cd frontend && pnpm run dev",
-    "fastapi-dev": "source ./backend/.venv/bin/activate && cd backend && fastapi dev ./app/main.py"
+    "fastapi-dev": "source ./backend/.venv/bin/activate && cd backend && fastapi dev ./app/main.py",
+    "gen-types": "sh ./scripts/schema_generator.sh"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "json-schema-to-typescript": "^15.0.4"
+  },
+  "devDependencies": {
+    "quicktype": "^23.0.171"
   }
 }
