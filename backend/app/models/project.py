@@ -10,13 +10,14 @@ from .unit import Unit
 
 
 class RawMap(BaseModel):
-  unit: list[RawUnit]
+  unit: list[Unit]
   terrain: RawTerrain
   player: list[Player]
   location: list[Location]
-  placed_unit: list[PlacedUnit]
+  placed_unit: list[Unit]
   sprite: list[Sprite]
   string: list[String]
+
 
 class Project(BaseModel):
   filename: str
