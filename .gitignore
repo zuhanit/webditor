@@ -17,4 +17,5 @@ backend/__pycache__/*
 **/*/schemas/
 
 **/*/TileSet/
+preprocess/output
 preprocess/output/**/*
