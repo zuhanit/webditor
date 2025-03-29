@@ -1,6 +1,16 @@
 import os
 import struct
-from typing import Dict, Literal, TypeVar, Callable, List, Tuple, Any, TypedDict, overload
+from typing import (
+    Dict,
+    Literal,
+    TypeVar,
+    Callable,
+    List,
+    Tuple,
+    Any,
+    overload,
+)
+from typing_extensions import TypedDict
 
 TERRAIN_FORMAT_KIND = Literal["cv5", "vx4ex", "vr4", "vf4", "wpe"]
 
@@ -9,13 +19,14 @@ Tilesets = Literal[
     "ashworld", "badlands", "Desert", "Ice", "install", "jungle", "platform", "Twilight"
 ]
 
+
 def read(
     tileset: Tilesets,
     kind: TERRAIN_FORMAT_KIND,
     tileset_format: str,
     analyze: Callable[[Tuple[Any, ...]], T],
 ):
-    FILE_PATH = f"./src/tileset/data/tileset/{tileset}.{kind}"
+    FILE_PATH = f"./terrain/TileSet/{tileset}.{kind}"
     FILE_SIZE = os.path.getsize(FILE_PATH)
     FORMAT_SIZE = struct.calcsize(tileset_format)
 
@@ -27,6 +38,7 @@ def read(
             result.append(analyzed_chunk)
 
     return result
+
 
 class CV5TileFlag(TypedDict):
     walkable: bool
@@ -127,11 +139,11 @@ class CV5:
             "tiles": chunk[10:],
         }
         return doodad
-      
+
     @staticmethod
     @overload
     def analyze_flag(flag: int, isDoodad: Literal[False]) -> CV5TileFlag: ...
-    
+
     @staticmethod
     @overload
     def analyze_flag(flag: int, isDoodad: Literal[True]) -> CV5DoodadFlag: ...
@@ -170,7 +182,7 @@ class CV5:
 
     def __init__(self, tileset: Tilesets):
         result = read(tileset, "cv5", "HH4H4H16H", self.chunk_analyze)
-        self.tiles = result
+        self.groups = result
 
 
 class VR4:
@@ -182,9 +194,11 @@ class VR4:
         u8[8][8] - WPE color index
     """
 
+    graphics: list[tuple[Any, ...]]
+
     def __init__(self, tileset: Tilesets):
         result = read(tileset, "vr4", "64B", lambda x: x)
-        self.graphics = result
+        self.graphics: list[tuple[Any, ...]] = result
 
 
 class VX4Type(TypedDict):

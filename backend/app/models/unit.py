@@ -1,142 +1,65 @@
-from pydantic import BaseModel
-from app.models.scbase import CHKModel, WebditorModel
-from app.models.weapon import RawWeapon
-from app.models.spatial import Position2D
+from pydantic import BaseModel, Field
+from .player import Player
+from .object import Object
+from .components.weapon import Weapon
+from .entity import Entity
 from enum import Flag
-import struct
+
 
 class Cost(BaseModel):
-  mineral: int
-  gas: int
+  mineral: int = Field(default=0, ge=0)
+  gas: int = Field(default=0, ge=0)
 
-class RawUnit(CHKModel):
-  use_default: int
-  hit_points: int
-  shield_points: int
-  armor_points: int
-  build_time: int
-  mineral_cost: int
-  gas_cost: int
-  string_number: int
-  weapon_damage: int
-  weapon_upgrade_damage: int
-  id: int
-  
-  @property
-  def to_webditor(self) -> "Unit":
-    return Unit(
-      hit_points=self.hit_points,
-      shield_points=self.shield_points,
-      armor_points=self.armor_points,
-      build_time=self.build_time,
-      name="Test", #TODO: Use string_number property and convert to unit name on STRx.
-      cost=Cost(mineral=self.mineral_cost, gas=self.gas_cost),
-      id=self.id,
-      weapon=RawWeapon(id=1, damage=1, upgrade_damage=1) #TODO: Weapon
-    )
-  
-  @classmethod
-  def from_webditor(cls, webditor: WebditorModel) -> "RawUnit":
-      if not isinstance(webditor, Unit):
-        raise TypeError(f"Expected unit, got {type(webditor)}")
 
-      return RawUnit(
-        use_default=False,
-        hit_points=webditor.hit_points,
-        shield_points=webditor.shield_points,
-        armor_points=webditor.armor_points,
-        build_time=webditor.build_time,
-        mineral_cost=webditor.cost.mineral,
-        gas_cost=webditor.cost.gas,
-        string_number=1,
-        weapon_damage=webditor.weapon.damage,
-        weapon_upgrade_damage=webditor.weapon.upgrade_damage,
-        id=webditor.id
-      )    
+class Stat(Object):
+  current: int = Field(default=0, ge=0)
+  max: int = Field(default=0, ge=0)
 
-class Unit(WebditorModel):
-  hit_points: int
-  "Note the displayed value is this value / 256, with the low byte being a fractional HP value"
-  shield_points: int
-  armor_points: int
-  build_time: int
-  "1/60 seconds"
-  name: str
+
+class Unit(Entity):
+  serial_number: int = -1
+  """Identical number when unit placed on map. -1 When non-placed unit."""
   cost: Cost
-  id: int
-  weapon: RawWeapon 
-  
-  @property
-  def to_raw(self) -> RawUnit:
-    return RawUnit(
-      use_default=False,
-      hit_points=self.hit_points,
-      shield_points=self.shield_points,
-      armor_points=self.armor_points,
-      build_time=self.build_time,
-      mineral_cost=self.cost.mineral,
-      gas_cost=self.cost.gas,
-      string_number=1,
-      weapon_damage=self.weapon.damage,
-      weapon_upgrade_damage=self.weapon.upgrade_damage,
-      id=1
-    )
-  
-  @classmethod
-  def from_raw(cls, raw: CHKModel) -> "Unit":
-    if not isinstance(raw, RawUnit):
-      raise TypeError(f"Expected RawUnit, got {type(raw)}")
+  hit_points: Stat = Stat(name="Hit Points")
+  shield_hpoints: Stat = Stat(name="Shield Points")
+  armor_points: int = Field(default=0, lt=256)
+  build_time: int
+  weapon: Weapon
+  owner: Player = Player(player_type="Inactive", race="Inactive", color=0)
+  resource_amount: int = 0
+  hangar: int = 0
+  unit_state: int = 0
+  relation_type: int = 0
+  related_unit: int = 0
+  spetial_properties: int = 0
+  valid_properties: int = 0
 
-    return Unit(
-      hit_points=raw.hit_points,
-      shield_points=raw.shield_points,
-      armor_points=raw.armor_points,
-      build_time=raw.build_time,
-      name="Aa",
-      cost=Cost(mineral=raw.mineral_cost, gas=raw.gas_cost),
-      weapon=RawWeapon(id=1, damage=1, upgrade_damage=1),
-      id=1
-    )
-    
+
 class PlacedUnitRelationFlag(Flag):
   nydus_link = 0b10000000
   addon_link = 0b100000000
 
+
 class SpecialPropertiesFlag(Flag):
-  cloak         = 0b1
-  burrow        = 0b10
-  in_transit    = 0b100
-  hallucinated  = 0b1000
-  invincible    = 0b10000
+  cloak = 0b1
+  burrow = 0b10
+  in_transit = 0b100
+  hallucinated = 0b1000
+  invincible = 0b10000
+
 
 class ValidPropertiesFlag(Flag):
-  owner_player  = 0b1
-  hp            = 0b10
-  shields       = 0b100
-  energy        = 0b1000
-  resource      = 0b10000
-  amount        = 0b100000  
-  
-class UnitStateFlag(Flag):
-  cloaked       = 0b1
-  burrowed      = 0b10
-  is_transit    = 0b100
-  hallucinated  = 0b1000
-  invincible    = 0b10000 
+  owner_player = 0b1
+  hp = 0b10
+  shields = 0b100
+  energy = 0b1000
+  resource = 0b10000
+  amount = 0b100000
 
-class PlacedUnit(BaseModel):
-  serial_number: int
-  position: Position2D
-  id: int
-  relation_type: PlacedUnitRelationFlag 
-  special_properties: SpecialPropertiesFlag
-  valid_properties: ValidPropertiesFlag
-  owner:  int
-  hp_percent: int
-  shield_percent: int
-  resource_amount: int
-  hangar: int
-  unit_state: UnitStateFlag
-  related_unit: int 
-  
-  
+
+class UnitStateFlag(Flag):
+  cloaked = 0b1
+  burrowed = 0b10
+  is_transit = 0b100
+  hallucinated = 0b1000
+  invincible = 0b10000

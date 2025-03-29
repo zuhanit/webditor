@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1.endpoints import map
+from app.api.v1.endpoints import map, user, tileset
+from app.core.firebase import config  # Automatically initialized by importing `config`.
 
 app = FastAPI(
   title="Webditor API",
@@ -17,7 +18,10 @@ app.add_middleware(
 )
 
 app.include_router(map.router, prefix="/api/v1/maps", tags=["Maps"])
+app.include_router(user.router, prefix="/api/v1/user", tags=["User"])
+app.include_router(tileset.router, prefix="/api/v1/tileset", tags=["Tileset"])
+
 
 @app.get("/")
 async def root():
-  return { "message": "Webditor API is running" }
+  return {"message": "Webditor API is running"}

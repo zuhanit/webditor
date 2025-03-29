@@ -8,6 +8,10 @@ readme = "README.md"
 python = ">=3.11, <3.14"
 eudplib = { file = "eudplib-0.80.0-cp310-abi3-macosx_11_0_arm64.whl" }
 fastapi = {extras = ["standard"], version = "^0.115.11"}
+firebase-admin = "^6.7.0"
+
+[tool.poetry.group.dev.dependencies]
+datamodel-code-generator = "^0.28.5"
 
 [tool.ruff]
 indent-width = 2

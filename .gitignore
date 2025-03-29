@@ -10,3 +10,12 @@ backend/__pycache__/*
 
 **/*/.DS_Store
 .DS_Store
+
+**/*/secrets/
+/secrets/
+
+**/*/schemas/
+
+**/*/TileSet/
+preprocess/output
+preprocess/output/**/*
