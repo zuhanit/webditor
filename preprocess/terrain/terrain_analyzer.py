@@ -45,35 +45,6 @@ class TerrainAnalyzer:
         self.vr4 = VR4(tileset)
         self.wpe = WPE(tileset)
     
-    def ttt(self, tile_id: int):
-        image = np.zeros((32, 32, 3), np.uint8)
-        minitiles = self.vx4.graphics[tile_id]
-
-        for x in range(4):
-            for y in range(4):
-                flipped = minitiles[y * 4 + x]["flipped"]
-                vr4_id = minitiles[y * 4 + x]["vr4_id"]
-                vr4_value = self.vr4.graphics[vr4_id]
-                print(vr4_id)
-
-                draw_offsetx = x * 8
-                draw_offsety = y * 8
-
-                for subx in range(8):
-                    for suby in range(8):
-                        drawx = draw_offsetx + (7 - subx if flipped else subx)
-                        drawy = draw_offsety + suby
-
-                        wpe_value = self.wpe.graphics[vr4_value[suby * 8 + subx]]
-                        color = [
-                            wpe_value["red"],
-                            wpe_value["green"],
-                            wpe_value["red"],
-                        ]
-                        image[drawy][drawx] = color
-
-        return image
-
     def get_group_table(self):
         result = []
 
