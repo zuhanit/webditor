@@ -1,15 +1,15 @@
 from concurrent.futures import ProcessPoolExecutor
-import json
-from scterrain import Tilesets
-from terrain_analyzer import TerrainAnalyzer
+from .scterrain import Tilesets
+from .terrain_analyzer import TerrainAnalyzer
 from typing import cast
 import os
 import gzip
+import json
 
 
 def process_tileset(tileset: str, term_num: int):
     TA = TerrainAnalyzer(cast(Tilesets, tileset), term_num)
-    path = f"preprocess/output/{tileset}"
+    path = f"./output/{tileset}"
     os.makedirs(path, exist_ok=True)
 
     binary_path = f"{path}/megatile_color.bin"
@@ -26,7 +26,7 @@ def process_tileset(tileset: str, term_num: int):
 
 def process_group_table(tileset: str, term_num: int):
     TA = TerrainAnalyzer(cast(Tilesets, tileset), term_num)
-    path = f"preprocess/output/{tileset}"
+    path = f"./output/{tileset}"
     os.makedirs(path, exist_ok=True)
 
     binary_path = f"{path}/cv5_group.json"
@@ -55,9 +55,16 @@ if __name__ == "__main__":
             executor.submit(process_tileset, tileset, term_num)
             for tileset, term_num in tilesets_with_index
         ]
+        for future in futures:
+            future.result()
 
     with ProcessPoolExecutor() as executor:
         futures = [
             executor.submit(process_group_table, tileset, term_num)
             for tileset, term_num in tilesets_with_index
         ]
+        for future in futures:
+            future.result()
+
+
+print("RUN")

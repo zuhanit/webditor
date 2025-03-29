@@ -1,4 +1,4 @@
-from scterrain import CV5, VF4, VX4, VR4, WPE, Tilesets, VF4Flag
+from .scterrain import CV5, VF4, VX4, VR4, WPE, Tilesets, VF4Flag
 from pydantic import BaseModel, Field
 from typing import cast
 from tqdm import tqdm
