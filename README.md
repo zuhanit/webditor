@@ -6,7 +6,7 @@ Webditor is Starcraft Remastered usemap editor, more than editor, like game engi
 
 ## Getting Started
 
-- Visit official [Webditor](https://www.webditor.kr) to get started with Webditor.
+- Visit official [Webditor](https://www.webditor.net) to get started with Webditor.
 - Build your own App and Server by cloning this repository.
 
 ## Documentation
