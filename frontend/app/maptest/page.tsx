@@ -81,28 +81,6 @@ export default function Page() {
     console.log("Fetch Succesful");
   }, [rawmap, tilesetData, tileGroup]);
 
-  // useEffect(() => {
-  //   if (!tilesetData || !tileGroup || !canvasRef.current) return;
-
-  //   const canvas = canvasRef.current;
-  //   const ctx = canvas.getContext("2d");
-  //   if (!ctx) return;
-
-  //   ctx.imageSmoothingEnabled = false;
-  //   const tileSize = 32;
-
-  //   canvas.width = tileSize;
-  //   canvas.height = tileSize;
-
-  //   const megatileID = tileGroup[52][12];
-  //   console.log(megatileID, "ID ID ID ");
-
-  //   const offset = megatileID * 3072;
-  //   const rgbData = tilesetData.slice(offset, offset + 3072);
-
-  //   drawMegatile(ctx, 0, 0, rgbData);
-  // }, [tilesetData, tileGroup]);
-
   return (
     <div>
       <canvas ref={canvasRef} style={{ border: "1px solid black" }} />
