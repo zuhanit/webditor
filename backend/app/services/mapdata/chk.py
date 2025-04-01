@@ -1,15 +1,23 @@
 from eudplib.core.mapdata.chktok import CHK as EPCHK
-from typing import TypedDict
-from app.models.unit import Cost, Stat, Unit
-from app.models.terrain import RawTerrain, Size, Tile, EraTilesetDict
-from app.models.player import Player, OwnrPlayerTypeDict, SidePlayerRaceDict
+from typing import Literal, TypedDict, cast
+from app.models.unit import Cost, Stat, Unit, UnitProperty, UnitRestriction
+from app.models.terrain import EraTilesetReverseDict, RawTerrain, Size, Tile, EraTilesetDict
+from app.models.player import Force, OwnrPlayerTypeReverseDict, Player, OwnrPlayerTypeDict, SidePlayerRaceDict, SidePlayerRaceReverseDict
 from app.models.location import Location
 from app.models.spatial import Position2D, RectPosition
 from app.models.sprite import Sprite
 from app.models.string import String
 from app.models.components.transform import Transform
 from app.models.components.weapon import Weapon
+from app.models.validation import Validation
+from app.models.mask import Mask
+from app.models.tech import TechRestriction, UpgradeRestriction, TechCost, Technology, UpgradeSetting
+from app.models.cost import Cost
+from app.models.rawtrigger import RawTriggerSection
+from app.models.project import RawMap, ScenarioProperty
 import struct
+import copy
+
 
 
 CHK_FORMATDICT: dict[str, str] = {
@@ -60,6 +68,7 @@ class CHK:
   string_table: list[String] = []
   player_table: list[Player] = []
   unitdata_table: list[Unit] = []
+  size: Size
   """Not placed unit table."""
 
   def __init__(self, chkt: EPCHK):
@@ -67,7 +76,11 @@ class CHK:
     self.string_table = self.get_strings()
     self.player_table = self.get_players()
     self.unitdata_table = self.get_units()
+    self.size = self.get_terrain().size
 
+  """
+  Unit section processings 
+  """
   def get_units(self) -> list[Unit]:
     if len(self.string_table) == 0:
       raise ValueError("Must initialize string table before call `get units`")
@@ -86,12 +99,11 @@ class CHK:
       result.append(
         Unit(
           id=id,
-          cost=Cost(mineral=unpacked[id + (228 * 6)], gas=unpacked[id + (228 * 5)]),
+          cost=Cost(mineral=unpacked[id + (228 * 6)], gas=unpacked[id + (228 * 5)], time=unpacked[id + (228 * 4)]),
           name=unit_name.content,
           hit_points=hit_points,
-          shield_hpoints=shield_points,
+          shield_points=shield_points,
           armor_points=unpacked[id + (228 * 3)],
-          build_time=unpacked[id + (228 * 4)],
           weapon=weapon,
           resource_amount=0,
           hangar=0,
@@ -102,9 +114,10 @@ class CHK:
 
     return result
 
-  def get_paced_units(self) -> list[Unit]:
+  def get_placed_units(self) -> list[Unit]:
     if len(self.unitdata_table) == 0:
       raise ValueError("Must initialize unitdata table before call `get_placed_units`")
+
     unit_bytes = self.chkt.getsection("UNIT")
     format_size = struct.calcsize(CHK_FORMATDICT["UNIT"])
     unit_count = len(unit_bytes) // format_size
@@ -115,15 +128,17 @@ class CHK:
         CHK_FORMATDICT["UNIT"], unit_bytes[i * format_size : (i + 1) * format_size]
       )
       unit_id: int = unit[3]
-      unitdata = self.unitdata_table[unit_id]
+      unitdata = copy.deepcopy(self.unitdata_table[unit_id])
 
+      unitdata.transform.position.x = unit[1]
+      unitdata.transform.position.y = unit[2]
       unitdata.serial_number = unit[0]
       unitdata.relation_type = unit[4]
-      unitdata.spetial_properties = unit[5]
+      unitdata.special_properties = unit[5]
       unitdata.valid_properties = unit[6]
-      unitdata.owner = unit[7]
-      unitdata.hit_points.current = unitdata.hit_points.max // unit[8] * 100
-      unitdata.shield_hpoints.current = unitdata.shield_hpoints.max // unit[9] * 100
+      unitdata.owner = self.player_table[unit[7]]
+      unitdata.hit_points.current = unitdata.hit_points.max * unit[8] // 100
+      unitdata.shield_points.current = unitdata.shield_points.max * unit[9] // 100
       unitdata.resource_amount = unit[10]
       unitdata.hangar = unit[11]
       unitdata.unit_state = unit[12]
@@ -205,8 +220,8 @@ class CHK:
       f"{dimension.height * dimension.width}H", self.chkt.getsection("MTXM")
     )
 
-    for y in range(dimension.height - 1):
-      for x in range(dimension.width - 1):
+    for y in range(dimension.height):
+      for x in range(dimension.width):
         tile = Tile(
           group=mtxm[y * dimension.width + x] >> 4,
           id=mtxm[y * dimension.width + x] & 0xF,
@@ -215,13 +230,16 @@ class CHK:
 
     return RawTerrain(size=dimension, tileset=EraTilesetDict[tileset], tile_id=tile_id)
 
+  """
+  Player section processings
+  """
   def get_players(self) -> list[Player]:
     ownr = struct.unpack(CHK_FORMATDICT["OWNR"], self.chkt.getsection("OWNR"))
     side = struct.unpack(CHK_FORMATDICT["SIDE"], self.chkt.getsection("SIDE"))
     colr = struct.unpack(CHK_FORMATDICT["COLR"], self.chkt.getsection("COLR"))
 
     result: list[Player] = [
-      Player(id=i, color=0, player_type="Computer", race="Inactive") for i in range(12)
+      Player(id=i, name=f"Player {i+1}", color=0, player_type="Computer", race="Inactive") for i in range(12)
     ]
 
     for index, player in enumerate(result):
@@ -253,6 +271,9 @@ class CHK:
     
     return result
 
+  """
+  Location section processing
+  """
   def get_locations(self) -> list[Location]:
     mrgn_bytes = self.chkt.getsection("MRGN")
     format_size = struct.calcsize(CHK_FORMATDICT["MRGN"])
@@ -260,21 +281,24 @@ class CHK:
 
     result: list[Location] = []
     for i in range(0, location_count):
-      mrgn = struct.unpack(
+      MRGN = struct.unpack(
         CHK_FORMATDICT["MRGN"], mrgn_bytes[i * format_size : (i + 1) * format_size]
       )
       result.append(
         Location(
           position=RectPosition(
-            Left=mrgn[0], Top=mrgn[1], Right=mrgn[2], bottom=mrgn[3]
+            Left=MRGN[0], Top=MRGN[1], Right=MRGN[2], bottom=MRGN[3]
           ),
-          name_id=mrgn[4],
-          elevation_flags=mrgn[5],
+          name_id=MRGN[4],
+          elevation_flags=MRGN[5],
         )
       )
 
     return result
 
+  """
+  Sprite section processing
+  """
   def get_sprites(self) -> list[Sprite]:
     thg2_bytes = self.chkt.getsection("THG2")
     format_size = struct.calcsize(CHK_FORMATDICT["THG2"])
@@ -288,17 +312,29 @@ class CHK:
       result.append(
         Sprite(
           id=sprite[0],
-          position=Position2D(x=sprite[1], y=sprite[2]),
-          player=sprite[3],
+          transform=Transform(
+            position=Position2D(
+              x=sprite[1],
+              y=sprite[2]
+            )
+          ),
+          owner=sprite[3],
           flags=sprite[5],
         )
       )
 
     return result
 
+  """
+  String section processing
+  """
   def get_strings(self) -> list[String]:
     str_bytes = self.chkt.getsection("STRx")
     string_count = struct.unpack("I", str_bytes[0:4])[0]
+    print("SC:", string_count)
+    offsets = [struct.unpack("I", str_bytes[i : i + 4])[0]
+               for i in range(4, 4 + 4 * string_count, 4)]
+    
 
     result: list[String] = []
     for i in range(string_count):
