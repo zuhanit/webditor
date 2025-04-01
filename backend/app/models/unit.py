@@ -3,12 +3,8 @@ from .player import Player
 from .object import Object
 from .components.weapon import Weapon
 from .entity import Entity
+from .cost import Cost
 from enum import Flag
-
-
-class Cost(BaseModel):
-  mineral: int = Field(default=0, ge=0)
-  gas: int = Field(default=0, ge=0)
 
 
 class Stat(Object):
