@@ -27,6 +27,10 @@ OwnrPlayerTypeDict: dict[int, PlayerType] = {
   8: "Closed Slot",
 }
 
+OwnrPlayerTypeReverseDict: dict[PlayerType, int] = {
+    v: k for k, v in OwnrPlayerTypeDict.items()
+}
+
 PlayerRace: TypeAlias = Literal[
   "Zerg",
   "Terran",
@@ -47,6 +51,10 @@ SidePlayerRaceDict: dict[int, PlayerRace] = {
   5: "User Selectable",
   6: "Random",
   7: "Inactive",
+}
+
+SidePlayerRaceReverseDict: dict[PlayerRace, int] = {
+  v: k for k, v in SidePlayerRaceDict.items()
 }
 
 
