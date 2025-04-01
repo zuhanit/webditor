@@ -6,7 +6,7 @@ from io import BytesIO
 from app.services.mapdata.chk import CHK
 from app.models.project import RawMap
 
-async def get_chkt(file: BytesIO) -> chktok.CHK:
+def get_chkt(file: BytesIO) -> chktok.CHK:
   """
   Get chkt class.
   
@@ -35,9 +35,39 @@ def get_chk_data(chk: CHK):
     terrain=chk.get_terrain(),
     player=chk.get_players(),
     location=chk.get_locations(),
-    placed_unit=chk.get_paced_units(),
+    placed_unit=chk.get_placed_units(),
     sprite=chk.get_sprites(),
-    string=chk.get_strings()
+    string=chk.get_strings(),
+    validation=chk.get_validation(),
+    mask=chk.get_mask(),
+    unit_properties=chk.get_unit_properties(),
+    upgrade_restrictions=chk.get_upgrade_restrictions(),
+    tech_restrictions=chk.get_tech_restrictions(),
+    upgrades=chk.get_upgrade_settings(),
+    technologies=chk.get_technologies(),
+    unit_restrictions=chk.get_unit_restrictions(),
+    raw_triggers=chk.get_triggers(),
+    raw_mbrf_triggers=chk.get_mbrf_triggers(),
+    force=chk.get_forces(),
+    scenario_property=chk.get_scenario_properties(),
   )
   
   return map
+
+async def chk_from_rawmap(rawMap: RawMap) -> CHK:
+  chkt = chktok.CHK()
+  
+  chk_bytes = bytes()
+  
+  chk_bytes += "VER ".encode()
+  chk_bytes += rawMap.validation.ver
+  
+  chk_bytes += "VCOD".encode()
+  chk_bytes += rawMap.validation.vcod
+  
+  chk_bytes += "OWNR".encode()
+  
+  chkt.loadchk()
+
+def compile_chk(chk: CHK):
+  ...
