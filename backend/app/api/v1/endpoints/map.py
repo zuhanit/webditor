@@ -29,7 +29,7 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
     blob.make_public()
     download_url = blob.public_url
 
-    chkt = await get_chkt(BytesIO(content))
+    chkt = get_chkt(BytesIO(content))
     chk = CHK(chkt)
 
     raw_map = get_chk_data(chk)
@@ -55,7 +55,7 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
 @router.get("/test_map")
 async def get_test_map():
   with open("./hello12345.scx", "rb") as f:
-    chkt = await get_chkt(BytesIO(f.read()))
+    chkt = get_chkt(BytesIO(f.read()))
     chk = CHK(chkt)
 
     raw_map = get_chk_data(chk)
