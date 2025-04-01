@@ -1,8 +1,8 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from firebase_admin import storage, firestore
 from app.core.firebase.auth import get_current_user
-from app.models.project import Project
-from app.services.mapdata.loadmap import get_chk_data, get_chkt
+from app.models.project import Project, RawMap
+from app.services.mapdata.io import get_chk_data, get_chkt
 from app.services.mapdata.chk import CHK
 from io import BytesIO
 import uuid
