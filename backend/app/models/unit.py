@@ -20,7 +20,6 @@ class Unit(Entity):
   shield_points: Stat = Stat(name="Shield Points")
   energy_points: Stat = Stat(name="Energy Points")
   armor_points: int = Field(default=0, lt=256)
-  build_time: int
   weapon: Weapon
   owner: Player = Player(player_type="Inactive", race="Inactive", color=0)
   resource_amount: int = 0
@@ -60,3 +59,20 @@ class UnitStateFlag(Flag):
   is_transit = 0b100
   hallucinated = 0b1000
   invincible = 0b10000
+
+class UnitProperty(Object):
+  """Create units with properties trigger used."""
+  special_properties: int
+  unit_data: int
+  owner: int = Field(default=0, le=1)
+  hit_point_percent: int = Field(default=1, le=100, ge=1)
+  shield_point_percent: int = Field(default=1, le=100, ge=1)
+  energy_point_percent: int = Field(default=1, le=100, ge=1)
+  resource_amount: int
+  units_in_hangar: int
+  flags: int
+  
+class UnitRestriction(Object):
+  availability: list[bool]
+  global_availability: bool
+  uses_defaults: list[bool]

@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Object(BaseModel):
   id: int = 0
-  name: str = ""
+  name: str = Field(default="")
