@@ -61,3 +61,8 @@ async def get_test_map():
     raw_map = get_chk_data(chk)
 
     return raw_map.model_dump(mode="json")
+  
+  
+@router.post("/compile")
+async def compile_map(rawMap: RawMap):
+  ...
