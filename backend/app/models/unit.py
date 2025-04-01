@@ -17,7 +17,8 @@ class Unit(Entity):
   """Identical number when unit placed on map. -1 When non-placed unit."""
   cost: Cost
   hit_points: Stat = Stat(name="Hit Points")
-  shield_hpoints: Stat = Stat(name="Shield Points")
+  shield_points: Stat = Stat(name="Shield Points")
+  energy_points: Stat = Stat(name="Energy Points")
   armor_points: int = Field(default=0, lt=256)
   build_time: int
   weapon: Weapon
@@ -27,7 +28,7 @@ class Unit(Entity):
   unit_state: int = 0
   relation_type: int = 0
   related_unit: int = 0
-  spetial_properties: int = 0
+  special_properties: int = 0
   valid_properties: int = 0
 
 
