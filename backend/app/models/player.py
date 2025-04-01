@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from enum import Flag
+from pydantic import BaseModel, Field
 from typing import TypeAlias, Literal
 from .object import Object
 
@@ -53,3 +54,14 @@ class Player(Object):
   color: int
   player_type: PlayerType
   race: PlayerRace
+  force: int = Field(default=0, lt=4, ge=0)
+
+
+class ForcePropertyFlag(Flag):
+  random_start_location = 0b00000001
+  allies = 0b00000010
+  allied_victory = 0b00000100
+  shared_vision = 0b00001000
+
+class Force(Object):
+  properties: int
