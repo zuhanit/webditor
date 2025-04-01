@@ -522,3 +522,345 @@ class CHK:
       )
       
     return result
+  
+  def get_triggers(self) -> RawTriggerSection:
+    trig_bytes = self.chkt.getsection("TRIG")
+
+    return RawTriggerSection(raw_data=trig_bytes)
+  
+  def get_mbrf_triggers(self) -> RawTriggerSection:
+    mbrf_bytes = self.chkt.getsection("MBRF")
+    
+    return RawTriggerSection(raw_data=mbrf_bytes)
+  
+
+def section(name: str, data: bytes) -> bytes:
+  header = struct.pack("<4sI", name.encode(), len(data))
+  return header + data
+
+class CHKSerializer():
+  def __init__(self, rawmap: RawMap):
+    self.rawmap = rawmap
+  
+  def to_bytes(self) -> bytes:
+    USED_SECTION = (
+        "VER", "VCOD", "OWNR", "SIDE", "COLR", "ERA", "DIM", "MTXM",
+        "UNIT", "PUNI", "UNIx", "PUPx", "UPGx", "THG2", "MASK", "MRGN",
+        "STRx", "SPRP", "FORC", "PTEx", "TECx", "MBRF", "TRIG", "UPRP"
+    )
+    b = bytearray()
+
+    for section_name in USED_SECTION:
+      try:
+        section_bytes = getattr(self, section_name)
+        b += section_bytes
+      except AttributeError:
+        print(f"Section '{section_name}' not implemented in CHKSerializer.") 
+    
+    return bytes(b)
+  
+  def find_string_by_content(self, content: str):
+    ref = next((s for s in self.rawmap.string if s.content == content), None)
+    if ref is None:
+      raise IndexError("Cannot find string on table.")
+
+    return ref
+
+  @property
+  def VER(self) -> bytes: 
+    return b"".join([
+      section("VER ", self.rawmap.validation.ver)
+    ])
+  
+  @property
+  def VCOD(self) -> bytes: 
+    # FIXME: Processing VCOD, checksum
+    return b"".join([
+      section("VCOD", self.rawmap.validation.vcod)
+    ])
+  
+  @property
+  def OWNR(self) -> bytes:
+    b = bytearray()
+    for p in self.rawmap.player:
+      b += OwnrPlayerTypeReverseDict[p.player_type].to_bytes(1, byteorder="little")
+
+    return section("OWNR", b)
+  
+  @property
+  def ERA(self) -> bytes:
+    b = EraTilesetReverseDict[self.rawmap.terrain.tileset].to_bytes(2, byteorder="little")
+    return section("ERA ", b)
+  
+  @property
+  def DIM(self) -> bytes:
+    b = struct.pack("<2H", self.rawmap.terrain.size.width, self.rawmap.terrain.size.height)
+    return section("DIM ", b)
+  
+  @property
+  def SIDE(self) -> bytes:
+    b = bytearray()
+    for p in self.rawmap.player:
+      b += SidePlayerRaceReverseDict[p.race].to_bytes(1, byteorder="little")
+    
+    return section("SIDE", b)
+  
+  @property
+  def MTXM(self) -> bytes:
+    b = bytearray()
+    
+    for y in range(self.rawmap.terrain.size.height):
+      for x in range(self.rawmap.terrain.size.width):
+        tile = self.rawmap.terrain.tile_id[y][x]
+        value = (tile.group << 4) | (tile.id & 0xF)
+        b += struct.pack("<H", value)
+    
+    return section("MTXM", b)
+  
+  @property
+  def PUNI(self) -> bytes:
+    b = bytearray()
+    availability = [struct.pack("<12B", *v.availability) for v in self.rawmap.unit_restrictions]
+    global_availability = [struct.pack("<B", v.global_availability) for v in self.rawmap.unit_restrictions]
+    uses_defaults = [struct.pack("<12B", *v.uses_defaults) for v in self.rawmap.unit_restrictions]
+
+    b += b"".join(availability)
+    b += b"".join(global_availability)
+    b += b"".join(uses_defaults)
+    
+    return section("PUNI", b)
+  
+  @property
+  def UPGx(self) -> bytes:
+    upgrade_settings = self.rawmap.upgrades
+    
+    b = struct.pack(
+      f"<61B B {6 * 61}H",
+      *[u.uses_default for u in upgrade_settings],
+      0, 
+      *[u.base_cost.mineral for u in upgrade_settings],
+      *[u.factor_cost.mineral for u in upgrade_settings],
+      *[u.base_cost.gas for u in upgrade_settings],
+      *[u.factor_cost.gas for u in upgrade_settings],
+      *[u.base_cost.time for u in upgrade_settings],
+      *[u.factor_cost.time for u in upgrade_settings],
+    )
+ 
+    return section("UPGx", b)
+  
+  @property
+  def PTEx(self) -> bytes:
+    b = bytearray()
+    
+    b += b"".join([struct.pack("<12B", *v.player_availability) for v in self.rawmap.tech_restrictions])
+    b += b"".join([struct.pack("<12B", *v.player_already_researched) for v in self.rawmap.tech_restrictions])
+    b += b"".join([struct.pack("<B", v.default_availability) for v in self.rawmap.tech_restrictions])
+    b += b"".join([struct.pack("<B", v.default_already_researched) for v in self.rawmap.tech_restrictions])
+    b += b"".join([struct.pack("<12B", *v.uses_default) for v in self.rawmap.tech_restrictions])
+    
+    return section("PTEx", b)
+  
+  @property
+  def UNIT(self) -> bytes:
+    b = bytearray()
+    
+    for unit in self.rawmap.placed_unit:
+      b += struct.pack( 
+        "<I 6H 4B I 2H 2I",
+        unit.serial_number,
+        unit.transform.position.x,
+        unit.transform.position.y,
+        unit.id,
+        unit.relation_type,
+        unit.special_properties,
+        unit.valid_properties,
+        unit.owner.id,
+        unit.hit_points.current * 100 // unit.hit_points.max,
+        unit.shield_points.current * 100 // unit.shield_points.max,
+        unit.energy_points.current,
+        unit.resource_amount,
+        unit.hangar,
+        unit.unit_state,
+        0,
+        unit.related_unit
+      )
+
+    return section("UNIT", b)
+  
+  @property
+  def THG2(self) -> bytes:
+    b = bytearray()
+    
+    for sprite in self.rawmap.sprite:
+      b += struct.pack(
+        "<3H2BH",
+        sprite.id,
+        sprite.transform.position.x,
+        sprite.transform.position.y,
+        sprite.owner,
+        0,
+        sprite.flags
+      )
+    
+    return section("THG2", b)
+  
+  @property
+  def MASK(self) -> bytes:
+    b = bytearray()
+    height, width = self.rawmap.terrain.size.height, self.rawmap.terrain.size.width
+    
+    for y in range(height):
+      for x in range(width):
+        b += struct.pack("<B", self.rawmap.mask[y * width + x].flags)
+    
+    return section("MASK", b)
+  
+  @property
+  def STRx(self, encoding: Literal["utf-8", "CP949"] = "utf-8") -> bytes:
+    b = bytearray()
+    string_count = len(self.rawmap.string)
+     
+    offset = 4 + 4 * string_count
+
+    b += struct.pack("<I", len(self.rawmap.string))
+    offsets = []
+
+    binary_string = bytearray()
+    string_table = {}
+    for string in self.rawmap.string:
+      encoded_content = string.content.encode(encoding) + b"\x00"
+      # Duplicated string offset
+      if (encoded_content in string_table):
+        offsets.append(string_table[encoded_content])
+      else: 
+        string_table[encoded_content] = offset
+        offsets.append(offset)
+        offset += len(encoded_content)
+        binary_string += encoded_content
+      
+    for o in offsets:
+      b += struct.pack("<I", o)
+    
+    b.extend(binary_string)
+    return section("STRx", b)
+  
+  @property
+  def UPRP(self) -> bytes:
+    b = bytearray()
+    
+    for uproperty in self.rawmap.unit_properties:
+      b += struct.pack(
+        "<2H4BI2HI",
+        uproperty.special_properties,
+        uproperty.unit_data,
+        0, # Owner in UPRP section always NULL
+        uproperty.hit_point_percent,
+        uproperty.shield_point_percent,
+        uproperty.energy_point_percent,
+        uproperty.resource_amount,
+        uproperty.units_in_hangar,
+        uproperty.flags,
+        0, # Unknown/unused. Padding?
+      )
+    
+    return section("UPRP", b)
+  
+  @property
+  def MRGN(self) -> bytes:
+    b = bytearray()
+    
+    for location in self.rawmap.location:
+      b += struct.pack(
+        "<4I2H",
+        location.position.Left,
+        location.position.Top,
+        location.position.Right,
+        location.position.bottom,
+        location.name_id,
+        location.elevation_flags
+      )
+    
+    return section("MRGN", b)
+  
+  @property
+  def TRIG(self) -> bytes:
+    b = self.rawmap.raw_triggers.raw_data
+    return section("TRIG", b)
+  
+  @property
+  def MBRF(self) -> bytes:
+    b = self.rawmap.raw_mbrf_triggers.raw_data
+    return section("MBRF", b)
+  
+  @property
+  def SPRP(self) -> bytes:
+    b = struct.pack("<2H",
+      self.rawmap.scenario_property.name.id + 1,
+      self.rawmap.scenario_property.description.id + 1
+    )
+     
+    return section("SPRP", b)
+  
+  @property
+  def FORC(self) -> bytes:
+    b = struct.pack(
+      "8B4H4B",
+      *[p.force for p in self.rawmap.player[:8]],
+      *[self.find_string_by_content(f.name).id + 1 for f in self.rawmap.force],
+      *[f.properties for f in self.rawmap.force]
+    )
+    
+    return section("FORC", b)
+
+  @property
+  def COLR(self) -> bytes:
+    b = struct.pack("8B", *[p.color for p in self.rawmap.player[:8]])
+    return section("COLR", b)
+  
+  @property
+  def PUPx(self) -> bytes:
+    restrictions = self.rawmap.upgrade_restrictions
+    b = struct.pack(
+      f"{61 * 12}B {61 * 12}B {61 * 2}B {61 * 12}B",
+      *[b for v in restrictions for b in v.player_maximum_level],
+      *[b for v in restrictions for b in v.player_minimum_level],
+      *[v.default_maximum_level for v in restrictions],
+      *[v.default_minimum_level for v in restrictions],
+      *[b for v in restrictions for b in v.uses_default],
+    )
+
+    return section("PUPx", b)
+  
+  @property
+  def UNIx(self) -> bytes:
+    units = self.rawmap.unit
+    b = struct.pack(
+      f"228B 228I 228H 228B {4 * 228}H {2 * 130}H",
+      *[u.id for u in units],
+      *[u.hit_points.max for u in units],
+      *[u.shield_points.max for u in units],
+      *[u.armor_points for u in units],
+      *[u.cost.time for u in units],
+      *[u.cost.mineral for u in units],
+      *[u.cost.gas for u in units],
+      *[self.find_string_by_content(u.name).id for u in units],
+      # FIXME: Use weapons.dat
+      *[u.weapon.base_damage for u in units[:130]],
+      *[u.weapon.damage_factor for u in units[:130]], 
+    )
+    
+    return section("UNIx", b)
+  
+  @property 
+  def TECx(self) -> bytes:
+    technologies = self.rawmap.technologies
+    b = struct.pack(
+      f"44B {4 * 44}H",
+      *[t.use_default for t in technologies],
+      *[t.cost.mineral for t in technologies],
+      *[t.cost.gas for t in technologies],
+      *[t.cost.time for t in technologies],
+      *[t.cost.energy for t in technologies],
+    )
+    
+    return section("TECx", b)
