@@ -331,7 +331,6 @@ class CHK:
   def get_strings(self) -> list[String]:
     str_bytes = self.chkt.getsection("STRx")
     string_count = struct.unpack("I", str_bytes[0:4])[0]
-    print("SC:", string_count)
     offsets = [struct.unpack("I", str_bytes[i : i + 4])[0]
                for i in range(4, 4 + 4 * string_count, 4)]
     
