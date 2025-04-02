@@ -1,10 +1,15 @@
+import os
+from eudplib import CompressPayload, GetChkTokenized 
 from eudplib.core.mapdata import chktok, mapdata
+from eudplib.maprw.savemap import SaveMap
+from eudplib.maprw.loadmap import LoadMap 
 from eudplib.bindings._rust import mpqapi
 from fastapi import UploadFile 
 from tempfile import NamedTemporaryFile
 from io import BytesIO
-from app.services.mapdata.chk import CHK
+from app.services.mapdata.chk import CHK, CHKSerializer
 from app.models.project import RawMap
+import uuid
 
 def get_chkt(file: BytesIO) -> chktok.CHK:
   """
@@ -54,20 +59,45 @@ def get_chk_data(chk: CHK):
   
   return map
 
-async def chk_from_rawmap(rawMap: RawMap) -> CHK:
-  chkt = chktok.CHK()
+def build_map(rawmap: RawMap, delete: bool = True):
+  """Build map by eudplib.
   
-  chk_bytes = bytes()
+  This function uses `eudplib.LoadMap()` and `eudplib.SaveMap()` internally,
+  and eudplib maprw needs original map to initialize map data. So using any
+  uncompressed/unprotected map that will be overwritten by rawmap data and
+  overrides. In webditor, uses (2)Bottleneck.scx
   
-  chk_bytes += "VER ".encode()
-  chk_bytes += rawMap.validation.ver
-  
-  chk_bytes += "VCOD".encode()
-  chk_bytes += rawMap.validation.vcod
-  
-  chk_bytes += "OWNR".encode()
-  
-  chkt.loadchk()
+  Args:
+      rawmap (RawMap): A RawMap object that contains structured map data to serialize.
+      delete (bool, optional): If True, deletes the temporary output file after reading. Defaults to True.
 
-def compile_chk(chk: CHK):
-  ...
+  Returns:
+      bytes: The compiled SCX map file content as raw bytes.
+  """ 
+  def _rootf():
+    # FIXME: Real root function
+    ...
+
+  original_fname = "./app/services/rawdata/original.scx"
+  serializer = CHKSerializer(rawmap)
+  
+  LoadMap(original_fname)
+  serialized_chkt = chktok.CHK()
+  serialized_chkt.loadchk(serializer.to_bytes())
+  
+  with open(original_fname, "rb") as f:
+    rawfile = f.read() 
+    mapdata.init_map_data(serialized_chkt, rawfile)
+  
+  temp_output_fname = "./output/" + str(uuid.uuid4()) + ".scx"
+  
+  CompressPayload(True)
+  SaveMap(temp_output_fname, _rootf)
+  
+  with open(temp_output_fname, "rb") as f:
+    map_bytes = f.read()
+    
+  if delete:
+    os.remove(temp_output_fname)
+
+  return map_bytes
