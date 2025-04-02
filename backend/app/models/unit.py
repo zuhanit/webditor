@@ -65,9 +65,9 @@ class UnitProperty(Object):
   special_properties: int
   unit_data: int
   owner: int = Field(default=0, le=1)
-  hit_point_percent: int = Field(default=1, le=100, ge=1)
-  shield_point_percent: int = Field(default=1, le=100, ge=1)
-  energy_point_percent: int = Field(default=1, le=100, ge=1)
+  hit_point_percent: int = Field(default=1, le=100, ge=0)
+  shield_point_percent: int = Field(default=1, le=100, ge=0)
+  energy_point_percent: int = Field(default=1, le=100, ge=0)
   resource_amount: int
   units_in_hangar: int
   flags: int
