@@ -1,8 +1,9 @@
-import Image from "next/image";
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import useTileGroup from "@/hooks/useTileGroup";
 import useTilesetData from "@/hooks/useTilesetData";
-import useRawMap from "@/hooks/useRawMap";
+import { useRawMapStore } from "@/store/mapStore";
 
 function drawMegatile(
   ctx: CanvasRenderingContext2D,
@@ -32,7 +33,8 @@ export const MapImage = () => {
   const mapCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const tileGroup = useTileGroup();
   const tilesetData = useTilesetData();
-  const { data: rawmap, isLoading, isError } = useRawMap("test_map");
+  const rawmap = useRawMapStore((state) => state.rawMap);
+
   const [viewport, setViewport] = useState({
     startX: 0,
     startY: 0,

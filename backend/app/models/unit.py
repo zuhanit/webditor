@@ -3,12 +3,8 @@ from .player import Player
 from .object import Object
 from .components.weapon import Weapon
 from .entity import Entity
+from .cost import Cost
 from enum import Flag
-
-
-class Cost(BaseModel):
-  mineral: int = Field(default=0, ge=0)
-  gas: int = Field(default=0, ge=0)
 
 
 class Stat(Object):
@@ -21,9 +17,9 @@ class Unit(Entity):
   """Identical number when unit placed on map. -1 When non-placed unit."""
   cost: Cost
   hit_points: Stat = Stat(name="Hit Points")
-  shield_hpoints: Stat = Stat(name="Shield Points")
+  shield_points: Stat = Stat(name="Shield Points")
+  energy_points: Stat = Stat(name="Energy Points")
   armor_points: int = Field(default=0, lt=256)
-  build_time: int
   weapon: Weapon
   owner: Player = Player(player_type="Inactive", race="Inactive", color=0)
   resource_amount: int = 0
@@ -31,7 +27,7 @@ class Unit(Entity):
   unit_state: int = 0
   relation_type: int = 0
   related_unit: int = 0
-  spetial_properties: int = 0
+  special_properties: int = 0
   valid_properties: int = 0
 
 
@@ -63,3 +59,20 @@ class UnitStateFlag(Flag):
   is_transit = 0b100
   hallucinated = 0b1000
   invincible = 0b10000
+
+class UnitProperty(Object):
+  """Create units with properties trigger used."""
+  special_properties: int
+  unit_data: int
+  owner: int = Field(default=0, le=1)
+  hit_point_percent: int = Field(default=1, le=100, ge=0)
+  shield_point_percent: int = Field(default=1, le=100, ge=0)
+  energy_point_percent: int = Field(default=1, le=100, ge=0)
+  resource_amount: int
+  units_in_hangar: int
+  flags: int
+  
+class UnitRestriction(Object):
+  availability: list[bool]
+  global_availability: bool
+  uses_defaults: list[bool]
