@@ -13,6 +13,7 @@ import { LayerBar, LayerBarButton } from "./LayerBar";
 import { MapImage } from "./MapImage";
 import { Project } from "./Project";
 import { TopBar, TopBarButton } from "./topbar/TopBar";
+import api from "@/lib/api";
 
 export default function Editor() {
   const [selectedItem, setSelectedItem] = useState<SideBarItem<Item> | null>(
@@ -27,7 +28,29 @@ export default function Editor() {
   if (!rawMap) return <div>Loading...</div>;
 
   // FIXME: Compiling test button, please remove this after.
-  const onClickCompile = () => {};
+  const onClickBuild = async () => {
+    if (!rawMap) return;
+
+    try {
+      const response = await api.post("/api/v1/maps/build", rawMap.rawMap, {
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], {
+        type: "application/octet-stream",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "compiled_map.scx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to compile map:", error);
+    }
+  };
 
   return (
     <div className="flex h-screen flex-col">
@@ -41,7 +64,7 @@ export default function Editor() {
           <TopBarButton label="View" />
           <TopBarButton label="Selection" />
           <TopBarButton label="Help" />
-          <TopBarButton label="Compile" />
+          <TopBarButton label="Build" onClick={onClickBuild} />
         </div>
       </TopBar>
       <Resizable className="flex overflow-auto" enable={{ bottom: true }}>
