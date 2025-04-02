@@ -675,8 +675,8 @@ class CHKSerializer():
         unit.special_properties,
         unit.valid_properties,
         unit.owner.id,
-        unit.hit_points.current * 100 // unit.hit_points.max,
-        unit.shield_points.current * 100 // unit.shield_points.max,
+        unit.hit_points.current * 100 // unit.hit_points.max if unit.hit_points.max != 0 else 100,
+        unit.shield_points.current * 100 // unit.shield_points.max if unit.shield_points.max != 0 else 100,
         unit.energy_points.current,
         unit.resource_amount,
         unit.hangar,
@@ -804,7 +804,7 @@ class CHKSerializer():
   @property
   def FORC(self) -> bytes:
     b = struct.pack(
-      "8B4H4B",
+      "<8B4H4B",
       *[p.force for p in self.rawmap.player[:8]],
       *[self.find_string_by_content(f.name).id + 1 for f in self.rawmap.force],
       *[f.properties for f in self.rawmap.force]
