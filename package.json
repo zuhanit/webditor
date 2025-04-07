@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"pnpm run fastapi-dev\" \"pnpm run next-dev\"",
     "next-dev": "cd frontend && pnpm run dev",
-    "fastapi-dev": "source ./backend/.venv/bin/activate && cd backend && fastapi dev ./app/main.py",
+    "fastapi-dev": "source ./backend/.venv/bin/activate && cd backend && uv pip install -e ../wengine && fastapi dev ./app/main.py",
     "preprocess": "source ./preprocess/.venv/bin/activate && sh scripts/preprocess.sh",
     "gen-types": "sh ./scripts/schema_generator.sh"
   },
