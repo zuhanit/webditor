@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from .spatial import Position2D
 from .entity import Entity
-from .components.transform import Transform
+from .components.transform import TransformComponent
 from enum import IntFlag
 
 

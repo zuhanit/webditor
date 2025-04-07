@@ -1,5 +1,5 @@
 from .object import Object
-from .components.transform import Transform
+from .components.transform import TransformComponent
 from .spatial import Position2D
 
 
@@ -8,4 +8,4 @@ class Entity(Object):
   Placeable `object`.
   """
 
-  transform: Transform = Transform(position=Position2D(x=0, y=0))
+  transform: TransformComponent = TransformComponent(position=Position2D(x=0, y=0))
