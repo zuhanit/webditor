@@ -4,7 +4,7 @@ from .player import Player
 from .sprite import Sprite
 from .string import String
 from .terrain import RawTerrain
-from .unit import Unit
+from .unit import CHKUnit
 
 __all__ = [
   "Location",
@@ -13,5 +13,5 @@ __all__ = [
   "Sprite",
   "String",
   "RawTerrain",
-  "Unit",
+  "CHKUnit",
 ]
