@@ -1,27 +1,26 @@
 from pydantic import BaseModel
 import datetime
 
+from .definitions.weapon_definition import CHKWeapon, WeaponDefinition
 from .location import Location
 from .player import Force, Player
 from .sprite import Sprite
 from .string import String
 from .terrain import RawTerrain
-from .unit import Unit, UnitProperty, UnitRestriction
+from .unit import Unit, CHKUnit, UnitProperty, UnitRestriction
 from .validation import Validation
 from .mask import Mask
-from .tech import TechRestriction, Technology, UpgradeRestriction, UpgradeSetting
+from .tech import TechRestriction, CHKTechnology, Technology, Upgrade, UpgradeRestriction, UpgradeSetting
 from .rawtrigger import RawTriggerSection
 
 class ScenarioProperty(BaseModel):
   name: String
   description: String
-
-class RawMap(BaseModel):
-  unit: list[Unit]
-  terrain: RawTerrain
+  
+class _Map(BaseModel):
+  terrain: RawTerrain 
   player: list[Player]
   location: list[Location]
-  placed_unit: list[Unit]
   sprite: list[Sprite]
   string: list[String]
   validation: Validation
@@ -29,13 +28,25 @@ class RawMap(BaseModel):
   unit_properties: list[UnitProperty]
   upgrade_restrictions: list[UpgradeRestriction]
   tech_restrictions: list[TechRestriction]
-  upgrades: list[UpgradeSetting]
-  technologies: list[Technology]
   unit_restrictions: list[UnitRestriction]
   raw_triggers: RawTriggerSection
   raw_mbrf_triggers: RawTriggerSection
   force: list[Force]
   scenario_property: ScenarioProperty
+
+class CHKMap(_Map):
+  unit: list[CHKUnit]
+  placed_unit: list[CHKUnit]
+  technologies: list[CHKTechnology]
+  weapons: list[CHKWeapon]
+  upgrades: list[UpgradeSetting]
+  
+class Map(_Map):
+  unit: list[Unit]
+  placed_unit: list[Unit]
+  technologies: list[Technology]
+  weapons: list[WeaponDefinition]
+  upgrades: list[Upgrade]
 
 class Project(BaseModel):
   filename: str
