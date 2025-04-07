@@ -1,7 +1,7 @@
 from io import BytesIO
 from eudplib import GetChkTokenized
-from app.services.mapdata.chk import CHK, CHKSerializer
-from app.services.mapdata.io import build_map, get_chk_data, get_chkt
+from app.services.mapdata.chk import CHK, CHKBuilder
+from app.services.mapdata.io import build_map, get_chk_data, get_chkt, get_map
 from eudplib.core.mapdata.chktok import CHK as EPCHK
 from eudplib.maprw.loadmap import LoadMap
 from rich.console import Console
@@ -89,9 +89,9 @@ def build(filename: str):
   with open(filename, "rb") as f:
     chkt = get_chkt(BytesIO(f.read()))
     chk = CHK(chkt)
-    raw_map = get_chk_data(chk)
+    map = get_map(chk)
     
-    serializer = CHKSerializer(raw_map) 
+    serializer = CHKBuilder(map)
     serialized_result = serializer.to_bytes()
     
     LoadMap(filename)
@@ -105,7 +105,7 @@ def build(filename: str):
     You can set delete=False to get file, but filename will be randomized UUID.
     I recommend save map by with open("YOUR_PATH_TO_SAVE_MAP") as f: and save by mandatory.
     """
-    map_bytes = build_map(raw_map)
+    map_bytes = build_map(map)
     with open(output_filename, "wb") as outf:
       outf.write(map_bytes)
   
