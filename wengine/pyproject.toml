@@ -1,0 +1,24 @@
+[project]
+name = "wengine"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Zuhanit",email = "zuhanit3@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+]
+
+[tool.poetry]
+packages = [
+    { include = "wengine", from = "src" },
+]
+
+[tool.poetry.dependencies]
+eudplib = { file = "../eudplib-0.80.0-cp310-abi3-macosx_11_0_arm64.whl" }
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
