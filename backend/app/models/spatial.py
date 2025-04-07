@@ -5,11 +5,11 @@ class Size(BaseModel):
   width: int
 
 class RectPosition(BaseModel):
-  Left: int
-  Top: int
-  Right: int
+  left: int
+  top: int
+  right: int
   bottom: int
   
 class Position2D(BaseModel):
-  x: int
-  y: int
+  x: int = 0
+  y: int = 0
