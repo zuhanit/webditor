@@ -12,6 +12,16 @@
       "env": {
         "PYTHONPATH": "${workspaceFolder}/backend"
       }
+    },
+
+    {
+      "name": "Python Debugger: Preprocess Python File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/preprocess"
+      }
     }
   ]
 }
