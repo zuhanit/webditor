@@ -20,11 +20,27 @@ class TechRestriction(Object):
 class TechCost(Cost):
   energy: int = Field(default=0, ge=0)
   
+class CHKTechnology(Object):
+  use_default: bool
+  cost: TechCost
+  
 class Technology(Object):
   use_default: bool
   cost: TechCost
+  energy_required: bool
+  icon: int
+  label: int
+  race: int
   
 class UpgradeSetting(Object):
   uses_default: bool
   base_cost: Cost
   factor_cost: Cost
+
+class Upgrade(Object):
+  use_default: bool
+  base_cost: Cost
+  factor_cost: Cost
+  icon: int
+  label: int
+  race: int

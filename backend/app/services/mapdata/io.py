@@ -1,14 +1,15 @@
 import os
-from eudplib import CompressPayload, GetChkTokenized 
+from app.services.merger import Merger
+from eudplib import CompressPayload
 from eudplib.core.mapdata import chktok, mapdata
 from eudplib.maprw.savemap import SaveMap
 from eudplib.maprw.loadmap import LoadMap 
 from eudplib.bindings._rust import mpqapi
-from fastapi import UploadFile 
 from tempfile import NamedTemporaryFile
 from io import BytesIO
-from app.services.mapdata.chk import CHK, CHKSerializer
-from app.models.project import RawMap
+from app.services.mapdata.chk import CHK, CHKBuilder
+from app.models.project import CHKMap, Map
+from app.services.bridge.transformer import Transformer
 import uuid
 
 def get_chkt(file: BytesIO) -> chktok.CHK:
@@ -35,7 +36,7 @@ def get_chkt(file: BytesIO) -> chktok.CHK:
 def get_chk_data(chk: CHK):
   """
   """
-  map = RawMap(
+  map = CHKMap(
     unit=chk.get_units(),
     terrain=chk.get_terrain(),
     player=chk.get_players(),
@@ -55,11 +56,41 @@ def get_chk_data(chk: CHK):
     raw_mbrf_triggers=chk.get_mbrf_triggers(),
     force=chk.get_forces(),
     scenario_property=chk.get_scenario_properties(),
+    weapons=chk.get_weapons(),
   )
   
   return map
 
-def build_map(rawmap: RawMap, delete: bool = True):
+def get_map(chk: CHK):
+  """
+  """
+  merger = Merger(chk)
+  map: Map = Map(
+    unit=merger.merge_unit(),
+    terrain=chk.get_terrain(),
+    player=chk.get_players(),
+    location=chk.get_locations(),
+    placed_unit=merger.merge_placed_unit(),
+    sprite=chk.get_sprites(),
+    string=chk.get_strings(),
+    validation=chk.get_validation(),
+    mask=chk.get_mask(),
+    unit_properties=chk.get_unit_properties(),
+    upgrade_restrictions=chk.get_upgrade_restrictions(),
+    tech_restrictions=chk.get_tech_restrictions(),
+    upgrades=merger.merge_upgrade(),
+    technologies=merger.merge_tech(),
+    unit_restrictions=chk.get_unit_restrictions(),
+    raw_triggers=chk.get_triggers(),
+    raw_mbrf_triggers=chk.get_mbrf_triggers(),
+    force=chk.get_forces(),
+    scenario_property=chk.get_scenario_properties(),
+    weapons=merger.merge_weapon(),
+  )
+  
+  return map
+
+def build_map(map: Map, delete: bool = True):
   """Build map by eudplib.
   
   This function uses `eudplib.LoadMap()` and `eudplib.SaveMap()` internally,
@@ -74,12 +105,13 @@ def build_map(rawmap: RawMap, delete: bool = True):
   Returns:
       bytes: The compiled SCX map file content as raw bytes.
   """ 
-  def _rootf():
-    # FIXME: Real root function
-    ...
+  # original_fname = "./app/services/rawdata/original.scx"
+  original_fname = "/Volumes/External/Programming/webditor/backend/app/services/rawdata/original.scx"
 
-  original_fname = "./app/services/rawdata/original.scx"
-  serializer = CHKSerializer(rawmap)
+  serializer = CHKBuilder(map)
+
+  transformer = Transformer(map)
+  rootf = transformer.transform()
   
   LoadMap(original_fname)
   serialized_chkt = chktok.CHK()
@@ -91,8 +123,9 @@ def build_map(rawmap: RawMap, delete: bool = True):
   
   temp_output_fname = "./output/" + str(uuid.uuid4()) + ".scx"
   
+  
   CompressPayload(True)
-  SaveMap(temp_output_fname, _rootf)
+  SaveMap(temp_output_fname, rootf)
   
   with open(temp_output_fname, "rb") as f:
     map_bytes = f.read()

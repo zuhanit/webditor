@@ -1,20 +1,19 @@
 from eudplib.core.mapdata.chktok import CHK as EPCHK
 from typing import Literal, TypedDict, cast
-from app.models.unit import Cost, Stat, Unit, UnitProperty, UnitRestriction
+from app.models.unit import Cost, Stat, CHKUnit, UnitProperty, UnitRestriction
 from app.models.terrain import EraTilesetReverseDict, RawTerrain, Size, Tile, EraTilesetDict
 from app.models.player import Force, OwnrPlayerTypeReverseDict, Player, OwnrPlayerTypeDict, SidePlayerRaceDict, SidePlayerRaceReverseDict
 from app.models.location import Location
 from app.models.spatial import Position2D, RectPosition
 from app.models.sprite import Sprite
 from app.models.string import String
-from app.models.components.transform import Transform
-from app.models.components.weapon import Weapon
+from app.models.components.transform import TransformComponent
+from app.models.definitions.weapon_definition import CHKWeapon, Damage
 from app.models.validation import Validation
 from app.models.mask import Mask
-from app.models.tech import TechRestriction, UpgradeRestriction, TechCost, Technology, UpgradeSetting
-from app.models.cost import Cost
+from app.models.tech import TechRestriction, UpgradeRestriction, TechCost, CHKTechnology, UpgradeSetting
 from app.models.rawtrigger import RawTriggerSection
-from app.models.project import RawMap, ScenarioProperty
+from app.models.project import CHKMap, Map, ScenarioProperty
 import struct
 import copy
 
@@ -63,11 +62,11 @@ class CHK:
   Base class for unpacking raw chk contents, transforming Model.
   """
 
-  units: list[Unit]
+  units: list[CHKUnit]
   chkt: EPCHK
   string_table: list[String] = []
   player_table: list[Player] = []
-  unitdata_table: list[Unit] = []
+  unitdata_table: list[CHKUnit] = []
   size: Size
   """Not placed unit table."""
 
@@ -81,11 +80,11 @@ class CHK:
   """
   Unit section processings 
   """
-  def get_units(self) -> list[Unit]:
+  def get_units(self) -> list[CHKUnit]:
     if len(self.string_table) == 0:
       raise ValueError("Must initialize string table before call `get units`")
 
-    result: list[Unit] = []
+    result: list[CHKUnit] = []
 
     unpacked = struct.unpack(CHK_FORMATDICT["UNIx"], self.chkt.getsection("UNIx"))
     for id in range(228):
@@ -95,16 +94,14 @@ class CHK:
       shield_points = Stat(
         current=unpacked[id + (228 * 2)], max=unpacked[id + (228 * 2)]
       )
-      weapon = Weapon()
       result.append(
-        Unit(
+        CHKUnit(
           id=id,
           cost=Cost(mineral=unpacked[id + (228 * 6)], gas=unpacked[id + (228 * 5)], time=unpacked[id + (228 * 4)]),
           name=unit_name.content,
           hit_points=hit_points,
           shield_points=shield_points,
           armor_points=unpacked[id + (228 * 3)],
-          weapon=weapon,
           resource_amount=0,
           hangar=0,
           unit_state=0,
@@ -114,7 +111,7 @@ class CHK:
 
     return result
 
-  def get_placed_units(self) -> list[Unit]:
+  def get_placed_units(self) -> list[CHKUnit]:
     if len(self.unitdata_table) == 0:
       raise ValueError("Must initialize unitdata table before call `get_placed_units`")
 
@@ -122,7 +119,7 @@ class CHK:
     format_size = struct.calcsize(CHK_FORMATDICT["UNIT"])
     unit_count = len(unit_bytes) // format_size
 
-    result: list[Unit] = []
+    result: list[CHKUnit] = []
     for i in range(0, unit_count):
       unit = struct.unpack(
         CHK_FORMATDICT["UNIT"], unit_bytes[i * format_size : (i + 1) * format_size]
@@ -202,6 +199,21 @@ class CHK:
         ))
   
     return result
+  
+  """
+  Weapon section processing.
+  """
+  def get_weapons(self) -> list[CHKWeapon]:
+    result: list[CHKWeapon] = []
+
+    unpacked = struct.unpack(CHK_FORMATDICT["UNIx"], self.chkt.getsection("UNIx"))[228 * 8:]
+    for id in range(130):
+      result.append(CHKWeapon(
+        damage=Damage(amount=unpacked[id], bonus=unpacked[130 + id], factor=0)
+      ))
+
+    return result
+    
 
   """
   Terrain section processing 
@@ -287,7 +299,7 @@ class CHK:
       result.append(
         Location(
           position=RectPosition(
-            Left=MRGN[0], Top=MRGN[1], Right=MRGN[2], bottom=MRGN[3]
+            left=MRGN[0], top=MRGN[1], right=MRGN[2], bottom=MRGN[3]
           ),
           name_id=MRGN[4],
           elevation_flags=MRGN[5],
@@ -312,7 +324,7 @@ class CHK:
       result.append(
         Sprite(
           id=sprite[0],
-          transform=Transform(
+          transform=TransformComponent(
             position=Position2D(
               x=sprite[1],
               y=sprite[2]
@@ -494,7 +506,7 @@ class CHK:
 
       return result
   
-  def get_technologies(self) -> list[Technology]:
+  def get_technologies(self) -> list[CHKTechnology]:
     tecx_bytes = self.chkt.getsection("TECx")
     TECx = struct.unpack("44B 44H 44H 44H 44H", tecx_bytes)
     
@@ -505,10 +517,10 @@ class CHK:
     TIME_COST_OFFSET = GAS_COST_OFFSET + TECH_COUNT
     ENERGY_COST_OFFSET = TIME_COST_OFFSET + TECH_COUNT
     
-    result: list[Technology] = [] 
+    result: list[CHKTechnology] = [] 
     for i in range(TECH_COUNT):
       result.append(
-        Technology(
+        CHKTechnology(
           id=i,
           use_default=TECx[USE_DEFAULT_OFFSET + i : USE_DEFAULT_OFFSET + i + 1][0],
           cost=TechCost(
@@ -537,9 +549,9 @@ def section(name: str, data: bytes) -> bytes:
   header = struct.pack("<4sI", name.encode(), len(data))
   return header + data
 
-class CHKSerializer():
-  def __init__(self, rawmap: RawMap):
-    self.rawmap = rawmap
+class CHKBuilder():
+  def __init__(self, map: Map):
+    self.map = map
   
   def to_bytes(self) -> bytes:
     USED_SECTION = (
@@ -559,7 +571,7 @@ class CHKSerializer():
     return bytes(b)
   
   def find_string_by_content(self, content: str):
-    ref = next((s for s in self.rawmap.string if s.content == content), None)
+    ref = next((s for s in self.map.string if s.content == content), None)
     if ref is None:
       raise IndexError("Cannot find string on table.")
 
@@ -568,38 +580,38 @@ class CHKSerializer():
   @property
   def VER(self) -> bytes: 
     return b"".join([
-      section("VER ", self.rawmap.validation.ver)
+      section("VER ", self.map.validation.ver)
     ])
   
   @property
   def VCOD(self) -> bytes: 
     # FIXME: Processing VCOD, checksum
     return b"".join([
-      section("VCOD", self.rawmap.validation.vcod)
+      section("VCOD", self.map.validation.vcod)
     ])
   
   @property
   def OWNR(self) -> bytes:
     b = bytearray()
-    for p in self.rawmap.player:
+    for p in self.map.player:
       b += OwnrPlayerTypeReverseDict[p.player_type].to_bytes(1, byteorder="little")
 
     return section("OWNR", b)
   
   @property
   def ERA(self) -> bytes:
-    b = EraTilesetReverseDict[self.rawmap.terrain.tileset].to_bytes(2, byteorder="little")
+    b = EraTilesetReverseDict[self.map.terrain.tileset].to_bytes(2, byteorder="little")
     return section("ERA ", b)
   
   @property
   def DIM(self) -> bytes:
-    b = struct.pack("<2H", self.rawmap.terrain.size.width, self.rawmap.terrain.size.height)
+    b = struct.pack("<2H", self.map.terrain.size.width, self.map.terrain.size.height)
     return section("DIM ", b)
   
   @property
   def SIDE(self) -> bytes:
     b = bytearray()
-    for p in self.rawmap.player:
+    for p in self.map.player:
       b += SidePlayerRaceReverseDict[p.race].to_bytes(1, byteorder="little")
     
     return section("SIDE", b)
@@ -608,9 +620,9 @@ class CHKSerializer():
   def MTXM(self) -> bytes:
     b = bytearray()
     
-    for y in range(self.rawmap.terrain.size.height):
-      for x in range(self.rawmap.terrain.size.width):
-        tile = self.rawmap.terrain.tile_id[y][x]
+    for y in range(self.map.terrain.size.height):
+      for x in range(self.map.terrain.size.width):
+        tile = self.map.terrain.tile_id[y][x]
         value = (tile.group << 4) | (tile.id & 0xF)
         b += struct.pack("<H", value)
     
@@ -619,9 +631,9 @@ class CHKSerializer():
   @property
   def PUNI(self) -> bytes:
     b = bytearray()
-    availability = [struct.pack("<12B", *v.availability) for v in self.rawmap.unit_restrictions]
-    global_availability = [struct.pack("<B", v.global_availability) for v in self.rawmap.unit_restrictions]
-    uses_defaults = [struct.pack("<12B", *v.uses_defaults) for v in self.rawmap.unit_restrictions]
+    availability = [struct.pack("<12B", *v.availability) for v in self.map.unit_restrictions]
+    global_availability = [struct.pack("<B", v.global_availability) for v in self.map.unit_restrictions]
+    uses_defaults = [struct.pack("<12B", *v.uses_defaults) for v in self.map.unit_restrictions]
 
     b += b"".join(availability)
     b += b"".join(global_availability)
@@ -631,11 +643,11 @@ class CHKSerializer():
   
   @property
   def UPGx(self) -> bytes:
-    upgrade_settings = self.rawmap.upgrades
+    upgrade_settings = self.map.upgrades
     
     b = struct.pack(
       f"<61B B {6 * 61}H",
-      *[u.uses_default for u in upgrade_settings],
+      *[u.use_default for u in upgrade_settings],
       0, 
       *[u.base_cost.mineral for u in upgrade_settings],
       *[u.factor_cost.mineral for u in upgrade_settings],
@@ -651,11 +663,11 @@ class CHKSerializer():
   def PTEx(self) -> bytes:
     b = bytearray()
     
-    b += b"".join([struct.pack("<12B", *v.player_availability) for v in self.rawmap.tech_restrictions])
-    b += b"".join([struct.pack("<12B", *v.player_already_researched) for v in self.rawmap.tech_restrictions])
-    b += b"".join([struct.pack("<B", v.default_availability) for v in self.rawmap.tech_restrictions])
-    b += b"".join([struct.pack("<B", v.default_already_researched) for v in self.rawmap.tech_restrictions])
-    b += b"".join([struct.pack("<12B", *v.uses_default) for v in self.rawmap.tech_restrictions])
+    b += b"".join([struct.pack("<12B", *v.player_availability) for v in self.map.tech_restrictions])
+    b += b"".join([struct.pack("<12B", *v.player_already_researched) for v in self.map.tech_restrictions])
+    b += b"".join([struct.pack("<B", v.default_availability) for v in self.map.tech_restrictions])
+    b += b"".join([struct.pack("<B", v.default_already_researched) for v in self.map.tech_restrictions])
+    b += b"".join([struct.pack("<12B", *v.uses_default) for v in self.map.tech_restrictions])
     
     return section("PTEx", b)
   
@@ -663,7 +675,7 @@ class CHKSerializer():
   def UNIT(self) -> bytes:
     b = bytearray()
     
-    for unit in self.rawmap.placed_unit:
+    for unit in self.map.placed_unit:
       b += struct.pack( 
         "<I 6H 4B I 2H 2I",
         unit.serial_number,
@@ -674,9 +686,9 @@ class CHKSerializer():
         unit.special_properties,
         unit.valid_properties,
         unit.owner.id,
-        unit.hit_points.current * 100 // unit.hit_points.max if unit.hit_points.max != 0 else 100,
-        unit.shield_points.current * 100 // unit.shield_points.max if unit.shield_points.max != 0 else 100,
-        unit.energy_points.current,
+        unit.stats.hit_points.current * 100 // unit.stats.hit_points.max if unit.stats.hit_points.max != 0 else 100,
+        unit.stats.shield_points.current * 100 // unit.stats.shield_points.max if unit.stats.shield_points.max != 0 else 100,
+        unit.stats.energy_points.current,
         unit.resource_amount,
         unit.hangar,
         unit.unit_state,
@@ -690,7 +702,7 @@ class CHKSerializer():
   def THG2(self) -> bytes:
     b = bytearray()
     
-    for sprite in self.rawmap.sprite:
+    for sprite in self.map.sprite:
       b += struct.pack(
         "<3H2BH",
         sprite.id,
@@ -706,27 +718,27 @@ class CHKSerializer():
   @property
   def MASK(self) -> bytes:
     b = bytearray()
-    height, width = self.rawmap.terrain.size.height, self.rawmap.terrain.size.width
+    height, width = self.map.terrain.size.height, self.map.terrain.size.width
     
     for y in range(height):
       for x in range(width):
-        b += struct.pack("<B", self.rawmap.mask[y * width + x].flags)
+        b += struct.pack("<B", self.map.mask[y * width + x].flags)
     
     return section("MASK", b)
   
   @property
   def STRx(self, encoding: Literal["utf-8", "CP949"] = "utf-8") -> bytes:
     b = bytearray()
-    string_count = len(self.rawmap.string)
+    string_count = len(self.map.string)
      
     offset = 4 + 4 * string_count
 
-    b += struct.pack("<I", len(self.rawmap.string))
+    b += struct.pack("<I", len(self.map.string))
     offsets = []
 
     binary_string = bytearray()
     string_table = {}
-    for string in self.rawmap.string:
+    for string in self.map.string:
       encoded_content = string.content.encode(encoding) + b"\x00"
       # Duplicated string offset
       if (encoded_content in string_table):
@@ -747,7 +759,7 @@ class CHKSerializer():
   def UPRP(self) -> bytes:
     b = bytearray()
     
-    for uproperty in self.rawmap.unit_properties:
+    for uproperty in self.map.unit_properties:
       b += struct.pack(
         "<2H4BI2HI",
         uproperty.special_properties,
@@ -768,12 +780,12 @@ class CHKSerializer():
   def MRGN(self) -> bytes:
     b = bytearray()
     
-    for location in self.rawmap.location:
+    for location in self.map.location:
       b += struct.pack(
         "<4I2H",
-        location.position.Left,
-        location.position.Top,
-        location.position.Right,
+        location.position.left,
+        location.position.top,
+        location.position.right,
         location.position.bottom,
         location.name_id,
         location.elevation_flags
@@ -783,19 +795,19 @@ class CHKSerializer():
   
   @property
   def TRIG(self) -> bytes:
-    b = self.rawmap.raw_triggers.raw_data
+    b = self.map.raw_triggers.raw_data
     return section("TRIG", b)
   
   @property
   def MBRF(self) -> bytes:
-    b = self.rawmap.raw_mbrf_triggers.raw_data
+    b = self.map.raw_mbrf_triggers.raw_data
     return section("MBRF", b)
   
   @property
   def SPRP(self) -> bytes:
     b = struct.pack("<2H",
-      self.rawmap.scenario_property.name.id + 1,
-      self.rawmap.scenario_property.description.id + 1
+      self.map.scenario_property.name.id + 1,
+      self.map.scenario_property.description.id + 1
     )
      
     return section("SPRP", b)
@@ -804,21 +816,21 @@ class CHKSerializer():
   def FORC(self) -> bytes:
     b = struct.pack(
       "<8B4H4B",
-      *[p.force for p in self.rawmap.player[:8]],
-      *[self.find_string_by_content(f.name).id + 1 for f in self.rawmap.force],
-      *[f.properties for f in self.rawmap.force]
+      *[p.force for p in self.map.player[:8]],
+      *[self.find_string_by_content(f.name).id + 1 for f in self.map.force],
+      *[f.properties for f in self.map.force]
     )
     
     return section("FORC", b)
 
   @property
   def COLR(self) -> bytes:
-    b = struct.pack("8B", *[p.color for p in self.rawmap.player[:8]])
+    b = struct.pack("8B", *[p.color for p in self.map.player[:8]])
     return section("COLR", b)
   
   @property
   def PUPx(self) -> bytes:
-    restrictions = self.rawmap.upgrade_restrictions
+    restrictions = self.map.upgrade_restrictions
     b = struct.pack(
       f"{61 * 12}B {61 * 12}B {61 * 2}B {61 * 12}B",
       *[b for v in restrictions for b in v.player_maximum_level],
@@ -832,27 +844,28 @@ class CHKSerializer():
   
   @property
   def UNIx(self) -> bytes:
-    units = self.rawmap.unit
+    units = self.map.unit
+    weapons = self.map.weapons
     b = struct.pack(
       f"228B 228I 228H 228B {4 * 228}H {2 * 130}H",
       *[u.id for u in units],
-      *[u.hit_points.max for u in units],
-      *[u.shield_points.max for u in units],
-      *[u.armor_points for u in units],
-      *[u.cost.time for u in units],
-      *[u.cost.mineral for u in units],
-      *[u.cost.gas for u in units],
+      *[u.stats.hit_points.max for u in units],
+      *[u.stats.shield_points.max for u in units],
+      *[u.stats.armor_points for u in units],
+      *[u.cost.cost.time for u in units],
+      *[u.cost.cost.mineral for u in units],
+      *[u.cost.cost.gas for u in units],
       *[self.find_string_by_content(u.name).id for u in units],
       # FIXME: Use weapons.dat
-      *[u.weapon.base_damage for u in units[:130]],
-      *[u.weapon.damage_factor for u in units[:130]], 
+      *[w.damage.amount for w in weapons],
+      *[w.damage.bonus for w in weapons], 
     )
     
     return section("UNIx", b)
   
   @property 
   def TECx(self) -> bytes:
-    technologies = self.rawmap.technologies
+    technologies = self.map.technologies
     b = struct.pack(
       f"44B {4 * 44}H",
       *[t.use_default for t in technologies],

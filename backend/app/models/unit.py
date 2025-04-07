@@ -1,7 +1,11 @@
+from typing import Optional
 from pydantic import BaseModel, Field
+
+from .spatial import Position2D, Size, RectPosition
 from .player import Player
 from .object import Object
-from .components.weapon import Weapon
+from .components.component import EntityComponent
+from .components.weapon_component import WeaponComponent
 from .entity import Entity
 from .cost import Cost
 from enum import Flag
@@ -11,8 +15,11 @@ class Stat(Object):
   current: int = Field(default=0, ge=0)
   max: int = Field(default=0, ge=0)
 
+class RequiredAndProvided(BaseModel):
+  required: int
+  provided: int
 
-class Unit(Entity):
+class CHKUnit(Entity):
   serial_number: int = -1
   """Identical number when unit placed on map. -1 When non-placed unit."""
   cost: Cost
@@ -20,7 +27,6 @@ class Unit(Entity):
   shield_points: Stat = Stat(name="Shield Points")
   energy_points: Stat = Stat(name="Energy Points")
   armor_points: int = Field(default=0, lt=256)
-  weapon: Weapon
   owner: Player = Player(player_type="Inactive", race="Inactive", color=0)
   resource_amount: int = 0
   hangar: int = 0
@@ -30,6 +36,91 @@ class Unit(Entity):
   special_properties: int = 0
   valid_properties: int = 0
 
+class UnitSpecificationComponent(EntityComponent):
+  id: int = 0
+  name: str = "Unit Basic Specification"
+  
+  # DAT file related properties 
+  graphics: int
+  subunit1: int
+  subunit2: int
+  infestation: Optional[int]
+  """ID 106-201 only"""
+  construction_animation: int
+  unit_direction: int
+  portrait: int
+  label: int
+  
+class UnitStatComponent(EntityComponent):
+  hit_points: Stat = Stat(name="Hit Points")
+  shield_enable: bool
+  shield_points: Stat = Stat(name="Shield Points")
+  energy_points: Stat = Stat(name="Energy Points")
+  armor_points: int = Field(default=0, lt=256)
+  armor_upgrade: int
+  rank: int
+  elevation_level: int
+  
+class UnitAIComponent(EntityComponent):
+  computer_idle: int
+  human_idle: int
+  return_to_idle: int
+  attack_unit: int
+  attack_and_move: int
+  internal: int
+  right_click: int
+
+class UnitSoundComponent(EntityComponent):
+  ready: Optional[int]
+  "ID 0-105 Only"
+  what_start: int
+  what_end: int
+  piss_start: Optional[int]
+  "ID 0-105 Only"
+  piss_end: Optional[int]
+  "ID 0-105 Only"
+  yes_start: Optional[int]
+  "ID 0-105 Only"
+  yes_end: Optional[int]
+  "ID 0-105 Only"
+  
+class UnitSizeComponent(EntityComponent):
+  size_type: int
+  placement_box_size: Size
+  bounds: RectPosition
+  addon_position: Optional[Position2D]
+  """ID 106-201 only"""
+
+class UnitCostComponent(EntityComponent):
+  cost: Cost
+  build_score: int
+  destroy_score: int
+  is_broodwar: bool
+  supply: RequiredAndProvided
+  space: RequiredAndProvided
+
+class Unit(Entity):
+  serial_number: int = -1
+  """Identical number when unit placed on map. -1 When non-placed unit."""
+  
+  basic_specification: UnitSpecificationComponent
+  stats: UnitStatComponent
+  weapons: WeaponComponent 
+  ai: UnitAIComponent
+  sound: UnitSoundComponent
+  size: UnitSizeComponent
+  cost: UnitCostComponent
+
+  owner: Player = Player(player_type="Inactive", race="Inactive", color=0)
+  resource_amount: int = 0
+  hangar: int = 0
+  unit_state: int = 0
+  relation_type: int = 0
+  related_unit: int = 0
+  special_properties: int = 0
+  valid_properties: int = 0
+
+  
 
 class PlacedUnitRelationFlag(Flag):
   nydus_link = 0b10000000
