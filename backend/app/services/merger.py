@@ -233,7 +233,7 @@ class Merger():
     
     return result
   
-  def merge_sprite(self) -> list[Sprite]:
+  def merge_placed_sprite(self) -> list[Sprite]:
     def _merge(chksprite: CHKSprite, spritespec: Sprite):
       from copy import deepcopy
       spritedata = deepcopy(spritespec)
@@ -254,7 +254,7 @@ class Merger():
     
     return result
   
-  def merge_placed_sprite(self) -> list[Sprite]:
+  def merge_sprite(self) -> list[Sprite]:
     result: list[Sprite] = []
     chk_sprites = self.chk.get_sprites() 
     for id, sprite in enumerate(SpritesDat.result):
