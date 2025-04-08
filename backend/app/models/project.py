@@ -17,7 +17,7 @@ class ScenarioProperty(BaseModel):
   name: String
   description: String
   
-class _Map(BaseModel):
+class Map(BaseModel):
   terrain: RawTerrain 
   player: list[Player]
   location: list[Location]
@@ -32,8 +32,6 @@ class _Map(BaseModel):
   raw_mbrf_triggers: RawTriggerSection
   force: list[Force]
   scenario_property: ScenarioProperty
- 
-class Map(_Map):
   unit: list[Unit]
   placed_unit: list[Unit]
   technologies: list[Technology]
