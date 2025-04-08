@@ -1,4 +1,5 @@
 from typing import cast
+from app.models.sprite import CHKSprite, Sprite
 from app.services.mapdata.chk import CHK
 from app.models.spatial import Position2D, RectPosition, Size
 from app.models.components.transform import TransformComponent
@@ -204,7 +205,7 @@ class Merger():
   def merge_placed_unit(self) -> list[Unit]:
     def _merge(chkunit: CHKUnit, unitspec: Unit):
       from copy import deepcopy
-      unitdata = deepcopy(unit_spec)
+      unitdata = deepcopy(unitspec)
       unitdata.id = chkunit.id
       unitdata.transform = chkunit.transform
       unitdata.serial_number = chkunit.serial_number
@@ -231,4 +232,42 @@ class Merger():
       result.append(_merge(unit, unit_spec))
     
     return result
+  
+  def merge_sprite(self) -> list[Sprite]:
+    def _merge(chksprite: CHKSprite, spritespec: Sprite):
+      from copy import deepcopy
+      spritedata = deepcopy(spritespec)
+      spritedata.id = chksprite.id
+      spritedata.transform = chksprite.transform
+      spritedata.owner = chksprite.owner
+      spritedata.flags = chksprite.flags
+      
+      return spritedata
+    result: list[Sprite] = []
+    chk_sprites = self.chk.get_sprites() 
+    sprite_specs = self.merge_sprite()
+
+    for id, sprite in enumerate(chk_sprites):
+      sprite_spec = sprite_specs[id]
+
+      result.append(_merge(sprite, sprite_spec))
     
+    return result
+  
+  def merge_placed_sprite(self) -> list[Sprite]:
+    result: list[Sprite] = []
+    chk_sprites = self.chk.get_sprites() 
+    for id, sprite in enumerate(SpritesDat.result):
+      chk_sprite = chk_sprites[id]
+      result.append(Sprite(
+        id=id,
+        transform=chk_sprite.transform,
+        owner=chk_sprite.owner,
+        flags=chk_sprite.flags,
+        image=sprite["image_file"],
+        health_bar=sprite["health_bar"],
+        selection_circle_image=sprite["selection_circle_image"] if sprite["selection_circle_image"] else None,
+        selection_circle_offset=sprite["selection_circle_offset"] if sprite["selection_circle_offset"] else None,
+      ))
+    
+    return result
