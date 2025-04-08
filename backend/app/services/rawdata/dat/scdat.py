@@ -559,5 +559,3 @@ if __name__ == "__main__":
         UnitsDat, SpritesDat
     ]:
       _ = dat.result
-
-print("AA")
