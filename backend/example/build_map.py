@@ -1,7 +1,7 @@
 from io import BytesIO
 from eudplib import GetChkTokenized
 from app.services.mapdata.chk import CHK, CHKBuilder
-from app.services.mapdata.io import build_map, get_chk_data, get_chkt, get_map
+from app.services.mapdata.io import build_map, get_chkt, get_map
 from eudplib.core.mapdata.chktok import CHK as EPCHK
 from eudplib.maprw.loadmap import LoadMap
 from rich.console import Console
