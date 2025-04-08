@@ -7,7 +7,7 @@ from app.models.components.weapon_component import WeaponComponent
 from app.models.definitions.weapon_definition import Bullet, Damage, Splash, WeaponDefinition
 from app.models.tech import Technology, Upgrade
 from app.models.unit import CHKUnit, RequiredAndProvided, Unit, UnitAIComponent, UnitCostComponent, UnitSizeComponent, UnitSoundComponent, UnitSpecificationComponent, UnitStatComponent
-from .rawdata.dat import *
+from .rawdata.datdata import *
 
 class Merger():
   def __init__(self, chk: CHK):

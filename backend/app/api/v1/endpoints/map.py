@@ -1,4 +1,5 @@
 import io
+from app.services.rawdata.dat import DAT
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from firebase_admin import storage, firestore
@@ -33,8 +34,9 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
 
     chkt = get_chkt(BytesIO(content))
     chk = CHK(chkt)
+    dat = DAT()
 
-    raw_map = get_map(chk)
+    raw_map = get_map(chk, dat)
 
     db = firestore.client()
     project = Project(
@@ -58,7 +60,8 @@ async def get_test_map():
   with open("./example/hello12345.scx", "rb") as f:
     chkt = get_chkt(BytesIO(f.read()))
     chk = CHK(chkt)
-    map = get_map(chk)
+    dat = DAT()
+    map = get_map(chk, dat)
     
     return map.model_dump(mode="json")
   

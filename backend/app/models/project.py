@@ -1,6 +1,8 @@
+from app.models.flingy import Flingy
+from app.models.images import Image
+from app.models.order import Order
+from app.models.portrait import Portrait
 from pydantic import BaseModel
-import datetime
-
 from .definitions.weapon_definition import CHKWeapon, WeaponDefinition
 from .location import Location
 from .player import Force, Player
@@ -12,6 +14,7 @@ from .validation import Validation
 from .mask import Mask
 from .tech import TechRestriction, CHKTechnology, Technology, Upgrade, UpgradeRestriction, UpgradeSetting
 from .rawtrigger import RawTriggerSection
+import datetime
 
 class ScenarioProperty(BaseModel):
   name: String
@@ -39,6 +42,10 @@ class Map(BaseModel):
   upgrades: list[Upgrade]
   sprite: list[Sprite]
   placed_sprite: list[Sprite]
+  images: list[Image]
+  flingy: list[Flingy]
+  orders: list[Order]
+  portrait: list[Portrait]
 
 class Project(BaseModel):
   filename: str
