@@ -65,6 +65,3 @@ if __name__ == "__main__":
         ]
         for future in futures:
             future.result()
-
-
-print("RUN")

@@ -16,7 +16,5 @@ def build(filename: str):
     
     merger = Merger(chk) 
     map_bytes = build_map(map)
-    
-    print("asdf")
-    
+     
 build("hello12345.scx")
