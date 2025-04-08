@@ -28,6 +28,7 @@ class Transformer():
     self.initialize_unit_specification()
     self.initialize_tech_specification()
     self.initialize_upgrade_specification()
+    self.initialize_sprite_speicification()
 
   @EUDMethod
   def allocate_objects(self):
@@ -162,3 +163,17 @@ class Transformer():
       weapon.splashInnerRadius = rawweapon.splash.inner
       weapon.splashMiddleRadius = rawweapon.splash.medium
       weapon.splashOuterRadius = rawweapon.splash.outer
+    
+  @EUDMethod
+  def initialize_sprite_speicification(self):
+    from eudplib import Sprite
+    for rawsprite in self.map.sprite:
+      sprite = Sprite(rawsprite.id)
+
+      sprite.image = rawsprite.image
+      if rawsprite.health_bar:
+        """
+        TODO: health_bar, selection_circle_image, selection_circle offset is not supported yet
+        current version of eudplib.
+        """
+        ...
