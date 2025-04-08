@@ -265,7 +265,7 @@ class Merger():
         owner=chk_sprite.owner,
         flags=chk_sprite.flags,
         image=sprite["image_file"],
-        health_bar=sprite["health_bar"],
+        health_bar=sprite["health_bar"] if sprite["health_bar"] else None,
         selection_circle_image=sprite["selection_circle_image"] if sprite["selection_circle_image"] else None,
         selection_circle_offset=sprite["selection_circle_offset"] if sprite["selection_circle_offset"] else None,
       ))
