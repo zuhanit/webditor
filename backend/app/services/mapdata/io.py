@@ -33,43 +33,15 @@ def get_chkt(file: BytesIO) -> chktok.CHK:
 
   return chkt
 
-def get_chk_data(chk: CHK):
-  """
-  """
-  map = CHKMap(
-    unit=chk.get_units(),
-    terrain=chk.get_terrain(),
-    player=chk.get_players(),
-    location=chk.get_locations(),
-    placed_unit=chk.get_placed_units(),
-    sprite=chk.get_sprites(),
-    string=chk.get_strings(),
-    validation=chk.get_validation(),
-    mask=chk.get_mask(),
-    unit_properties=chk.get_unit_properties(),
-    upgrade_restrictions=chk.get_upgrade_restrictions(),
-    tech_restrictions=chk.get_tech_restrictions(),
-    upgrades=chk.get_upgrade_settings(),
-    technologies=chk.get_technologies(),
-    unit_restrictions=chk.get_unit_restrictions(),
-    raw_triggers=chk.get_triggers(),
-    raw_mbrf_triggers=chk.get_mbrf_triggers(),
-    force=chk.get_forces(),
-    scenario_property=chk.get_scenario_properties(),
-    weapons=chk.get_weapons(),
-  )
-  
-  return map
-
 def get_map(chk: CHK):
   """
   """
   merger = Merger(chk)
   map: Map = Map(
-    unit=merger.merge_unit(),
     terrain=chk.get_terrain(),
     player=chk.get_players(),
     location=chk.get_locations(),
+    unit=merger.merge_unit(),
     placed_unit=merger.merge_placed_unit(),
     sprite=merger.merge_sprite(),
     placed_sprite=merger.merge_placed_sprite(),
