@@ -32,15 +32,7 @@ class _Map(BaseModel):
   raw_mbrf_triggers: RawTriggerSection
   force: list[Force]
   scenario_property: ScenarioProperty
-
-class CHKMap(_Map):
-  unit: list[CHKUnit]
-  placed_unit: list[CHKUnit]
-  technologies: list[CHKTechnology]
-  weapons: list[CHKWeapon]
-  upgrades: list[UpgradeSetting]
-  sprite: list[CHKSprite]
-  
+ 
 class Map(_Map):
   unit: list[Unit]
   placed_unit: list[Unit]

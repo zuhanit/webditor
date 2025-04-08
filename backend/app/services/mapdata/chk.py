@@ -5,7 +5,7 @@ from app.models.terrain import EraTilesetReverseDict, RawTerrain, Size, Tile, Er
 from app.models.player import Force, OwnrPlayerTypeReverseDict, Player, OwnrPlayerTypeDict, SidePlayerRaceDict, SidePlayerRaceReverseDict
 from app.models.location import Location
 from app.models.spatial import Position2D, RectPosition
-from app.models.sprite import CHKSprite, Sprite
+from app.models.sprite import CHKSprite
 from app.models.string import String
 from app.models.components.transform import TransformComponent
 from app.models.definitions.weapon_definition import CHKWeapon, Damage
@@ -13,7 +13,7 @@ from app.models.validation import Validation
 from app.models.mask import Mask
 from app.models.tech import TechRestriction, UpgradeRestriction, TechCost, CHKTechnology, UpgradeSetting
 from app.models.rawtrigger import RawTriggerSection
-from app.models.project import CHKMap, Map, ScenarioProperty
+from app.models.project import Map, ScenarioProperty
 import struct
 import copy
 

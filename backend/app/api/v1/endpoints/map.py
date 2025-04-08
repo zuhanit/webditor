@@ -1,10 +1,9 @@
 import io
-from app.services.merger import Merger
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from firebase_admin import storage, firestore
 from app.core.firebase.auth import get_current_user
-from app.models.project import Map, Project, CHKMap
+from app.models.project import Map, Project
 from app.services.mapdata.io import build_map, get_chkt, get_map
 from app.services.mapdata.chk import CHK
 from io import BytesIO

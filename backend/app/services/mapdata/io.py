@@ -8,7 +8,7 @@ from eudplib.bindings._rust import mpqapi
 from tempfile import NamedTemporaryFile
 from io import BytesIO
 from app.services.mapdata.chk import CHK, CHKBuilder
-from app.models.project import CHKMap, Map
+from app.models.project import Map
 from app.services.bridge.transformer import Transformer
 import uuid
 
