@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse
 from firebase_admin import storage, firestore
 from app.core.firebase.auth import get_current_user
 from app.models.project import Map, Project, CHKMap
-from app.services.mapdata.io import build_map, get_chk_data, get_chkt, get_map
+from app.services.mapdata.io import build_map, get_chkt, get_map
 from app.services.mapdata.chk import CHK
 from io import BytesIO
 import uuid
@@ -35,7 +35,7 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
     chkt = get_chkt(BytesIO(content))
     chk = CHK(chkt)
 
-    raw_map = get_chk_data(chk)
+    raw_map = get_map(chk)
 
     db = firestore.client()
     project = Project(
@@ -46,7 +46,6 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
       uploadedAt=datetime.datetime.now(datetime.UTC),
     )
 
-    print(project.model_dump())
     db.collection("projects").add(project.model_dump(mode="json"))
 
     return {"url": download_url, "path": filename, "raw_map": raw_map}

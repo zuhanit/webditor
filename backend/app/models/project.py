@@ -4,7 +4,7 @@ import datetime
 from .definitions.weapon_definition import CHKWeapon, WeaponDefinition
 from .location import Location
 from .player import Force, Player
-from .sprite import Sprite
+from .sprite import CHKSprite, Sprite
 from .string import String
 from .terrain import RawTerrain
 from .unit import Unit, CHKUnit, UnitProperty, UnitRestriction
@@ -21,7 +21,6 @@ class _Map(BaseModel):
   terrain: RawTerrain 
   player: list[Player]
   location: list[Location]
-  sprite: list[Sprite]
   string: list[String]
   validation: Validation
   mask: list[Mask]
@@ -40,6 +39,7 @@ class CHKMap(_Map):
   technologies: list[CHKTechnology]
   weapons: list[CHKWeapon]
   upgrades: list[UpgradeSetting]
+  sprite: list[CHKSprite]
   
 class Map(_Map):
   unit: list[Unit]
@@ -47,6 +47,8 @@ class Map(_Map):
   technologies: list[Technology]
   weapons: list[WeaponDefinition]
   upgrades: list[Upgrade]
+  sprite: list[Sprite]
+  placed_sprite: list[Sprite]
 
 class Project(BaseModel):
   filename: str

@@ -5,7 +5,7 @@ from app.models.terrain import EraTilesetReverseDict, RawTerrain, Size, Tile, Er
 from app.models.player import Force, OwnrPlayerTypeReverseDict, Player, OwnrPlayerTypeDict, SidePlayerRaceDict, SidePlayerRaceReverseDict
 from app.models.location import Location
 from app.models.spatial import Position2D, RectPosition
-from app.models.sprite import Sprite
+from app.models.sprite import CHKSprite, Sprite
 from app.models.string import String
 from app.models.components.transform import TransformComponent
 from app.models.definitions.weapon_definition import CHKWeapon, Damage
@@ -311,18 +311,18 @@ class CHK:
   """
   Sprite section processing
   """
-  def get_sprites(self) -> list[Sprite]:
+  def get_sprites(self) -> list[CHKSprite]:
     thg2_bytes = self.chkt.getsection("THG2")
     format_size = struct.calcsize(CHK_FORMATDICT["THG2"])
     sprite_count = len(thg2_bytes) // format_size
 
-    result: list[Sprite] = []
+    result: list[CHKSprite] = []
     for i in range(0, sprite_count):
       sprite = struct.unpack(
         CHK_FORMATDICT["THG2"], thg2_bytes[i * format_size : (i + 1) * format_size]
       )
       result.append(
-        Sprite(
+        CHKSprite(
           id=sprite[0],
           transform=TransformComponent(
             position=Position2D(
@@ -702,7 +702,7 @@ class CHKBuilder():
   def THG2(self) -> bytes:
     b = bytearray()
     
-    for sprite in self.map.sprite:
+    for sprite in self.map.placed_sprite:
       b += struct.pack(
         "<3H2BH",
         sprite.id,
