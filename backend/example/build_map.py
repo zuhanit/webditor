@@ -1,4 +1,5 @@
 from io import BytesIO
+from app.services.rawdata.dat import DAT
 from eudplib import GetChkTokenized
 from app.services.mapdata.chk import CHK, CHKBuilder
 from app.services.mapdata.io import build_map, get_chkt, get_map
@@ -89,7 +90,8 @@ def build(filename: str):
   with open(filename, "rb") as f:
     chkt = get_chkt(BytesIO(f.read()))
     chk = CHK(chkt)
-    map = get_map(chk)
+    dat = DAT()
+    map = get_map(chk, dat)
     
     serializer = CHKBuilder(map)
     serialized_result = serializer.to_bytes()

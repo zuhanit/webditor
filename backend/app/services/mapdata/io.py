@@ -8,6 +8,7 @@ from eudplib.bindings._rust import mpqapi
 from tempfile import NamedTemporaryFile
 from io import BytesIO
 from app.services.mapdata.chk import CHK, CHKBuilder
+from app.services.rawdata.dat import DAT
 from app.models.project import Map
 from app.services.bridge.transformer import Transformer
 import uuid
@@ -33,7 +34,7 @@ def get_chkt(file: BytesIO) -> chktok.CHK:
 
   return chkt
 
-def get_map(chk: CHK):
+def get_map(chk: CHK, dat: DAT):
   """
   """
   merger = Merger(chk)
@@ -59,6 +60,10 @@ def get_map(chk: CHK):
     force=chk.get_forces(),
     scenario_property=chk.get_scenario_properties(),
     weapons=merger.merge_weapon(),
+    images=dat.get_images(),
+    flingy=dat.get_flingy(),
+    orders=dat.get_orders(),
+    portrait=dat.get_portraits()
   )
   
   return map
