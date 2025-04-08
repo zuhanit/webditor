@@ -1,10 +1,8 @@
 from io import BytesIO
-from eudplib import GetChkTokenized
-from app.services.mapdata.chk import CHK, CHKBuilder
-from app.services.mapdata.io import build_map, get_chk_data, get_chkt
+from app.services.mapdata.chk import CHK
+from app.services.mapdata.io import get_chkt
 from app.services.merger import Merger
 from eudplib.core.mapdata.chktok import CHK as EPCHK
-from eudplib.maprw.loadmap import LoadMap
 from rich.console import Console
 from rich.table import Table
 
@@ -90,7 +88,6 @@ def build(filename: str):
   with open(filename, "rb") as f:
     chkt = get_chkt(BytesIO(f.read()))
     chk = CHK(chkt)
-    raw_map = get_chk_data(chk)
     
     merger = Merger(chk)
     w = merger.merge_weapon()
