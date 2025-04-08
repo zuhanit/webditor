@@ -1,14 +1,14 @@
 from pydantic import BaseModel
-from .definitions.weapon_definition import CHKWeapon, WeaponDefinition
+from .definitions.weapon_definition import WeaponDefinition
 from .location import Location
 from .player import Force, Player
-from .sprite import CHKSprite, Sprite
+from .sprite import Sprite
 from .string import String
 from .terrain import RawTerrain
-from .unit import Unit, CHKUnit, UnitProperty, UnitRestriction
+from .unit import Unit, UnitProperty, UnitRestriction
 from .validation import Validation
 from .mask import Mask
-from .tech import TechRestriction, CHKTechnology, Technology, Upgrade, UpgradeRestriction, UpgradeSetting
+from .tech import TechRestriction, Technology, Upgrade, UpgradeRestriction
 from .rawtrigger import RawTriggerSection
 from .flingy import Flingy
 from .images import Image
