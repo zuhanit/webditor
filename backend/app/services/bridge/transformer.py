@@ -177,3 +177,45 @@ class Transformer():
         current version of eudplib.
         """
         ...
+
+  @EUDMethod
+  def initialize_image_specifications(self):
+    from eudplib import Image
+    for rawimage in self.map.images:
+      image = Image(rawimage.id)
+      
+      image.isTurnable = rawimage.turnable
+      image.isClickable = rawimage.clickable
+      image.useFullIscript = rawimage.use_full_iscript
+      image.drawIfCloaked = rawimage.draw_if_cloaked
+      image.drawingFunction = rawimage.draw_function
+      image.iscript = rawimage.iscript_id
+      image.useFullIscript = rawimage.use_full_iscript
+  
+  @EUDMethod
+  def initialize_flingy_specifications(self):
+    from eudplib import Flingy
+    for rawflingy in self.map.flingy:
+      flingy = Flingy(rawflingy.id)
+      
+      flingy.sprite = rawflingy.sprite
+      flingy.topSpeed = rawflingy.topSpeed
+      flingy.acceleration = rawflingy.acceleration
+      flingy.haltDistance = rawflingy.haltDistance
+      flingy.turnSpeed = rawflingy.turnRadius
+      flingy.turnRadius = rawflingy.turnRadius
+      flingy.movementControl = rawflingy.moveControl
+  
+  @EUDMethod
+  def initialize_order_specifications(self):
+    from eudplib import UnitOrder 
+    for raworder in self.map.orders:
+      order = UnitOrder(raworder.id)
+      
+      order.label = raworder.label
+      order.useWeaponTargeting = raworder.use_weapon_targeting
+      order.canBeInterrupted = raworder.can_be_interrupted
+      order.canBeQueued = raworder.can_be_queued
+      order.disablingKeepsTarget = raworder.targeting
+      order.animation = raworder.animation
+      order.obscuredOrder = raworder.obscured_order

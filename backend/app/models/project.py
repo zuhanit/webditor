@@ -1,7 +1,3 @@
-from app.models.flingy import Flingy
-from app.models.images import Image
-from app.models.order import Order
-from app.models.portrait import Portrait
 from pydantic import BaseModel
 from .definitions.weapon_definition import CHKWeapon, WeaponDefinition
 from .location import Location
@@ -14,6 +10,10 @@ from .validation import Validation
 from .mask import Mask
 from .tech import TechRestriction, CHKTechnology, Technology, Upgrade, UpgradeRestriction, UpgradeSetting
 from .rawtrigger import RawTriggerSection
+from .flingy import Flingy
+from .images import Image
+from .order import Order
+from .portrait import Portrait
 import datetime
 
 class ScenarioProperty(BaseModel):
