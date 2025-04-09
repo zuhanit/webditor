@@ -37,14 +37,14 @@ def get_chkt(file: BytesIO) -> chktok.CHK:
 def get_map(chk: CHK, dat: DAT):
   """
   """
-  merger = Merger(chk)
+  merger = Merger(chk, dat)
   map: Map = Map(
     terrain=chk.get_terrain(),
     player=chk.get_players(),
     location=chk.get_locations(),
     unit=merger.merge_unit(),
     placed_unit=merger.merge_placed_unit(),
-    sprite=merger.merge_sprite(),
+    sprite=dat.get_sprites(),
     placed_sprite=merger.merge_placed_sprite(),
     string=chk.get_strings(),
     validation=chk.get_validation(),

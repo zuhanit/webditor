@@ -1,7 +1,10 @@
+from app.models.components.transform import TransformComponent
 from app.models.flingy import Flingy
 from app.models.images import Image
 from app.models.order import Order
 from app.models.portrait import Portrait
+from app.models.spatial import Position2D
+from app.models.sprite import Sprite
 from .datdata import *
 
 class DAT():
@@ -70,6 +73,24 @@ class DAT():
         portrait_file=portrait["portrait_file"],
         smk_change=portrait["smk_change"],
         unknown1=portrait["unknown1"]
+      ))
+    
+    return result
+  
+  def get_sprites(self) -> list[Sprite]:
+    result: list[Sprite] = []
+    for id, sprite in enumerate(SpritesDat.result):
+      result.append(Sprite(
+        id=id,
+        transform=TransformComponent(
+          position=Position2D()
+        ),
+        owner=0,
+        flags=0,
+        image=sprite["image_file"],
+        health_bar=sprite["health_bar"] if "health_bar" in sprite.keys() else None,
+        selection_circle_image=sprite["selection_circle_image"] if "selection_circle_image" in sprite.keys() else None,
+        selection_circle_offset=sprite["selection_circle_offset"] if "selection_circle_offset" in sprite.keys() else None,
       ))
       
     return result
