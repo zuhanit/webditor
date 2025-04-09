@@ -311,7 +311,7 @@ class CHK:
   """
   Sprite section processing
   """
-  def get_sprites(self) -> list[CHKSprite]:
+  def get_placed_sprites(self) -> list[CHKSprite]:
     thg2_bytes = self.chkt.getsection("THG2")
     format_size = struct.calcsize(CHK_FORMATDICT["THG2"])
     sprite_count = len(thg2_bytes) // format_size

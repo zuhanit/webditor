@@ -7,11 +7,13 @@ from app.models.components.weapon_component import WeaponComponent
 from app.models.definitions.weapon_definition import Bullet, Damage, Splash, WeaponDefinition
 from app.models.tech import Technology, Upgrade
 from app.models.unit import CHKUnit, RequiredAndProvided, Unit, UnitAIComponent, UnitCostComponent, UnitSizeComponent, UnitSoundComponent, UnitSpecificationComponent, UnitStatComponent
+from app.services.rawdata.dat import DAT
 from .rawdata.datdata import *
 
 class Merger():
-  def __init__(self, chk: CHK):
+  def __init__(self, chk: CHK, dat: DAT):
     self.chk = chk
+    self.dat = dat
 
   def merge_weapon(self) -> list[WeaponDefinition]:
     result: list[WeaponDefinition] = []
@@ -244,30 +246,12 @@ class Merger():
       
       return spritedata
     result: list[Sprite] = []
-    chk_sprites = self.chk.get_sprites() 
-    sprite_specs = self.merge_sprite()
+    chk_sprites = self.chk.get_placed_sprites() 
+    sprite_specs = self.dat.get_sprites()
 
     for id, sprite in enumerate(chk_sprites):
       sprite_spec = sprite_specs[id]
 
       result.append(_merge(sprite, sprite_spec))
-    
-    return result
-  
-  def merge_sprite(self) -> list[Sprite]:
-    result: list[Sprite] = []
-    chk_sprites = self.chk.get_sprites() 
-    for id, sprite in enumerate(SpritesDat.result):
-      chk_sprite = chk_sprites[id]
-      result.append(Sprite(
-        id=id,
-        transform=chk_sprite.transform,
-        owner=chk_sprite.owner,
-        flags=chk_sprite.flags,
-        image=sprite["image_file"],
-        health_bar=sprite["health_bar"] if "health_bar" in sprite.keys() else None,
-        selection_circle_image=sprite["selection_circle_image"] if "selection_circle_image" in sprite.keys() else None,
-        selection_circle_offset=sprite["selection_circle_offset"] if "selection_circle_offset" in sprite.keys() else None,
-      ))
     
     return result
