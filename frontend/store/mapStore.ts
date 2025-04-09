@@ -1,17 +1,17 @@
 "use client";
 
 import api from "@/lib/api";
-import { RawMap } from "@/types/schemas/RawMap";
+import { Map } from "@/types/schemas/Map";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { create } from "zustand";
 
-interface RawMapStore {
-  rawMap: RawMap | null;
-  setRawMap: (map: RawMap) => void;
+interface GameMapStore {
+  rawMap: Map | null;
+  setRawMap: (map: Map) => void;
 }
 
-export const useRawMapStore = create<RawMapStore>((set) => ({
+export const useRawMapStore = create<GameMapStore>((set) => ({
   rawMap: null,
   setRawMap: (data) => set({ rawMap: data }),
 }));
