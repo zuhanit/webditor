@@ -21,13 +21,14 @@ export function Project() {
     <Resizable
       defaultSize={{ width: "25%" }}
       enable={{ right: true }}
-      className="bg-background-secondary px-4 shadow-inner"
+      className="overflow-auto bg-background-secondary shadow-inner"
     >
       <SideBar
         items={projectItems}
         hideSearchbox
         onSelectItem={handleSelectItem}
         selectedItem={selectedItem}
+        className="px-4"
       />
     </Resizable>
   );

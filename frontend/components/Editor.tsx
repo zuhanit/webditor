@@ -7,7 +7,7 @@ import useFetchRawMap from "@/hooks/useRawMap";
 import { Item } from "@/types/InspectorItem";
 import { PanelLeft } from "lucide-react";
 import { Resizable } from "re-resizable";
-import { Asset } from "./Asset";
+import { AssetContainer } from "./asset_viewer/Asset";
 import { Inspector } from "./Inspector";
 import { LayerBar, LayerBarButton } from "./LayerBar";
 import { MapImage } from "./MapImage";
@@ -94,9 +94,9 @@ export default function Editor() {
           </div>
         </div>
       </Resizable>
-      <div className="flex flex-1">
+      <div className="flex h-full flex-1 overflow-hidden">
         <Project />
-        <Asset />
+        <AssetContainer />
       </div>
     </div>
   );
