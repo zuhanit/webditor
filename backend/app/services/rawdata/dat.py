@@ -5,14 +5,17 @@ from app.models.order import Order
 from app.models.portrait import Portrait
 from app.models.spatial import Position2D
 from app.models.sprite import Sprite
+from ..utils.reverse import reverse_tbl_dict
 from .datdata import *
 
 class DAT():
   def get_images(self) -> list[Image]:
+    from eudplib.core.rawtrigger.strdict.image import DefImageDict
     result: list[Image] = []
     for id, image in enumerate(ImagesDat.result):
       result.append(Image(
         id=id,
+        name=reverse_tbl_dict(DefImageDict)[id],
         graphic=image["grp_id"],
         turnable=image["turnable"],
         clickable=image["clickable"],
@@ -32,10 +35,12 @@ class DAT():
     return result
   
   def get_flingy(self) -> list[Flingy]:
+    from eudplib.core.rawtrigger.strdict.flingy import DefFlingyDict
     result: list[Flingy] = []
     for id, flingy in enumerate(FlingyDat.result):
       result.append(Flingy(
         id=id,
+        name=reverse_tbl_dict(DefFlingyDict)[id],
         sprite=flingy["sprite"],
         topSpeed=flingy["topSpeed"],
         acceleration=flingy["acceleration"],
@@ -48,10 +53,12 @@ class DAT():
     return result
   
   def get_orders(self) -> list[Order]:
+    from eudplib.core.rawtrigger.strdict.unitorder import DefUnitOrderDict
     result: list[Order] = []
     for id, order in enumerate(OrdersDat.result):
       result.append(Order(
         id=id,
+        name=reverse_tbl_dict(DefUnitOrderDict)[id],
         label=order["label"],
         use_weapon_targeting=order["use_weapon_targeting"],
         can_be_interrupted=order["can_be_interrupted"],
@@ -66,10 +73,12 @@ class DAT():
     return result
   
   def get_portraits(self) -> list[Portrait]:
+    from eudplib.core.rawtrigger.strdict.portrait import DefPortraitDict
     result: list[Portrait] = []
     for id, portrait in enumerate(PortdataDat.result):
       result.append(Portrait(
         id=id,
+        name=reverse_tbl_dict(DefPortraitDict)[id],
         portrait_file=portrait["portrait_file"],
         smk_change=portrait["smk_change"],
         unknown1=portrait["unknown1"]
@@ -78,10 +87,12 @@ class DAT():
     return result
   
   def get_sprites(self) -> list[Sprite]:
+    from eudplib.core.rawtrigger.strdict.sprite import DefSpriteDict
     result: list[Sprite] = []
     for id, sprite in enumerate(SpritesDat.result):
       result.append(Sprite(
         id=id,
+        name=reverse_tbl_dict(DefSpriteDict)[id],
         transform=TransformComponent(
           position=Position2D()
         ),
