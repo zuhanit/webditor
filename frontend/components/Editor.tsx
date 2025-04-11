@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SideBar, SideBarItem } from "./SideBar";
+import { SideBar, SideBarItem } from "./placed_container/SideBar";
 import { defaultItems } from "@/fixtures/default_items";
 import useFetchRawMap from "@/hooks/useRawMap";
 import { Item } from "@/types/InspectorItem";
@@ -53,7 +53,8 @@ export default function Editor() {
   };
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-screen flex-col overflow-hidden">
+      {/* Upside Tab Bar */}
       <TopBar>
         <div className="flex items-center gap-2.5">
           <TopBarButton
@@ -67,12 +68,61 @@ export default function Editor() {
           <TopBarButton label="Build" onClick={onClickBuild} />
         </div>
       </TopBar>
+
+      {/* Main Content */}
+      <Resizable className="flex flex-1 overflow-hidden">
+        {/* Left Explorer (SideBar) */}
+        <Resizable>
+          <SideBar
+            items={defaultItems}
+            onSelectItem={handleSelectItem}
+            selectedItem={selectedItem}
+            className="h-full overflow-y-scroll"
+          />
+        </Resizable>
+
+        <div className="flex w-full flex-col gap-2.5">
+          {/* Layer Tab Bar */}
+          <div className="flex w-full justify-center">
+            <div className="flex w-[588px] items-center gap-2.5 rounded-[10px] bg-fills-primary px-2.5 py-1 text-lg font-medium">
+              <PanelLeft />
+              <LayerBar>
+                <LayerBarButton label="Terrain" />
+                <LayerBarButton label="Unit" />
+                <LayerBarButton label="Location" />
+                <LayerBarButton label="Sprite" />
+                <LayerBarButton label="Doodads" />
+              </LayerBar>
+            </div>
+          </div>
+
+          {/* Center Map Viewer */}
+          <div className="flex">
+            <MapImage />
+            <Resizable>
+              <Inspector item={selectedItem?.data} />
+            </Resizable>
+          </div>
+        </div>
+      </Resizable>
+
+      {/* Bottom Project/Asset Container */}
+      <div className="flex h-full flex-1 overflow-hidden">
+        <Project className="overflow-auto" />
+        <AssetContainer />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex h-screen flex-col overflow-hidden">
       <Resizable className="flex overflow-auto" enable={{ bottom: true }}>
         <Resizable defaultSize={{ width: "25%" }} className="flex-col px-4">
           <SideBar
             items={defaultItems}
             onSelectItem={handleSelectItem}
             selectedItem={selectedItem}
+            className="max-h-full overflow-y-scroll"
           />
         </Resizable>
         <div className="flex w-full flex-col gap-2.5">

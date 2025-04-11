@@ -1,4 +1,4 @@
-import { SideBarItem } from "@/components/SideBar";
+import { SideBarItem } from "@/components/placed_container/SideBar";
 import { Clock, Dock, File } from "lucide-react";
 
 const RECENT_PROJECT: SideBarItem = {

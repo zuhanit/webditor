@@ -1,8 +1,12 @@
 import { Aperture, ChevronRight } from "lucide-react";
-import { SearchBox } from "./SearchBox";
-import { useState } from "react";
+import { SearchBox } from "../SearchBox";
+import { useEffect, useState } from "react";
 import { cva } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
+import { useRawMapStore } from "@/store/mapStore";
+import { Unit } from "@/types/schemas/Unit";
+import { Sprite } from "@/types/schemas/Sprite";
+import { usePlacedEntities } from "@/hooks/usePlacedEntities";
 
 const SideBarRowStyle = cva(
   "rounded-md transition-all hover:bg-background-secondary px-1 py-1",
@@ -15,12 +19,19 @@ const SideBarRowStyle = cva(
   },
 );
 
+interface SidBarItemData<T> {
+  label: string;
+  icon?: JSX.Element;
+  properties: T[];
+}
+
 export interface SideBarItem<T> {
   label: string;
+  id: string;
   icon?: React.ReactNode;
   items?: SideBarItem<T>[];
   depth?: number;
-  data?: T;
+  data?: SidBarItemData<T>;
 }
 
 interface SideBarRowProps<T> {
@@ -48,7 +59,7 @@ function SideBarRow<T>({
 }: SideBarRowProps<T>) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const handleClick = () => {
-    if (!item.items || selectedItem?.label === item.label) {
+    if (!item.items || selectedItem?.id === item.id) {
       onSelectItem(item);
     } else {
       setIsCollapsed(!isCollapsed);
@@ -58,7 +69,7 @@ function SideBarRow<T>({
     ? { width: `${depth * 10}px`, height: "100%", display: "block" }
     : {};
   const depthValue = depth ?? 0;
-  const isClicked = selectedItem?.label === item.label;
+  const isClicked = selectedItem?.id === item.id;
 
   return (
     <>
@@ -78,7 +89,7 @@ function SideBarRow<T>({
         !isCollapsed &&
         item.items.map((subItem) => (
           <SideBarRow
-            key={subItem.label}
+            key={subItem.id}
             item={subItem}
             depth={depthValue + 1}
             onSelectItem={onSelectItem}
@@ -115,12 +126,14 @@ export function SideBar<T>({
   selectedItem,
   className,
 }: SideBarProps<T>) {
+  const placedEntities = usePlacedEntities();
+
   return (
     <div className={twMerge("flex flex-col gap-0.5", className)}>
       {!hideSearchbox && <SearchBox />}
-      {items.map((item) => (
+      {placedEntities.map((item, index) => (
         <SideBarRow
-          key={item.label}
+          key={"row" + index}
           item={item}
           onSelectItem={onSelectItem}
           selectedItem={selectedItem}

@@ -1,4 +1,4 @@
-import { SideBarItem } from "@/components/SideBar";
+import { SideBarItem } from "@/components/placed_container/SideBar";
 import { Activity } from "lucide-react";
 import Image from "next/image";
 import DarkTemplar from "../public/images/dark_templar.png";
