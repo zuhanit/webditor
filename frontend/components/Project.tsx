@@ -2,6 +2,11 @@ import { projectItems } from "@/fixtures/project_items";
 import { SideBar, SideBarItem } from "./placed_container/SideBar";
 import { useState } from "react";
 import { Resizable } from "re-resizable";
+import { twMerge } from "tailwind-merge";
+
+interface ProjectProps {
+  className?: string;
+}
 
 /**
  * Project component
@@ -9,7 +14,7 @@ import { Resizable } from "re-resizable";
  * Project includes only directory paths. It shows directory paths as a tree structure.
  * @returns Project
  */
-export function Project() {
+export function Project({ className }: ProjectProps) {
   const [selectedItem, setSelectedItem] = useState<SideBarItem<string> | null>(
     null,
   );
@@ -21,7 +26,7 @@ export function Project() {
     <Resizable
       defaultSize={{ width: "25%" }}
       enable={{ right: true }}
-      className="overflow-auto bg-background-secondary shadow-inner"
+      className={twMerge("bg-background-secondary shadow-inner", className)}
     >
       <SideBar
         items={projectItems}
