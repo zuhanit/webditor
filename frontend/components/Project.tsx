@@ -1,5 +1,5 @@
 import { projectItems } from "@/fixtures/project_items";
-import { SideBar, SideBarItem } from "./SideBar";
+import { SideBar, SideBarItem } from "./placed_container/SideBar";
 import { useState } from "react";
 import { Resizable } from "re-resizable";
 

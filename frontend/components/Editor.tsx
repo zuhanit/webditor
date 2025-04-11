@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SideBar, SideBarItem } from "./SideBar";
+import { SideBar, SideBarItem } from "./placed_container/SideBar";
 import { defaultItems } from "@/fixtures/default_items";
 import useFetchRawMap from "@/hooks/useRawMap";
 import { Item } from "@/types/InspectorItem";
