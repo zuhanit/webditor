@@ -52,7 +52,7 @@ export function AssetContainer({ children }: AssetContainerProps) {
       >
         {gameMap
           ? gameMap.unit.map((unit, id) => (
-              <AssetCard id={id} key={id} label={id} />
+              <AssetCard id={id} key={id} label={unit.name} />
             ))
           : undefined}
         {children}

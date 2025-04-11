@@ -9,6 +9,7 @@ from app.models.tech import Technology, Upgrade
 from app.models.unit import CHKUnit, RequiredAndProvided, Unit, UnitAIComponent, UnitCostComponent, UnitSizeComponent, UnitSoundComponent, UnitSpecificationComponent, UnitStatComponent
 from app.services.rawdata.dat import DAT
 from .rawdata.datdata import *
+from .utils.reverse import reverse_tbl_dict
 
 class Merger():
   def __init__(self, chk: CHK, dat: DAT):
@@ -16,6 +17,7 @@ class Merger():
     self.dat = dat
 
   def merge_weapon(self) -> list[WeaponDefinition]:
+    from eudplib.core.rawtrigger.strdict.weapon import DefWeaponDict
     result: list[WeaponDefinition] = []
     chk_weapons = self.chk.get_weapons()
     for id, weapon in enumerate(WeaponsDat.result):
@@ -23,6 +25,7 @@ class Merger():
 
       result.append(WeaponDefinition(
         id=id,
+        name=reverse_tbl_dict(DefWeaponDict)[id],
         damage=Damage(
           amount=chk_damage.amount,
           bonus=chk_damage.bonus,
@@ -54,6 +57,7 @@ class Merger():
     return result
 
   def merge_upgrade(self) -> list[Upgrade]:
+    from eudplib.core.rawtrigger.strdict.upgrade import DefUpgradeDict
     result: list[Upgrade] = []
     chk_upgrades = self.chk.get_upgrade_settings()
     for id, upgrade in enumerate(UpgradesDat.result):
@@ -61,6 +65,7 @@ class Merger():
       
       result.append(Upgrade(
         id=id,
+        name=reverse_tbl_dict(DefUpgradeDict)[id],
         use_default=False,
         base_cost=chk_upgrade.base_cost,
         factor_cost=chk_upgrade.factor_cost,
@@ -72,6 +77,7 @@ class Merger():
     return result
   
   def merge_tech(self) -> list[Technology]:
+    from eudplib.core.rawtrigger.strdict.tech import DefTechDict
     result: list[Technology] = []
     chk_technologies = self.chk.get_technologies()
     for id, tech in enumerate(TechdataDat.result):
@@ -79,6 +85,7 @@ class Merger():
       
       result.append(Technology(
         id=id,
+        name=reverse_tbl_dict(DefTechDict)[id],
         use_default=False,
         cost=chk_tech.cost,
         energy_required=bool(tech["energy_required"]),
@@ -168,6 +175,7 @@ class Merger():
 
       result.append(Unit(
         id=id,
+        name=chk_unit.name,
         transform=TransformComponent(
           position=Position2D()
         ),

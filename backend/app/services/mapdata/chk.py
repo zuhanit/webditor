@@ -14,6 +14,7 @@ from app.models.mask import Mask
 from app.models.tech import TechRestriction, UpgradeRestriction, TechCost, CHKTechnology, UpgradeSetting
 from app.models.rawtrigger import RawTriggerSection
 from app.models.project import Map, ScenarioProperty
+from ..utils.reverse import reverse_tbl_dict
 import struct
 import copy
 
@@ -81,6 +82,7 @@ class CHK:
   Unit section processings 
   """
   def get_units(self) -> list[CHKUnit]:
+    from eudplib.core.rawtrigger.strdict.stattxt import DefStatTextDict
     if len(self.string_table) == 0:
       raise ValueError("Must initialize string table before call `get units`")
 
@@ -89,7 +91,7 @@ class CHK:
     unpacked = struct.unpack(CHK_FORMATDICT["UNIx"], self.chkt.getsection("UNIx"))
     for id in range(228):
       unitname_id: int = unpacked[id + (228 * 7)]
-      unit_name = self.string_table[unitname_id]
+      unit_name = self.string_table[unitname_id].content if unitname_id != 0 else reverse_tbl_dict(DefStatTextDict)[id + 1]
       hit_points = Stat(current=unpacked[id + 228], max=unpacked[id + 228])
       shield_points = Stat(
         current=unpacked[id + (228 * 2)], max=unpacked[id + (228 * 2)]
@@ -98,7 +100,7 @@ class CHK:
         CHKUnit(
           id=id,
           cost=Cost(mineral=unpacked[id + (228 * 6)], gas=unpacked[id + (228 * 5)], time=unpacked[id + (228 * 4)]),
-          name=unit_name.content,
+          name=unit_name,
           hit_points=hit_points,
           shield_points=shield_points,
           armor_points=unpacked[id + (228 * 3)],
@@ -855,7 +857,7 @@ class CHKBuilder():
       *[u.cost.cost.time for u in units],
       *[u.cost.cost.mineral for u in units],
       *[u.cost.cost.gas for u in units],
-      *[self.find_string_by_content(u.name).id for u in units],
+      *[self.find_string_by_content(u.name).id if not u.use_default else 0 for u in units],
       # FIXME: Use weapons.dat
       *[w.damage.amount for w in weapons],
       *[w.damage.bonus for w in weapons], 

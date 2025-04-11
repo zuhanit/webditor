@@ -35,6 +35,7 @@ class CHKUnit(Entity):
   related_unit: int = 0
   special_properties: int = 0
   valid_properties: int = 0
+  use_default: bool = True
 
 class UnitSpecificationComponent(EntityComponent):
   id: int = 0
@@ -101,6 +102,7 @@ class UnitCostComponent(EntityComponent):
 
 class Unit(Entity):
   serial_number: int = -1
+  use_default: bool = True
   """Identical number when unit placed on map. -1 When non-placed unit."""
   
   basic_specification: UnitSpecificationComponent
