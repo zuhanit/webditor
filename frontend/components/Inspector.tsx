@@ -1,9 +1,7 @@
 import { Collapsible, CollapsibleContent } from "./ui/collapsible";
 import { ListHeader } from "./ui/listheader";
-import Image from "next/image";
-import DarkTemplar from "../public/images/dark_templar.png";
 import { Square } from "lucide-react";
-import { SquareCheck, SquareDashed } from "lucide-react";
+import { SquareCheck } from "lucide-react";
 import { useState } from "react";
 import { Item } from "@/types/InspectorItem";
 import { Resizable } from "re-resizable";
