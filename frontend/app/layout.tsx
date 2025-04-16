@@ -21,6 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="kr" className={`${pretendard.variable} antialiased`}>
+      <head>
+        <script src="http://localhost:8097"></script>
+      </head>
       <body className={pretendard.className}>{children}</body>
     </html>
   );

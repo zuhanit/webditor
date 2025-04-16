@@ -1,12 +1,10 @@
 import { Aperture, ChevronRight } from "lucide-react";
 import { SearchBox } from "../SearchBox";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { cva } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
-import { useRawMapStore } from "@/store/mapStore";
-import { Unit } from "@/types/schemas/Unit";
-import { Sprite } from "@/types/schemas/Sprite";
 import { usePlacedEntities } from "@/hooks/usePlacedEntities";
+import { Item } from "@/types/InspectorItem";
 
 const SideBarRowStyle = cva(
   "rounded-md transition-all hover:bg-background-secondary px-1 py-1",
@@ -19,19 +17,13 @@ const SideBarRowStyle = cva(
   },
 );
 
-interface SidBarItemData<T> {
-  label: string;
-  icon?: JSX.Element;
-  properties: T[];
-}
-
 export interface SideBarItem<T> {
   label: string;
   id: string;
   icon?: React.ReactNode;
   items?: SideBarItem<T>[];
   depth?: number;
-  data?: SidBarItemData<T>;
+  data?: Item;
 }
 
 interface SideBarRowProps<T> {
@@ -60,6 +52,7 @@ function SideBarRow<T>({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const handleClick = () => {
     if (!item.items || selectedItem?.id === item.id) {
+      console.log("SideBar Clicking", item);
       onSelectItem(item);
     } else {
       setIsCollapsed(!isCollapsed);

@@ -105,10 +105,8 @@ class Merger():
       try: 
         ground_weapon_id = unit["ground_weapon"]
         air_weapon_id = unit["air_weapon"]
-        # ground_weapon = weapon_definitions[ground_weapon_id] if ground_weapon_id < 130 else None
-        ground_weapon = weapon_definitions[8]
-        # air_weapon = weapon_definitions[air_weapon_id] if air_weapon_id < 130 else None
-        air_weapon = weapon_definitions[8]
+        ground_weapon = weapon_definitions[ground_weapon_id] if ground_weapon_id < 130 else None
+        air_weapon = weapon_definitions[air_weapon_id] if air_weapon_id < 130 else None
       except IndexError as e:
         raise IndexError(f"Invalid weapon id of unit {id}. Ground: {ground_weapon_id}, Air: {air_weapon_id}")
 

@@ -16,12 +16,10 @@ import { TopBar, TopBarButton } from "./topbar/TopBar";
 import api from "@/lib/api";
 
 export default function Editor() {
-  const [selectedItem, setSelectedItem] = useState<SideBarItem<Item> | null>(
-    null,
-  );
-  const handleSelectItem = (item: SideBarItem<Item>) => {
-    setSelectedItem(item);
-    console.log(item, "Selected");
+  const [selectedEntity, setSelectedEntity] =
+    useState<SideBarItem<Item> | null>(null);
+  const handleSelectedEntity = (item: SideBarItem<Item>) => {
+    setSelectedEntity(item);
   };
   const rawMap = useFetchRawMap("test_map");
 
@@ -32,6 +30,7 @@ export default function Editor() {
     if (!rawMap) return;
 
     try {
+      console.log("Compiling map", rawMap.rawMap);
       const response = await api.post("/api/v1/maps/build", rawMap.rawMap, {
         responseType: "blob",
       });
@@ -75,8 +74,8 @@ export default function Editor() {
         <Resizable>
           <SideBar
             items={defaultItems}
-            onSelectItem={handleSelectItem}
-            selectedItem={selectedItem}
+            onSelectItem={handleSelectedEntity}
+            selectedItem={selectedEntity}
             className="h-full overflow-y-scroll"
           />
         </Resizable>
@@ -97,55 +96,16 @@ export default function Editor() {
           </div>
 
           {/* Center Map Viewer */}
-          <div className="flex">
+          <div className="flex h-full">
             <MapImage />
-            <Resizable>
-              <Inspector item={selectedItem?.data} />
-            </Resizable>
+            <Inspector item={selectedEntity?.data} />
           </div>
         </div>
       </Resizable>
 
       {/* Bottom Project/Asset Container */}
-      <div className="flex h-full flex-1 overflow-hidden">
+      <div className="flex h-full flex-1 overflow-hidden border-t-2 border-t-fills-primary">
         <Project className="overflow-auto" />
-        <AssetContainer />
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="flex h-screen flex-col overflow-hidden">
-      <Resizable className="flex overflow-auto" enable={{ bottom: true }}>
-        <Resizable defaultSize={{ width: "25%" }} className="flex-col px-4">
-          <SideBar
-            items={defaultItems}
-            onSelectItem={handleSelectItem}
-            selectedItem={selectedItem}
-            className="max-h-full overflow-y-scroll"
-          />
-        </Resizable>
-        <div className="flex w-full flex-col gap-2.5">
-          <div className="flex w-full justify-center">
-            <div className="flex w-[588px] items-center gap-2.5 rounded-[10px] bg-fills-primary px-2.5 py-1 text-lg font-medium">
-              <PanelLeft />
-              <LayerBar>
-                <LayerBarButton label="Terrain" />
-                <LayerBarButton label="Unit" />
-                <LayerBarButton label="Location" />
-                <LayerBarButton label="Sprite" />
-                <LayerBarButton label="Doodads" />
-              </LayerBar>
-            </div>
-          </div>
-          <div className="flex">
-            <MapImage />
-            <Inspector item={selectedItem?.data} />
-          </div>
-        </div>
-      </Resizable>
-      <div className="flex h-full flex-1 overflow-hidden">
-        <Project />
         <AssetContainer />
       </div>
     </div>
