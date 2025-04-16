@@ -29,8 +29,8 @@ function drawMegatile(
 }
 
 export const MapImage = () => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const mapCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const viewportCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const entireMapCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const tileGroup = useTileGroup();
   const tilesetData = useTilesetData();
   const rawmap = useRawMapStore((state) => state.rawMap);
@@ -38,8 +38,8 @@ export const MapImage = () => {
   const [viewport, setViewport] = useState({
     startX: 0,
     startY: 0,
-    tileWidth: 20,
-    tileHeight: 15,
+    tileWidth: 40,
+    tileHeight: 75,
   });
 
   useEffect(() => {
@@ -66,15 +66,15 @@ export const MapImage = () => {
       }
     }
 
-    mapCanvasRef.current = mapCanvas;
+    entireMapCanvasRef.current = mapCanvas;
 
     // Initialize viewport
     setViewport((prev) => ({ ...prev }));
   }, [rawmap, tileGroup, tilesetData]);
 
   useEffect(() => {
-    const viewCanvas = canvasRef.current;
-    const mapCanvas = mapCanvasRef.current;
+    const viewCanvas = viewportCanvasRef.current;
+    const mapCanvas = entireMapCanvasRef.current;
     if (!viewCanvas || !mapCanvas) return;
 
     const tileSize = 32;
@@ -127,6 +127,31 @@ export const MapImage = () => {
     }
   }
 
+  useEffect(() => {
+    const observer = new ResizeObserver((entries) => {
+      const canvas = entries[0].target as HTMLCanvasElement;
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      const tileSize = 32;
+
+      setViewport((prev) => ({
+        ...prev,
+        tileWidth: Math.floor(width / tileSize),
+        tileHeight: Math.floor(height / tileSize),
+      }));
+    });
+
+    if (viewportCanvasRef.current) {
+      observer.observe(viewportCanvasRef.current);
+    }
+
+    return () => {
+      if (viewportCanvasRef.current) {
+        observer.unobserve(viewportCanvasRef.current);
+      }
+    };
+  }, []);
+
   function handleMouseUp() {
     setIsDragging(false);
     dragStart.current = null;
@@ -135,10 +160,11 @@ export const MapImage = () => {
   return (
     <div className="w-full">
       <canvas
-        ref={canvasRef}
+        ref={viewportCanvasRef}
         style={{
           cursor: isDragging ? "grabbing" : "grab",
         }}
+        className="h-full w-full"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
