@@ -1,31 +1,36 @@
 import { SideBarItem } from "@/components/placed_container/SideBar";
 import { useRawMapStore } from "@/store/mapStore";
-import { Unit, Sprite, Map } from "@/types/schemas/Map";
+import { Entity } from "@/types/schemas/Entity";
+import { Unit, Sprite, Map, Unit1, Sprite1 } from "@/types/schemas/Map";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-function getUnitItems(gameMap: Map): SideBarItem<Unit>[] {
-  const items = gameMap.placed_unit.map<SideBarItem<Unit>>((unit) => ({
-    label: unit.name,
+function getUnitItems(gameMap: Map): SideBarItem<Unit1>[] {
+  const items = gameMap.placed_unit.map<SideBarItem<Unit1>>((unit, index) => ({
+    label: unit.name as string,
     id: uuidv4(),
     data: {
       label: unit.name,
-      properties: [unit],
+      path: ["placed_unit", index],
+      properties: unit,
     },
   }));
 
   return items;
 }
 
-function getSpriteItems(gameMap: Map): SideBarItem<Sprite>[] {
-  const items = gameMap.placed_unit.map<SideBarItem<Sprite>>((sprite) => ({
-    label: sprite.name,
-    id: uuidv4(),
-    data: {
-      label: sprite.name,
-      properties: [sprite],
-    },
-  }));
+function getSpriteItems(gameMap: Map): SideBarItem<Sprite1>[] {
+  const items = gameMap.placed_sprite.map<SideBarItem<Sprite1>>(
+    (sprite, index) => ({
+      label: sprite.name as string,
+      id: uuidv4(),
+      data: {
+        label: sprite.name,
+        path: ["placed_sprite", index],
+        properties: sprite,
+      },
+    }),
+  );
 
   return items;
 }
