@@ -18,6 +18,9 @@
     "json-schema-to-typescript": "^15.0.4"
   },
   "devDependencies": {
+    "json-refs": "^3.0.15",
+    "json-schema-to-zod": "^2.6.1",
+    "prettier": "^3.5.3",
     "quicktype": "^23.0.171"
   }
 }
