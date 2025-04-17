@@ -1,4 +1,5 @@
 from typing import cast
+from app.core.w_logging import get_logger
 from app.models.sprite import CHKSprite, Sprite
 from app.services.mapdata.chk import CHK
 from app.models.spatial import Position2D, RectPosition, Size
@@ -10,9 +11,12 @@ from app.models.unit import CHKUnit, RequiredAndProvided, Unit, UnitAIComponent,
 from app.services.rawdata.dat import DAT
 from .rawdata.datdata import *
 from .utils.reverse import reverse_tbl_dict
+from rich.table import Table
+from app.core.w_logging import log_rich_table
 
 class Merger():
   def __init__(self, chk: CHK, dat: DAT):
+    self.logger = get_logger("merger")
     self.chk = chk
     self.dat = dat
 
@@ -20,6 +24,7 @@ class Merger():
     from eudplib.core.rawtrigger.strdict.weapon import DefWeaponDict
     result: list[WeaponDefinition] = []
     chk_weapons = self.chk.get_weapons()
+
     for id, weapon in enumerate(WeaponsDat.result):
       chk_damage = chk_weapons[id].damage
 
@@ -54,6 +59,7 @@ class Merger():
         graphics=weapon["graphics"]
       ))
     
+    self.logger.debug(f"Merge weapon complete. {len(result)} weapons merged.")
     return result
 
   def merge_upgrade(self) -> list[Upgrade]:
@@ -74,6 +80,7 @@ class Merger():
         race=upgrade["race"]
       ))
     
+    self.logger.debug(f"Merge upgrade complete. {len(result)} upgreads merged.")
     return result
   
   def merge_tech(self) -> list[Technology]:
@@ -94,6 +101,7 @@ class Merger():
         race=tech["race"],
       ))
     
+    self.logger.debug(f"Merge tech complete. {len(result)} technologies merged.")
     return result
   
   def merge_unit(self) -> list[Unit]:
@@ -208,6 +216,7 @@ class Merger():
         ),
       ))
       
+    self.logger.debug(f"Merge unit complete. {len(result)} units merged.")
     return result
   
   def merge_placed_unit(self) -> list[Unit]:
@@ -239,6 +248,7 @@ class Merger():
       
       result.append(_merge(unit, unit_spec))
     
+    self.logger.debug(f"Merge placed unit complete. {len(result)} units merged.")
     return result
   
   def merge_placed_sprite(self) -> list[Sprite]:
@@ -260,4 +270,5 @@ class Merger():
 
       result.append(_merge(sprite, sprite_spec))
     
+    self.logger.debug(f"Merge placed sprites complete. {len(result)} sprites merged.")
     return result
