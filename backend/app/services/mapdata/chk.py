@@ -1,3 +1,4 @@
+from app.core.w_logging import get_logger
 from eudplib.core.mapdata.chktok import CHK as EPCHK
 from typing import Literal, TypedDict, cast
 from app.models.unit import Cost, Stat, CHKUnit, UnitProperty, UnitRestriction
@@ -72,6 +73,8 @@ class CHK:
   """Not placed unit table."""
 
   def __init__(self, chkt: EPCHK):
+    self.logger = get_logger("CHK")
+    self.logger.debug("Initializing CHK with raw data.")
     self.chkt = chkt
     self.string_table = self.get_strings()
     self.player_table = self.get_players()
@@ -111,6 +114,7 @@ class CHK:
         )
       )
 
+    self.logger.debug(f"get_units complete: {len(result)} units parsed.") 
     return result
 
   def get_placed_units(self) -> list[CHKUnit]:
@@ -145,6 +149,7 @@ class CHK:
 
       result.append(unitdata)
 
+    self.logger.debug(f"get_placed_units complete: {len(result)} units parsed.") 
     return result
 
   def get_unit_properties(self) -> list[UnitProperty]:
@@ -169,6 +174,7 @@ class CHK:
         flags=uprp[8]
       ))
       
+    self.logger.debug(f"get_placed_properties complete: {len(result)} properties parsed.") 
     return result
   
   def get_unit_restrictions(self) -> list[UnitRestriction]:
@@ -200,6 +206,7 @@ class CHK:
             uses_defaults=uses_defaults,
         ))
   
+    self.logger.debug(f"get_placed_restrictions complete: {len(result)} restrictions parsed.") 
     return result
   
   """
@@ -214,6 +221,7 @@ class CHK:
         damage=Damage(amount=unpacked[id], bonus=unpacked[130 + id], factor=0)
       ))
 
+    self.logger.debug(f"get_weapons complete: {len(result)} weapons parsed.") 
     return result
     
 
@@ -242,6 +250,7 @@ class CHK:
         )
         tile_id[y][x] = tile
 
+    self.logger.debug(f"get_trains complete. Width: {dimension.width}, Height: {dimension.height}")
     return RawTerrain(size=dimension, tileset=EraTilesetDict[tileset], tile_id=tile_id)
 
   """
@@ -269,6 +278,7 @@ class CHK:
     for index, value in enumerate(P):
       result[index].force = value 
 
+    self.logger.debug(f"get_players complete. {len(result)} players parsed.")
     return result
 
   def get_forces(self) -> list[Force]: 
@@ -283,6 +293,7 @@ class CHK:
         properties=FORC[12 + i],
       ))
     
+    self.logger.debug(f"get_forces complete. {len(result)} forces parsed.")
     return result
 
   """
@@ -308,6 +319,7 @@ class CHK:
         )
       )
 
+    self.logger.debug(f"get_locations complete. {len(result)} locations parsed.")
     return result
 
   """
@@ -337,6 +349,7 @@ class CHK:
         )
       )
 
+    self.logger.debug(f"get_placed_sprites complete. {len(result)} sprites parsed.")
     return result
 
   """
@@ -363,10 +376,14 @@ class CHK:
       raise ValueError("Must initialize string table before call `get_scenario_properties()`")
 
     SPRP = struct.unpack("2H", self.chkt.getsection("SPRP"))
-    
+    name = self.string_table[SPRP[0] - 1]
+    description = self.string_table[SPRP[1] - 1]
+
+    self.logger.debug(f"get_scenario_properties complete. name: {name}, description: {description}")
+
     return ScenarioProperty(
-      name=self.string_table[SPRP[0] - 1],
-      description=self.string_table[SPRP[1] - 1],
+      name=name,
+      description=description
     )
     
   """
@@ -379,6 +396,7 @@ class CHK:
     # FIXME: VCOD validation need
     vcod_bytes = self.chkt.getsection("VCOD")
     
+    self.logger.debug("get_validation complete.")
     return Validation(
       ver=ver_bytes,
       vcod=vcod_bytes,
@@ -394,6 +412,7 @@ class CHK:
         flag = struct.unpack("B", mask_bytes[position : position + 1])[0]
         result.append(Mask(id=position, flags=flag))
         
+    self.logger.debug("get_mask complete.")
     return result
    
   """
@@ -430,6 +449,7 @@ class CHK:
             )
         )
 
+    self.logger.debug(f"get_upgrade_restrictions complete. {len(result)} restrictions parsed.")
     return result
   
   def get_tech_restrictions(self) -> list[TechRestriction]:
@@ -471,6 +491,7 @@ class CHK:
         )
       )
 
+    self.logger.debug(f"get_tech_restrictions complete. {len(result)} restrictions parsed.")
     return result
   
   def get_upgrade_settings(self) -> list[UpgradeSetting]:
@@ -506,6 +527,7 @@ class CHK:
               )
           )
 
+      self.logger.debug(f"get_upgrade_settings complete. {len(result)} settings parsed.")
       return result
   
   def get_technologies(self) -> list[CHKTechnology]:
@@ -534,16 +556,19 @@ class CHK:
         )
       )
       
+    self.logger.debug(f"get_upgrade_settings complete. {len(result)} technologies parsed.")
     return result
   
   def get_triggers(self) -> RawTriggerSection:
     trig_bytes = self.chkt.getsection("TRIG")
 
+    self.logger.debug("get_triggers complete.")
     return RawTriggerSection(raw_data=trig_bytes)
   
   def get_mbrf_triggers(self) -> RawTriggerSection:
     mbrf_bytes = self.chkt.getsection("MBRF")
     
+    self.logger.debug("get_mbrf_triggers complete.")
     return RawTriggerSection(raw_data=mbrf_bytes)
   
 
@@ -554,6 +579,7 @@ def section(name: str, data: bytes) -> bytes:
 class CHKBuilder():
   def __init__(self, map: Map):
     self.map = map
+    self.logger = get_logger("CHK")
   
   def to_bytes(self) -> bytes:
     USED_SECTION = (

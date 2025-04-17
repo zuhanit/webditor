@@ -1,4 +1,6 @@
 import io
+import os
+from app.core.w_logging import get_logger 
 from app.services.rawdata.dat import DAT
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import StreamingResponse
@@ -14,10 +16,12 @@ import datetime
 
 router = APIRouter()
 
-
+upload_logger = get_logger("upload")
 @router.post("/upload/")
 async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user)):
   """Get webditor-based transformed data by uploaded map."""
+  user_id = user["user_id"]
+  upload_logger.info(f"User {user_id} requested to upload {file.filename}.")
   if not file.filename:
     raise HTTPException(status_code=403, detail="Invalid filename")
 
@@ -49,6 +53,7 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
 
     db.collection("projects").add(project.model_dump(mode="json"))
 
+    upload_logger.info(f"Upload {file.filename} was succesful.")
     return {"url": download_url, "path": filename, "raw_map": raw_map}
 
   except Exception as e:
@@ -65,17 +70,32 @@ async def get_test_map():
     
     return map.model_dump(mode="json")
   
-  
+
+build_logger = get_logger("build") 
 @router.post("/build")
 def get_build_map(map: Map):
+  build_logger.info("Started to building map.")
+
   try: 
     map_bytes = build_map(map)
   except Exception as e:
+    build_logger.critical("Building map was failed, because of ", e)
     raise HTTPException(status_code=500, detail=str(e))
 
   buffer = io.BytesIO(map_bytes)
   buffer.seek(0)
   
+  timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d_%H%M%S")
+  json_path = f"logs/map_{timestamp}.json"
+  os.makedirs("logs", exist_ok=True)
+
+  with open(json_path, mode="a", newline="") as f:
+    import json
+    json.dump(map.model_dump(mode="json"), f, indent=2)
+    build_logger.info(f"Map structure saved in {json_path}")
+
+  build_logger.info("Building was succesful.")
+
   return StreamingResponse(
     buffer,
     media_type="application/octet-stream",

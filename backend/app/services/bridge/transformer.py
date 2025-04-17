@@ -1,12 +1,14 @@
+from app.core.w_logging import get_logger, log_rich_table
 from eudplib import EUDMethod, EUDOnStart
-from wengine.entities.unit import Unit
 from app.models.project import Map
 from typing import Callable
+from rich.table import Table
 
 class Transformer():
   """Backend model into wengine-based trigger transformer."""
   def __init__(self, map: Map):
     self.map = map
+    self.logger = get_logger("transformer")
     
   def transform(self) -> Callable:
     def _main():
@@ -111,6 +113,8 @@ class Transformer():
       unit.supplyUsed = rawunit.cost.supply.required
       unit.transportSpaceProvided = rawunit.cost.space.provided
       unit.transportSpaceRequired = rawunit.cost.space.required
+
+    self.logger.info(f"Initializing unit specifications was succesful. Total initialized {len(self.map.unit)}")
     
   @EUDMethod
   def initialize_tech_specification(self):
@@ -122,6 +126,8 @@ class Transformer():
       tech.icon = rawtech.icon
       tech.label = rawtech.label
       tech.race = rawtech.race
+
+    self.logger.info(f"Initializing tech specifications was succesful. Total initialized {len(self.map.technologies)}")
   
   @EUDMethod
   def initialize_upgrade_specification(self):
@@ -132,10 +138,13 @@ class Transformer():
       upgrade.icon = rawupgrade.icon
       upgrade.label = rawupgrade.label
       upgrade.race = rawupgrade.race
+
+    self.logger.info(f"Initializing upgrade specifications was succesful. Total initialized {len(self.map.upgrades)}")
   
   @EUDMethod
   def initialize_weapon_specification(self):
     from eudplib import Weapon
+
     for rawweapon in self.map.weapons:
       weapon = Weapon(rawweapon.id)
       
@@ -163,6 +172,8 @@ class Transformer():
       weapon.splashInnerRadius = rawweapon.splash.inner
       weapon.splashMiddleRadius = rawweapon.splash.medium
       weapon.splashOuterRadius = rawweapon.splash.outer
+
+    self.logger.info(f"Initializing weapon specifications was succesful. Total initialized {len(self.map.weapons)}")
     
   @EUDMethod
   def initialize_sprite_speicification(self):
@@ -178,6 +189,8 @@ class Transformer():
         """
         ...
 
+    self.logger.info(f"Initializing sprite_specfications was succesful. Total initialized {len(self.map.sprite)}")
+
   @EUDMethod
   def initialize_image_specifications(self):
     from eudplib import Image
@@ -191,6 +204,8 @@ class Transformer():
       image.drawingFunction = rawimage.draw_function
       image.iscript = rawimage.iscript_id
       image.useFullIscript = rawimage.use_full_iscript
+
+    self.logger.info(f"Initializing image specifications was succesful. Total initialized {len(self.map.images)}")
   
   @EUDMethod
   def initialize_flingy_specifications(self):
@@ -205,6 +220,8 @@ class Transformer():
       flingy.turnSpeed = rawflingy.turnRadius
       flingy.turnRadius = rawflingy.turnRadius
       flingy.movementControl = rawflingy.moveControl
+
+    self.logger.info(f"Initializing flingy specifications was succesful. Total initialized {len(self.map.flingy)}")
   
   @EUDMethod
   def initialize_order_specifications(self):
@@ -219,3 +236,5 @@ class Transformer():
       order.disablingKeepsTarget = raworder.targeting
       order.animation = raworder.animation
       order.obscuredOrder = raworder.obscured_order
+
+    self.logger.info(f"Initializing order specifications was succesful. Total initialized {len(self.map.orders)}")
