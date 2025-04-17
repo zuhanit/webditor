@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Item } from "@/types/InspectorItem";
 import { Resizable } from "re-resizable";
 import { useRawMapStore } from "@/store/mapStore";
+import { trackInspectorEdit } from "@/lib/firebase/analytics";
 
 function InspectorHeader({ label }: { label: string }) {
   const [isChecked, setIsChecked] = useState(false);
@@ -124,19 +125,6 @@ interface InspectorProps {
 }
 
 export const Inspector = ({ item }: InspectorProps) => {
-  const updateRawMap = useRawMapStore((state) => state.updateRawMap); // zustand 또는 context 등
-
-  const handleChange = (path: string[], newValue: any) => {
-    updateRawMap((draft) => {
-      let target = draft;
-      console.log("Inspector Handling", target, path);
-      for (let i = 0; i < path.length - 1; i++) {
-        target = target[path[i]];
-      }
-      target[path[path.length - 1]] = newValue;
-    });
-  };
-
   if (!item)
     return (
       <Resizable
@@ -147,6 +135,20 @@ export const Inspector = ({ item }: InspectorProps) => {
         <div></div>
       </Resizable>
     );
+
+  const updateRawMap = useRawMapStore((state) => state.updateRawMap); // zustand 또는 context 등
+  const handleChange = (path: string[], newValue: any) => {
+    updateRawMap((draft) => {
+      let target = draft;
+      console.log("Inspector Handling", target, path);
+      for (let i = 0; i < path.length - 1; i++) {
+        target = target[path[i]];
+      }
+      target[path[path.length - 1]] = newValue;
+    });
+
+    trackInspectorEdit(item.label, path.join("."), newValue);
+  };
 
   return (
     <Resizable
