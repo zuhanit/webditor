@@ -9,7 +9,7 @@ from tempfile import NamedTemporaryFile
 from io import BytesIO
 from app.services.mapdata.chk import CHK, CHKBuilder
 from app.services.rawdata.dat import DAT
-from app.models.project import Map
+from app.models.project import Usemap
 from app.services.bridge.transformer import Transformer
 import uuid
 
@@ -38,7 +38,7 @@ def get_map(chk: CHK, dat: DAT):
   """
   """
   merger = Merger(chk, dat)
-  map: Map = Map(
+  map: Usemap = Usemap(
     terrain=chk.get_terrain(),
     player=chk.get_players(),
     location=chk.get_locations(),
@@ -68,7 +68,7 @@ def get_map(chk: CHK, dat: DAT):
   
   return map
 
-def build_map(map: Map, delete: bool = True):
+def build_map(map: Usemap, delete: bool = True):
   """Build map by eudplib.
   
   This function uses `eudplib.LoadMap()` and `eudplib.SaveMap()` internally,

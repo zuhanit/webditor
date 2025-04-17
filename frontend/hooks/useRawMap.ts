@@ -1,8 +1,9 @@
 import api from "@/lib/api";
 import { useRawMapStore } from "@/store/mapStore";
-import { Map } from "@/types/schemas/Map";
+import { Usemap } from "@/types/schemas/Usemap";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { z } from "zod";
 
 export default function useFetchRawMap(mapName: string) {
   const setRawMap = useRawMapStore((state) => state.setRawMap);
@@ -12,7 +13,7 @@ export default function useFetchRawMap(mapName: string) {
   const { data, isLoading, isSuccess } = useQuery({
     queryKey: ["rawMap", mapName],
     queryFn: async () => {
-      const res = await api.get<Map>(`/api/v1/maps/${mapName}`);
+      const res = await api.get<Usemap>(`/api/v1/maps/${mapName}`);
       return res.data;
     },
   });

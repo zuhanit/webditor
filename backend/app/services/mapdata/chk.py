@@ -14,7 +14,7 @@ from app.models.validation import Validation
 from app.models.mask import Mask
 from app.models.tech import TechRestriction, UpgradeRestriction, TechCost, CHKTechnology, UpgradeSetting
 from app.models.rawtrigger import RawTriggerSection
-from app.models.project import Map, ScenarioProperty
+from app.models.project import Usemap, ScenarioProperty
 from ..utils.reverse import reverse_tbl_dict
 import struct
 import copy
@@ -577,7 +577,7 @@ def section(name: str, data: bytes) -> bytes:
   return header + data
 
 class CHKBuilder():
-  def __init__(self, map: Map):
+  def __init__(self, map: Usemap):
     self.map = map
     self.logger = get_logger("CHK")
   

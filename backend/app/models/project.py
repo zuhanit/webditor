@@ -20,7 +20,7 @@ class ScenarioProperty(BaseModel):
   name: String
   description: String
   
-class Map(BaseModel):
+class Usemap(BaseModel):
   terrain: RawTerrain 
   player: list[Player]
   location: list[Location]
