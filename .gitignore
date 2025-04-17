@@ -22,3 +22,6 @@ preprocess/output/**/*
 
 **/*/output
 **/*/output/**/*
+
+**/*/logs
+**/*/logs/**/*
