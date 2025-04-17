@@ -6,7 +6,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from firebase_admin import storage, firestore
 from app.core.firebase.auth import get_current_user
-from app.models.project import Map, Project
+from app.models.project import Usemap, Project
 from app.services.mapdata.io import build_map, get_chkt, get_map
 from app.services.mapdata.chk import CHK
 from io import BytesIO
@@ -73,7 +73,7 @@ async def get_test_map():
 
 build_logger = get_logger("build") 
 @router.post("/build")
-def get_build_map(map: Map):
+def get_build_map(map: Usemap):
   build_logger.info("Started to building map.")
 
   try: 
