@@ -52,7 +52,6 @@ function InspectorContent({
   const fullPath = [...path, label];
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    console.log("Handling", path);
     const inputType = typeof value;
     const updatedValue =
       inputType === "number"
@@ -140,7 +139,6 @@ export const Inspector = ({ item }: InspectorProps) => {
   const handleChange = (path: string[], newValue: any) => {
     updateRawMap((draft) => {
       let target = draft;
-      console.log("Inspector Handling", target, path);
       for (let i = 0; i < path.length - 1; i++) {
         target = target[path[i]];
       }
