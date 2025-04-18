@@ -1,5 +1,5 @@
 from .location import Location
-from .object import Object
+from .wobject import WObject
 from .player import Player
 from .sprite import Sprite
 from .string import String
@@ -8,7 +8,7 @@ from .unit import CHKUnit
 
 __all__ = [
   "Location",
-  "Object",
+  "WObject",
   "Player",
   "Sprite",
   "String",

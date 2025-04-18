@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 from .spatial import Position2D, Size, RectPosition
 from .player import Player
-from .object import Object
+from .wobject import WObject
 from .components.component import EntityComponent
 from .components.weapon_component import WeaponComponent
 from .entity import Entity
@@ -11,7 +11,7 @@ from .cost import Cost
 from enum import Flag
 
 
-class Stat(Object):
+class Stat(WObject):
   current: int = Field(default=0, ge=0)
   max: int = Field(default=0, ge=0)
 
@@ -153,7 +153,7 @@ class UnitStateFlag(Flag):
   hallucinated = 0b1000
   invincible = 0b10000
 
-class UnitProperty(Object):
+class UnitProperty(WObject):
   """Create units with properties trigger used."""
   special_properties: int
   unit_data: int
@@ -165,7 +165,7 @@ class UnitProperty(Object):
   units_in_hangar: int
   flags: int
   
-class UnitRestriction(Object):
+class UnitRestriction(WObject):
   availability: list[bool]
   global_availability: bool
   uses_defaults: list[bool]

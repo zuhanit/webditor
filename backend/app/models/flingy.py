@@ -1,6 +1,6 @@
-from .object import Object
+from .wobject import WObject
 
-class Flingy(Object):
+class Flingy(WObject):
   sprite: int
   topSpeed: int
   acceleration: int

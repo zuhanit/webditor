@@ -1,7 +1,7 @@
-from .object import Object
+from .wobject import WObject
 from app.services.hex_validator import HexBytes
 
-class RawTriggerSection(Object):
+class RawTriggerSection(WObject):
   """Bytes-based raw trigger section(e.g. TRIG and MBRF)
   
   Webditor uses `eudplib` for trigger programming, so every triggers need to written for eudplib. But

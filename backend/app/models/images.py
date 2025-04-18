@@ -1,6 +1,6 @@
-from .object import Object
+from .wobject import WObject
 
-class Image(Object):
+class Image(WObject):
   graphic: int
   turnable: bool
   clickable: bool

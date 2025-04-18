@@ -1,5 +1,5 @@
-from ..object import Object
+from ..wobject import WObject
 
 
-class EntityComponent(Object):
+class EntityComponent(WObject):
   pass

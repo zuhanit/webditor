@@ -1,6 +1,6 @@
-from .object import Object
+from .wobject import WObject
 
-class Order(Object): 
+class Order(WObject): 
   label: int
   use_weapon_targeting: bool
   can_be_interrupted: bool
