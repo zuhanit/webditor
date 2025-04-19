@@ -16,10 +16,10 @@ function collectDefaultAssets(gameMap: Usemap): AssetResult<WObject> {
     };
   });
 
-  result["unit"] = gameMap.unit.map((unit) => {
+  result["unit"] = gameMap.unit_definitions.map((unit_def) => {
     return {
       id: id++,
-      data: unit,
+      data: unit_def,
     };
   });
 
