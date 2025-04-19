@@ -79,7 +79,7 @@ def get_build_map(map: Usemap):
   try: 
     map_bytes = build_map(map)
   except Exception as e:
-    build_logger.critical("Building map was failed, because of ", e)
+    build_logger.critical(f"Building map was failed, because of {e}")
     raise HTTPException(status_code=500, detail=str(e))
 
   buffer = io.BytesIO(map_bytes)
