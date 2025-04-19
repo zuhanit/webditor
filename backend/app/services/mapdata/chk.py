@@ -78,13 +78,13 @@ class CHK:
     self.chkt = chkt
     self.string_table = self.get_strings()
     self.player_table = self.get_players()
-    self.unitdata_table = self.get_units()
+    self.unitdata_table = self.get_unit_definitions()
     self.size = self.get_terrain().size
 
   """
   Unit section processings 
   """
-  def get_units(self) -> list[CHKUnit]:
+  def get_unit_definitions(self) -> list[CHKUnit]:
     from eudplib.core.rawtrigger.strdict.stattxt import DefStatTextDict
     if len(self.string_table) == 0:
       raise ValueError("Must initialize string table before call `get units`")
@@ -704,6 +704,7 @@ class CHKBuilder():
     b = bytearray()
     
     for unit in self.map.placed_unit:
+      unit_ref = unit.unit_definition
       b += struct.pack( 
         "<I 6H 4B I 2H 2I",
         unit.serial_number,
@@ -714,9 +715,9 @@ class CHKBuilder():
         unit.special_properties,
         unit.valid_properties,
         unit.owner.id,
-        unit.stats.hit_points.current * 100 // unit.stats.hit_points.max if unit.stats.hit_points.max != 0 else 100,
-        unit.stats.shield_points.current * 100 // unit.stats.shield_points.max if unit.stats.shield_points.max != 0 else 100,
-        unit.stats.energy_points.current,
+        unit_ref.stats.hit_points.current * 100 // unit_ref.stats.hit_points.max if unit_ref.stats.hit_points.max != 0 else 100,
+        unit_ref.stats.shield_points.current * 100 // unit_ref.stats.shield_points.max if unit_ref.stats.shield_points.max != 0 else 100,
+        unit_ref.stats.energy_points.current,
         unit.resource_amount,
         unit.hangar,
         unit.unit_state,
@@ -872,7 +873,7 @@ class CHKBuilder():
   
   @property
   def UNIx(self) -> bytes:
-    units = self.map.unit
+    units = self.map.unit_definitions
     weapons = self.map.weapons
     b = struct.pack(
       f"228B 228I 228H 228B {4 * 228}H {2 * 130}H",

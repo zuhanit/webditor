@@ -91,7 +91,7 @@ def build(filename: str):
     
     merger = Merger(chk)
     w = merger.merge_weapon()
-    u = merger.merge_unit()
+    u = merger.merge_unit_definitions()
     
     print("asdf")
     

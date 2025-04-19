@@ -1,5 +1,6 @@
 from typing import cast
 from app.core.w_logging import get_logger
+from app.models.definitions.unit_definition import UnitDefinition
 from app.models.sprite import CHKSprite, Sprite
 from app.services.mapdata.chk import CHK
 from app.models.spatial import Position2D, RectPosition, Size
@@ -7,7 +8,7 @@ from app.models.components.transform import TransformComponent
 from app.models.components.weapon_component import WeaponComponent
 from app.models.definitions.weapon_definition import Bullet, Damage, Splash, WeaponDefinition
 from app.models.tech import Technology, Upgrade
-from app.models.unit import CHKUnit, RequiredAndProvided, Unit, UnitAIComponent, UnitCostComponent, UnitSizeComponent, UnitSoundComponent, UnitSpecificationComponent, UnitStatComponent
+from app.models.unit import Unit
 from app.services.rawdata.dat import DAT
 from .rawdata.datdata import *
 from .utils.reverse import reverse_tbl_dict
