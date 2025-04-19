@@ -1,3 +1,4 @@
+from app.models.definitions.unit_definition import UnitDefinition
 from pydantic import BaseModel
 from .definitions.weapon_definition import WeaponDefinition
 from .location import Location
@@ -35,7 +36,7 @@ class Usemap(BaseModel):
   raw_mbrf_triggers: RawTriggerSection
   force: list[Force]
   scenario_property: ScenarioProperty
-  unit: list[Unit]
+  unit_definitions: list[UnitDefinition]
   placed_unit: list[Unit]
   technologies: list[Technology]
   weapons: list[WeaponDefinition]
