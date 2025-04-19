@@ -2,10 +2,10 @@ from typing import cast
 from app.core.w_logging import get_logger
 from app.models.definitions.unit_definition import UnitDefinition
 from app.models.sprite import CHKSprite, Sprite
+from app.models.structs.required_and_provided import RequiredAndProvided
+from app.models.structs.unit_structs import UnitAI, UnitCost, UnitSize, UnitSound, UnitSpecification, UnitStatus, UnitWeapon
 from app.services.mapdata.chk import CHK
-from app.models.spatial import Position2D, RectPosition, Size
-from app.models.components.transform import TransformComponent
-from app.models.components.weapon_component import WeaponComponent
+from app.models.structs.spatial import Position2D, RectPosition, Size
 from app.models.definitions.weapon_definition import Bullet, Damage, Splash, WeaponDefinition
 from app.models.tech import Technology, Upgrade
 from app.models.unit import Unit
