@@ -119,7 +119,7 @@ class Merger():
       except IndexError as e:
         raise IndexError(f"Invalid weapon id of unit {id}. Ground: {ground_weapon_id}, Air: {air_weapon_id}")
 
-      unit_basic_specificaiton = UnitSpecificationComponent(
+      unit_basic_specificaiton = UnitSpecification(
         graphics=unit["graphics"],
         subunit1=unit["subunit1"],
         subunit2=unit["subunit2"],
@@ -130,7 +130,7 @@ class Merger():
         label=0
       )
       
-      unit_stats = UnitStatComponent(
+      unit_stats = UnitStatus(
         hit_points=chk_unit.hit_points,
         shield_enable=cast(bool, unit["shield_enable"]),
         shield_points=chk_unit.shield_points,
@@ -141,7 +141,7 @@ class Merger():
         elevation_level=unit["elevation_level"]
       )
       
-      unit_ai = UnitAIComponent(
+      unit_ai = UnitAI(
         computer_idle=unit["comp_ai_idle"],
         human_idle=unit["human_ai_idle"],
         return_to_idle=unit["return_to_idle"],
@@ -151,7 +151,7 @@ class Merger():
         attack_unit=unit["attack_unit"]
       )
       
-      unit_sound = UnitSoundComponent(
+      unit_sound = UnitSound(
         ready=unit["ready_sound"] if id <= 105 else None,
         what_start=unit["what_sound_start"] ,
         what_end=unit["what_sound_end"],
@@ -161,7 +161,7 @@ class Merger():
         yes_end=unit["yes_sound_end"] if id <= 105 else None,
       )
       
-      unit_size = UnitSizeComponent(
+      unit_size = UnitSize(
         size_type=unit["unit_size"],
         placement_box_size=Size(
           height=unit["placement_box_height"],
@@ -178,20 +178,8 @@ class Merger():
           y=cast(int, unit["addon_vertical"])
         ) if 106 <= id <= 201 else None,
       )
-
-
-      result.append(Unit(
-        id=id,
-        name=chk_unit.name,
-        transform=TransformComponent(
-          position=Position2D()
-        ),
-        basic_specification=unit_basic_specificaiton,
-        stats=unit_stats,
-        ai=unit_ai,
-        sound=unit_sound,
-        size=unit_size,
-        cost=UnitCostComponent(
+      
+      unit_cost = UnitCost(
           cost=chk_unit.cost,
           build_score=unit["build_score"],
           destroy_score=unit["destroy_score"],
@@ -204,18 +192,31 @@ class Merger():
             required=unit["space_required"],
             provided=unit["space_provided"]
           ),
-        ),
-        weapons=WeaponComponent(
+      )
+      
+      unit_weapon = UnitWeapon(
           ground_weapon=ground_weapon,
-          # max_ground_hits=unit["max_ground_hits"],
-          max_ground_hits=3,
+          max_ground_hits=unit["max_ground_hits"],
           air_weapon=air_weapon,
           max_air_hits=unit["max_air_hits"],
           target_acquisition_range=unit["target_acquisition_range"],
           sight_range=unit["sight_range"],
           special_ability_flags=unit["special_ability_flags"]
-        ),
-      ))
+      )
+
+
+      result.append(UnitDefinition(
+        id=id,
+        name=chk_unit.name,
+        specification=unit_basic_specificaiton,
+        stats=unit_stats,
+        ai=unit_ai,
+        sound=unit_sound,
+        size=unit_size,
+        cost=unit_cost,
+        weapons=unit_weapon
+        )
+      )
       
     self.logger.debug(f"Merge unit complete. {len(result)} units merged.")
     return result
