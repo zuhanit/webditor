@@ -5,7 +5,7 @@ from app.models.unit import Cost, Stat, CHKUnit, UnitProperty, UnitRestriction
 from app.models.terrain import EraTilesetReverseDict, RawTerrain, Size, Tile, EraTilesetDict
 from app.models.player import Force, OwnrPlayerTypeReverseDict, Player, OwnrPlayerTypeDict, SidePlayerRaceDict, SidePlayerRaceReverseDict
 from app.models.location import Location
-from app.models.spatial import Position2D, RectPosition
+from app.models.structs.spatial import Position2D, RectPosition
 from app.models.sprite import CHKSprite
 from app.models.string import String
 from app.models.components.transform import TransformComponent
