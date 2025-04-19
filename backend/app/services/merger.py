@@ -105,8 +105,8 @@ class Merger():
     self.logger.debug(f"Merge tech complete. {len(result)} technologies merged.")
     return result
   
-  def merge_unit(self) -> list[Unit]:
-    result: list[Unit] = []
+  def merge_unit_definitions(self) -> list[UnitDefinition]:
+    result: list[UnitDefinition] = []
     weapon_definitions: list[WeaponDefinition] = self.merge_weapon()
     
     for id, unit in enumerate(UnitsDat.result):
