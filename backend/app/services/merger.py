@@ -1,18 +1,17 @@
 from typing import cast
 from app.core.w_logging import get_logger
+from app.models.definitions.unit_definition import UnitDefinition
 from app.models.sprite import CHKSprite, Sprite
+from app.models.structs.required_and_provided import RequiredAndProvided
+from app.models.structs.unit_structs import UnitAI, UnitCost, UnitSize, UnitSound, UnitSpecification, UnitStatus, UnitWeapon
 from app.services.mapdata.chk import CHK
-from app.models.spatial import Position2D, RectPosition, Size
-from app.models.components.transform import TransformComponent
-from app.models.components.weapon_component import WeaponComponent
+from app.models.structs.spatial import Position2D, RectPosition, Size
 from app.models.definitions.weapon_definition import Bullet, Damage, Splash, WeaponDefinition
 from app.models.tech import Technology, Upgrade
-from app.models.unit import CHKUnit, RequiredAndProvided, Unit, UnitAIComponent, UnitCostComponent, UnitSizeComponent, UnitSoundComponent, UnitSpecificationComponent, UnitStatComponent
+from app.models.unit import Unit
 from app.services.rawdata.dat import DAT
 from .rawdata.datdata import *
 from .utils.reverse import reverse_tbl_dict
-from rich.table import Table
-from app.core.w_logging import log_rich_table
 
 class Merger():
   def __init__(self, chk: CHK, dat: DAT):
@@ -104,8 +103,8 @@ class Merger():
     self.logger.debug(f"Merge tech complete. {len(result)} technologies merged.")
     return result
   
-  def merge_unit(self) -> list[Unit]:
-    result: list[Unit] = []
+  def merge_unit_definitions(self) -> list[UnitDefinition]:
+    result: list[UnitDefinition] = []
     weapon_definitions: list[WeaponDefinition] = self.merge_weapon()
     
     for id, unit in enumerate(UnitsDat.result):
@@ -118,7 +117,7 @@ class Merger():
       except IndexError as e:
         raise IndexError(f"Invalid weapon id of unit {id}. Ground: {ground_weapon_id}, Air: {air_weapon_id}")
 
-      unit_basic_specificaiton = UnitSpecificationComponent(
+      unit_basic_specificaiton = UnitSpecification(
         graphics=unit["graphics"],
         subunit1=unit["subunit1"],
         subunit2=unit["subunit2"],
@@ -129,7 +128,7 @@ class Merger():
         label=0
       )
       
-      unit_stats = UnitStatComponent(
+      unit_stats = UnitStatus(
         hit_points=chk_unit.hit_points,
         shield_enable=cast(bool, unit["shield_enable"]),
         shield_points=chk_unit.shield_points,
@@ -140,7 +139,7 @@ class Merger():
         elevation_level=unit["elevation_level"]
       )
       
-      unit_ai = UnitAIComponent(
+      unit_ai = UnitAI(
         computer_idle=unit["comp_ai_idle"],
         human_idle=unit["human_ai_idle"],
         return_to_idle=unit["return_to_idle"],
@@ -150,7 +149,7 @@ class Merger():
         attack_unit=unit["attack_unit"]
       )
       
-      unit_sound = UnitSoundComponent(
+      unit_sound = UnitSound(
         ready=unit["ready_sound"] if id <= 105 else None,
         what_start=unit["what_sound_start"] ,
         what_end=unit["what_sound_end"],
@@ -160,7 +159,7 @@ class Merger():
         yes_end=unit["yes_sound_end"] if id <= 105 else None,
       )
       
-      unit_size = UnitSizeComponent(
+      unit_size = UnitSize(
         size_type=unit["unit_size"],
         placement_box_size=Size(
           height=unit["placement_box_height"],
@@ -177,20 +176,8 @@ class Merger():
           y=cast(int, unit["addon_vertical"])
         ) if 106 <= id <= 201 else None,
       )
-
-
-      result.append(Unit(
-        id=id,
-        name=chk_unit.name,
-        transform=TransformComponent(
-          position=Position2D()
-        ),
-        basic_specification=unit_basic_specificaiton,
-        stats=unit_stats,
-        ai=unit_ai,
-        sound=unit_sound,
-        size=unit_size,
-        cost=UnitCostComponent(
+      
+      unit_cost = UnitCost(
           cost=chk_unit.cost,
           build_score=unit["build_score"],
           destroy_score=unit["destroy_score"],
@@ -203,50 +190,56 @@ class Merger():
             required=unit["space_required"],
             provided=unit["space_provided"]
           ),
-        ),
-        weapons=WeaponComponent(
+      )
+      
+      unit_weapon = UnitWeapon(
           ground_weapon=ground_weapon,
-          # max_ground_hits=unit["max_ground_hits"],
-          max_ground_hits=3,
+          max_ground_hits=unit["max_ground_hits"],
           air_weapon=air_weapon,
           max_air_hits=unit["max_air_hits"],
           target_acquisition_range=unit["target_acquisition_range"],
           sight_range=unit["sight_range"],
           special_ability_flags=unit["special_ability_flags"]
-        ),
-      ))
+      )
+
+
+      result.append(UnitDefinition(
+        id=id,
+        name=chk_unit.name,
+        specification=unit_basic_specificaiton,
+        stats=unit_stats,
+        ai=unit_ai,
+        sound=unit_sound,
+        size=unit_size,
+        cost=unit_cost,
+        weapons=unit_weapon
+        )
+      )
       
     self.logger.debug(f"Merge unit complete. {len(result)} units merged.")
     return result
   
   def merge_placed_unit(self) -> list[Unit]:
-    def _merge(chkunit: CHKUnit, unitspec: Unit):
-      from copy import deepcopy
-      unitdata = deepcopy(unitspec)
-      unitdata.id = chkunit.id
-      unitdata.transform = chkunit.transform
-      unitdata.serial_number = chkunit.serial_number
-      unitdata.relation_type = chkunit.relation_type
-      unitdata.special_properties = chkunit.special_properties
-      unitdata.valid_properties = chkunit.valid_properties
-      unitdata.owner = chkunit.owner
-      unitdata.resource_amount = chkunit.resource_amount
-      unitdata.hangar = chkunit.hangar
-      unitdata.unit_state = chkunit.unit_state
-      unitdata.related_unit = chkunit.related_unit
-      unitdata.stats.hit_points = chkunit.hit_points
-      unitdata.stats.shield_points = chkunit.hit_points
-      
-      return unitdata 
-
     result: list[Unit] = []
     chk_placed_units = self.chk.get_placed_units()
-    unit_specs = self.merge_unit()
+    unit_definitions = self.merge_unit_definitions()
     
     for id, unit in enumerate(chk_placed_units):
-      unit_spec = unit_specs[unit.id]
-      
-      result.append(_merge(unit, unit_spec))
+      unit_def = unit_definitions[unit.id]
+      result.append(Unit(
+        id=unit.id,
+        name=unit_def.name,
+        transform=unit.transform,
+        serial_number=unit.serial_number,
+        relation_type=unit.relation_type,
+        special_properties=unit.special_properties,
+        valid_properties=unit.valid_properties,
+        owner=unit.owner,
+        resource_amount=unit.resource_amount,
+        hangar=unit.hangar,
+        unit_state=unit.unit_state,
+        unit_definition=unit_def
+      ))
     
     self.logger.debug(f"Merge placed unit complete. {len(result)} units merged.")
     return result

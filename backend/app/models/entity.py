@@ -1,6 +1,6 @@
 from .wobject import WObject
 from .components.transform import TransformComponent
-from .spatial import Position2D
+from .structs.spatial import Position2D
 
 
 class Entity(WObject):

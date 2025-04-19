@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import TypeAlias, Literal
-from .spatial import Size
+from .structs.spatial import Size
 
 
 class Tile(BaseModel):

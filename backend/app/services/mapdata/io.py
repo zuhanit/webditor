@@ -42,7 +42,7 @@ def get_map(chk: CHK, dat: DAT):
     terrain=chk.get_terrain(),
     player=chk.get_players(),
     location=chk.get_locations(),
-    unit=merger.merge_unit(),
+    unit_definitions=merger.merge_unit_definitions(),
     placed_unit=merger.merge_placed_unit(),
     sprite=dat.get_sprites(),
     placed_sprite=merger.merge_placed_sprite(),

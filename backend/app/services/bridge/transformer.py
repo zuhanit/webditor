@@ -1,8 +1,7 @@
-from app.core.w_logging import get_logger, log_rich_table
+from app.core.w_logging import get_logger
 from eudplib import EUDMethod, EUDOnStart
 from app.models.project import Usemap
 from typing import Callable
-from rich.table import Table
 
 class Transformer():
   """Backend model into wengine-based trigger transformer."""
@@ -52,7 +51,7 @@ class Transformer():
     `Transformer.alloc_units()`
     """
     from eudplib import TrgUnit
-    for rawunit in self.map.unit:
+    for rawunit in self.map.unit_definitions:
       unit = TrgUnit(rawunit.id)
       
       "Weapon"
@@ -64,13 +63,13 @@ class Transformer():
       unit.sightRange = rawunit.weapons.sight_range
     
       "Basic Specification"
-      unit.flingy = rawunit.basic_specification.graphics
-      unit.subUnit = rawunit.basic_specification.subunit1
-      if rawunit.basic_specification.infestation:
+      unit.flingy = rawunit.specification.graphics
+      unit.subUnit = rawunit.specification.subunit1
+      if rawunit.specification.infestation:
         ... #TODO: Infestation is not supported current version of eudplib, so have to deal with manually.
-      unit.constructionGraphic = rawunit.basic_specification.construction_animation
-      unit.startDirection = rawunit.basic_specification.unit_direction
-      unit.portrait = rawunit.basic_specification.portrait
+      unit.constructionGraphic = rawunit.specification.construction_animation
+      unit.startDirection = rawunit.specification.unit_direction
+      unit.portrait = rawunit.specification.portrait
       
       "AI"
       unit.computerIdleOrder = rawunit.ai.computer_idle
@@ -79,7 +78,7 @@ class Transformer():
       unit.attackMoveOrder = rawunit.ai.attack_and_move
       unit.attackUnitOrder = rawunit.ai.attack_unit
       unit.rightClickAction = rawunit.ai.right_click
-      # unit.internal = rawunit.ai.internal #TODO: scdata doesn't support unit.internal?
+      # unit.internal = unit.ai.internal #TODO: scdata doesn't support unit.internal?
       
       "Sound"
       unit.whatSoundStart = rawunit.sound.what_start
@@ -114,7 +113,7 @@ class Transformer():
       unit.transportSpaceProvided = rawunit.cost.space.provided
       unit.transportSpaceRequired = rawunit.cost.space.required
 
-    self.logger.info(f"Initializing unit specifications was succesful. Total initialized {len(self.map.unit)}")
+    self.logger.info(f"Initializing unit specifications was succesful. Total initialized {len(self.map.unit_definitions)}")
     
   @EUDMethod
   def initialize_tech_specification(self):

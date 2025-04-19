@@ -1,6 +1,6 @@
 from pydantic import Field
 from .wobject import WObject
-from .cost import Cost
+from .structs.cost import Cost
 
 class UpgradeRestriction(WObject):
   player_maximum_level: list[int] = Field(min_length=12, max_length=12)

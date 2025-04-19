@@ -3,7 +3,7 @@ from app.models.flingy import Flingy
 from app.models.images import Image
 from app.models.order import Order
 from app.models.portrait import Portrait
-from app.models.spatial import Position2D
+from app.models.structs.spatial import Position2D
 from app.models.sprite import Sprite
 from ..utils.reverse import reverse_tbl_dict
 from .datdata import *

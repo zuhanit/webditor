@@ -84,8 +84,8 @@ def check(original: EPCHK, serialized: EPCHK):
   console.print(content_equal_table)
 
 def build(filename: str):
-  output_filename = "backend/example/output/" + filename
-  filename = "backend/example/" + filename
+  output_filename = "./example/output/" + filename
+  filename = "./example/" + filename
 
   with open(filename, "rb") as f:
     chkt = get_chkt(BytesIO(f.read()))
