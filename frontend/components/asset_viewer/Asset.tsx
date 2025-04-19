@@ -1,15 +1,15 @@
-import { useRawMapStore } from "@/store/mapStore";
-import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
-import React, { HTMLAttributes } from "react";
+import { useDraggable } from "@dnd-kit/core";
 
 interface AssetCardProps {
   id: number;
   label: string;
+  data: Record<string, any>;
 }
 
-export function AssetCard({ id, label }: AssetCardProps) {
+export function AssetCard({ id, label, data }: AssetCardProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id,
+    data: data,
   });
 
   const style = transform
@@ -28,35 +28,5 @@ export function AssetCard({ id, label }: AssetCardProps) {
     >
       {label}
     </div>
-  );
-}
-
-interface AssetContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  children?: React.ReactNode;
-}
-
-export function AssetContainer({ children }: AssetContainerProps) {
-  const gameMap = useRawMapStore((state) => state.rawMap);
-
-  const { isOver, setNodeRef } = useDroppable({
-    id: "Dropabble",
-  });
-
-  return (
-    <DndContext>
-      <div
-        ref={setNodeRef}
-        className={`${
-          isOver ? "bg-fills-primary" : "bg-background-primary"
-        } grid max-h-full w-full auto-rows-max grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-2 overflow-auto p-2`}
-      >
-        {gameMap
-          ? gameMap.unit.map((unit, id) => (
-              <AssetCard id={id} key={id} label={unit.name} />
-            ))
-          : undefined}
-        {children}
-      </div>
-    </DndContext>
   );
 }

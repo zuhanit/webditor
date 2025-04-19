@@ -1,9 +1,9 @@
-from .object import Object
+from .wobject import WObject
 from .components.transform import TransformComponent
 from .spatial import Position2D
 
 
-class Entity(Object):
+class Entity(WObject):
   """
   Placeable `object`.
   """

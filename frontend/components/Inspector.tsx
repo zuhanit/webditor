@@ -7,6 +7,15 @@ import { Item } from "@/types/InspectorItem";
 import { Resizable } from "re-resizable";
 import { useRawMapStore } from "@/store/mapStore";
 import { trackInspectorEdit } from "@/lib/firebase/analytics";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  useDndMonitor,
+  useDroppable,
+} from "@dnd-kit/core";
+import { AssetType } from "@/types/Asset";
+import { WObject } from "@/types/schemas/WObject";
 
 function InspectorHeader({ label }: { label: string }) {
   const [isChecked, setIsChecked] = useState(false);
@@ -62,6 +71,10 @@ function InspectorContent({
     onChange(fullPath, updatedValue);
   }
 
+  function handleEndDrop(e: DragEndEvent) {
+    console.log("HANDLING");
+  }
+
   if (!value) return <div></div>;
   let content: React.ReactNode;
   switch (typeof value) {
@@ -86,6 +99,29 @@ function InspectorContent({
     case "object":
       if (value === null) {
         content = <div>❌ Null is not supported</div>;
+        break;
+      }
+
+      if ("ref_type" in value) {
+        const { isOver, setNodeRef } = useDroppable({
+          id: fullPath.join("."),
+        });
+        useDndMonitor({
+          onDragEnd(event) {
+            if (event.active.data !== null) {
+              onChange(fullPath, event.active.data.current);
+            }
+          },
+        });
+
+        content = (
+          <div
+            ref={setNodeRef}
+            className={`${isOver ? "bg-blue" : ""} m-2 h-full w-full border-2 border-solid p-2`}
+          >
+            {value["name"]}
+          </div>
+        );
         break;
       }
 
@@ -121,20 +157,10 @@ function InspectorContent({
 
 interface InspectorProps {
   item: Item | undefined;
+  draggingAsset: AssetType<WObject> | null;
 }
 
-export const Inspector = ({ item }: InspectorProps) => {
-  if (!item)
-    return (
-      <Resizable
-        defaultSize={{ width: "25%" }}
-        minWidth={"25%"}
-        enable={{ left: true }}
-      >
-        <div></div>
-      </Resizable>
-    );
-
+export const Inspector = ({ item, draggingAsset }: InspectorProps) => {
   const updateRawMap = useRawMapStore((state) => state.updateRawMap); // zustand 또는 context 등
   const handleChange = (path: string[], newValue: any) => {
     updateRawMap((draft) => {
@@ -147,6 +173,17 @@ export const Inspector = ({ item }: InspectorProps) => {
 
     trackInspectorEdit(item.label, path.join("."), newValue);
   };
+
+  if (!item)
+    return (
+      <Resizable
+        defaultSize={{ width: "25%" }}
+        minWidth={"25%"}
+        enable={{ left: true }}
+      >
+        <div></div>
+      </Resizable>
+    );
 
   return (
     <Resizable

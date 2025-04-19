@@ -1,7 +1,7 @@
 from enum import Flag
 from pydantic import BaseModel, Field
 from typing import TypeAlias, Literal
-from .object import Object
+from .wobject import WObject
 
 PlayerType: TypeAlias = Literal[
   "Inactive",
@@ -58,7 +58,7 @@ SidePlayerRaceReverseDict: dict[PlayerRace, int] = {
 }
 
 
-class Player(Object):
+class Player(WObject):
   color: int
   player_type: PlayerType
   race: PlayerRace
@@ -71,5 +71,5 @@ class ForcePropertyFlag(Flag):
   allied_victory = 0b00000100
   shared_vision = 0b00001000
 
-class Force(Object):
+class Force(WObject):
   properties: int

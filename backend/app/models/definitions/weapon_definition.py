@@ -1,3 +1,4 @@
+from typing import Literal
 from pydantic import Field, BaseModel
 from .definition import Definition
 
@@ -27,6 +28,7 @@ class Bullet(BaseModel):
   y_offset: int
 
 class WeaponDefinition(Definition):
+  ref_type: Literal["WeaponDefinition"] = "WeaponDefinition"
   damage: Damage
   bullet: Bullet
   splash: Splash
