@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from enum import Flag
-from .spatial import RectPosition
+from .structs.spatial import RectPosition
 
 
 class ElevationFlag(Flag):
