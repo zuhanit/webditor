@@ -222,33 +222,26 @@ class Merger():
     return result
   
   def merge_placed_unit(self) -> list[Unit]:
-    def _merge(chkunit: CHKUnit, unitspec: Unit):
-      from copy import deepcopy
-      unitdata = deepcopy(unitspec)
-      unitdata.id = chkunit.id
-      unitdata.transform = chkunit.transform
-      unitdata.serial_number = chkunit.serial_number
-      unitdata.relation_type = chkunit.relation_type
-      unitdata.special_properties = chkunit.special_properties
-      unitdata.valid_properties = chkunit.valid_properties
-      unitdata.owner = chkunit.owner
-      unitdata.resource_amount = chkunit.resource_amount
-      unitdata.hangar = chkunit.hangar
-      unitdata.unit_state = chkunit.unit_state
-      unitdata.related_unit = chkunit.related_unit
-      unitdata.stats.hit_points = chkunit.hit_points
-      unitdata.stats.shield_points = chkunit.hit_points
-      
-      return unitdata 
-
     result: list[Unit] = []
     chk_placed_units = self.chk.get_placed_units()
-    unit_specs = self.merge_unit()
+    unit_definitions = self.merge_unit_definitions()
     
     for id, unit in enumerate(chk_placed_units):
-      unit_spec = unit_specs[unit.id]
-      
-      result.append(_merge(unit, unit_spec))
+      unit_def = unit_definitions[unit.id]
+      result.append(Unit(
+        id=unit.id,
+        name=unit_def.name,
+        transform=unit.transform,
+        serial_number=unit.serial_number,
+        relation_type=unit.relation_type,
+        special_properties=unit.special_properties,
+        valid_properties=unit.valid_properties,
+        owner=unit.owner,
+        resource_amount=unit.resource_amount,
+        hangar=unit.hangar,
+        unit_state=unit.unit_state,
+        unit_definition=unit_def
+      ))
     
     self.logger.debug(f"Merge placed unit complete. {len(result)} units merged.")
     return result
