@@ -1,8 +1,7 @@
-from app.core.w_logging import get_logger, log_rich_table
+from app.core.w_logging import get_logger
 from eudplib import EUDMethod, EUDOnStart
 from app.models.project import Usemap
 from typing import Callable
-from rich.table import Table
 
 class Transformer():
   """Backend model into wengine-based trigger transformer."""

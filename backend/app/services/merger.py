@@ -12,8 +12,6 @@ from app.models.unit import Unit
 from app.services.rawdata.dat import DAT
 from .rawdata.datdata import *
 from .utils.reverse import reverse_tbl_dict
-from rich.table import Table
-from app.core.w_logging import log_rich_table
 
 class Merger():
   def __init__(self, chk: CHK, dat: DAT):
