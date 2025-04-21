@@ -1,4 +1,5 @@
+import { Item } from "./InspectorItem";
 import { WObject } from "./schemas/WObject";
 
-export type AssetType<T extends WObject> = { id: number; data: T };
-export type AssetResult<T extends WObject> = Record<string, AssetType<T>[]>;
+export type AssetType = { id: number; item: Item };
+export type AssetResult = Record<string, AssetType[]>;

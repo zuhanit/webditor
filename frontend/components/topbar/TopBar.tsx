@@ -66,23 +66,57 @@ export function TopBarButton({
 }
 
 interface TopBarProps {
-  children:
+  children?:
     | React.ReactElement<TopBarButtonProps>
     | React.ReactElement<TopBarButtonProps>[];
+  label: string;
+  minimize?: boolean;
+  popup?: boolean;
+  close?: boolean;
+
+  onClickMinimize?: () => void;
+  onClickPopup?: () => void;
+  onClickClose?: () => void;
 }
 
-export function TopBar({ children }: TopBarProps) {
+export function TopBar({
+  children,
+  label,
+  minimize = false,
+  popup = false,
+  close = false,
+  onClickMinimize,
+  onClickClose,
+  onClickPopup,
+}: TopBarProps) {
+  const controls = {
+    minimize: (
+      <button type="button" onClick={onClickMinimize}>
+        <Minus />
+      </button>
+    ),
+    popup: (
+      <button type="button" onClick={onClickPopup}>
+        <Square />
+      </button>
+    ),
+    close: (
+      <button type="button" onClick={onClickClose}>
+        <X />
+      </button>
+    ),
+  };
   return (
     <div className="flex justify-center px-4 py-3">
       <div className="flex items-center gap-2 text-grays-gray">
         <Squirrel />
         {children}
       </div>
-      <div className="w-full text-center">any-starcraft-map</div>
+      <div className="w-full text-center font-semibold">{label}</div>
       <div className="flex items-center gap-2.5">
-        <Minus />
-        <Square />
-        <X />
+        {minimize && controls.minimize}
+        {popup && controls.popup}
+        {close && controls.close}
       </div>
     </div>
   );
