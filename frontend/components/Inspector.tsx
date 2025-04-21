@@ -65,10 +65,6 @@ function InspectorContent({
     onChange(fullPath, updatedValue);
   }
 
-  function handleEndDrop(e: DragEndEvent) {
-    console.log("HANDLING");
-  }
-
   if (!value) return <div></div>;
   let content: React.ReactNode;
   switch (typeof value) {
