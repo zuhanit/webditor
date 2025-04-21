@@ -184,9 +184,9 @@ export const Inspector = ({ item, draggingAsset }: InspectorProps) => {
       <div>
         <ListHeader icon={item.icon} label={item.label} />
         {item.properties &&
-          Object.entries(item.properties).map(([key, prop]) => (
+          Object.entries(item.properties).map(([key, prop], id) => (
             <InspectorContent
-              key={`${key}`}
+              key={`inspector-content-${key}-${id}`}
               label={key}
               value={prop}
               onChange={handleChange}
