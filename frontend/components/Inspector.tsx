@@ -7,13 +7,7 @@ import { Item } from "@/types/InspectorItem";
 import { Resizable } from "re-resizable";
 import { useRawMapStore } from "@/store/mapStore";
 import { trackInspectorEdit } from "@/lib/firebase/analytics";
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverEvent,
-  useDndMonitor,
-  useDroppable,
-} from "@dnd-kit/core";
+import { useDndMonitor, useDroppable } from "@dnd-kit/core";
 import { AssetType } from "@/types/Asset";
 import { WObject } from "@/types/schemas/WObject";
 
