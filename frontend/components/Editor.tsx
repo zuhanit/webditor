@@ -145,14 +145,7 @@ export default function Editor() {
           <AssetContainer draggingAsset={draggingAsset} />
         </div>
         <DragOverlay>
-          {draggingAsset ? (
-            <AssetCard
-              id={draggingAsset.id}
-              key={draggingAsset.id}
-              data={draggingAsset.data}
-              label={draggingAsset.data.name}
-            />
-          ) : null}
+          {draggingAsset ? <AssetCard item={draggingAsset.item} /> : null}
         </DragOverlay>
       </DndContext>
     </div>

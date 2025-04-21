@@ -1,16 +1,21 @@
+import { useModals } from "@/hooks/useModals";
 import { useDraggable } from "@dnd-kit/core";
+import AssetEditor from "./AssetEditor";
+import { Item } from "@/types/InspectorItem";
 
 interface AssetCardProps {
-  id: number;
-  label: string;
-  data: Record<string, any>;
+  item: Item;
 }
 
-export function AssetCard({ id, label, data }: AssetCardProps) {
+export function AssetCard({ item }: AssetCardProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id,
-    data: data,
+    id: item.label,
+    data: item.properties,
   });
+  const { open } = useModals();
+  const handleDoubleClick = () => {
+    open(AssetEditor, { label: item.label, item: item });
+  };
 
   const style = transform
     ? {
@@ -21,12 +26,13 @@ export function AssetCard({ id, label, data }: AssetCardProps) {
   return (
     <div
       ref={setNodeRef}
-      {...listeners}
-      {...attributes}
       style={style}
+      onDoubleClick={handleDoubleClick}
       className="flex h-32 w-32 items-center justify-center bg-background-secondary p-2"
     >
-      {label}
+      <div {...listeners} {...attributes} className="cursor-move">
+        {item.label}
+      </div>
     </div>
   );
 }

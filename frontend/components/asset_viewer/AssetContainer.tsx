@@ -6,20 +6,28 @@ import React from "react";
 import { AssetResult, AssetType } from "@/types/Asset";
 import { AssetCard } from "./Asset";
 
-function collectDefaultAssets(gameMap: Usemap): AssetResult<WObject> {
-  let id = 0;
-  let result: AssetResult<WObject> = {};
+function collectDefaultAssets(gameMap: Usemap): AssetResult {
+  let assetID = 0;
+  let result: AssetResult = {};
   result["weapon"] = gameMap.weapons.map((weapon) => {
     return {
-      id: id++,
-      data: weapon,
+      id: assetID++,
+      item: {
+        label: weapon.name,
+        path: ["weapons", weapon.id],
+        properties: weapon,
+      },
     };
   });
 
   result["unit"] = gameMap.unit_definitions.map((unit_def) => {
     return {
-      id: id++,
-      data: unit_def,
+      id: assetID++,
+      item: {
+        label: unit_def.name,
+        path: ["unit_definitions", unit_def.id],
+        properties: unit_def,
+      },
     };
   });
 
@@ -28,7 +36,7 @@ function collectDefaultAssets(gameMap: Usemap): AssetResult<WObject> {
 
 interface AssetContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
-  draggingAsset: AssetType<WObject> | null;
+  draggingAsset: AssetType | null;
 }
 
 export function AssetContainer({ children }: AssetContainerProps) {
@@ -49,9 +57,9 @@ export function AssetContainer({ children }: AssetContainerProps) {
         isOver ? "bg-fills-primary" : "bg-background-primary"
       } grid max-h-full w-full auto-rows-max grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-2 overflow-auto p-2`}
     >
-      {Object.entries(defaultAssets).map(([key, value]) => {
-        return value.map((v) => (
-          <AssetCard id={v.id} key={v.id} label={v.data.name} data={v.data} />
+      {Object.entries(defaultAssets).map(([key, value], id) => {
+        return value.map((v, vid) => (
+          <AssetCard key={`asset-card-${key}-${id}-${vid}`} item={v.item} />
         ));
       })}
       {children}
