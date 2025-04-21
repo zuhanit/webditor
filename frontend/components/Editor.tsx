@@ -24,6 +24,7 @@ import {
 import { AssetType } from "@/types/Asset";
 import { WObject } from "@/types/schemas/WObject";
 import { AssetCard } from "./asset_viewer/Asset";
+import ModalContainer from "./ModalContainer";
 
 export default function Editor() {
   const [selectedEntity, setSelectedEntity] =
@@ -61,33 +62,23 @@ export default function Editor() {
     }
   };
 
-  const [draggingAsset, setDraggingAsset] = useState<AssetType<WObject> | null>(
-    null,
-  );
+  const [draggingAsset, setDraggingAsset] = useState<AssetType | null>(null);
   const handleDragStart = (event: DragStartEvent) => {
     if (event.active === null) return;
     setDraggingAsset({
       id: event.active.id as number,
-      data: event.active.data.current as WObject,
+      item: event.active.data.current as Item,
     });
   };
   const handleDragEnd = (event: DragEndEvent) => {
     setDraggingAsset(null);
-    console.log(event);
-  };
-  const handleDragOver = (event: DragOverEvent) => {
-    console.log(event.over);
   };
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
-      <DndContext
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-      >
+      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         {/* Upside Tab Bar */}
-        <TopBar>
+        <TopBar label="any-starcraft-map" minimize popup close>
           <div className="flex items-center gap-2.5">
             <TopBarButton
               label="File"
@@ -145,16 +136,10 @@ export default function Editor() {
           <AssetContainer draggingAsset={draggingAsset} />
         </div>
         <DragOverlay>
-          {draggingAsset ? (
-            <AssetCard
-              id={draggingAsset.id}
-              key={draggingAsset.id}
-              data={draggingAsset.data}
-              label={draggingAsset.data.name}
-            />
-          ) : null}
+          {draggingAsset ? <AssetCard item={draggingAsset.item} /> : null}
         </DragOverlay>
       </DndContext>
+      <ModalContainer />
     </div>
   );
 }

@@ -7,13 +7,7 @@ import { Item } from "@/types/InspectorItem";
 import { Resizable } from "re-resizable";
 import { useRawMapStore } from "@/store/mapStore";
 import { trackInspectorEdit } from "@/lib/firebase/analytics";
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverEvent,
-  useDndMonitor,
-  useDroppable,
-} from "@dnd-kit/core";
+import { useDndMonitor, useDroppable } from "@dnd-kit/core";
 import { AssetType } from "@/types/Asset";
 import { WObject } from "@/types/schemas/WObject";
 
@@ -69,10 +63,6 @@ function InspectorContent({
           ? e.target.checked
           : e.target.value;
     onChange(fullPath, updatedValue);
-  }
-
-  function handleEndDrop(e: DragEndEvent) {
-    console.log("HANDLING");
   }
 
   if (!value) return <div></div>;
@@ -194,9 +184,9 @@ export const Inspector = ({ item, draggingAsset }: InspectorProps) => {
       <div>
         <ListHeader icon={item.icon} label={item.label} />
         {item.properties &&
-          Object.entries(item.properties).map(([key, prop]) => (
+          Object.entries(item.properties).map(([key, prop], id) => (
             <InspectorContent
-              key={`${key}`}
+              key={`inspector-content-${key}-${id}`}
               label={key}
               value={prop}
               onChange={handleChange}
