@@ -1,3 +1,4 @@
+from typing import Optional
 from app.models.definitions.unit_definition import UnitDefinition
 from app.models.structs.stat import Stat
 from pydantic import Field
@@ -11,7 +12,7 @@ from enum import Flag
 class CHKUnit(Entity):
   """CHK compatible Unit.
   """
-  serial_number: int = -1
+  serial_number: Optional[int] = None
   """Identical number when unit placed on map. -1 When non-placed unit."""
   cost: Cost
   hit_points: Stat = Stat()
@@ -34,7 +35,7 @@ class Unit(Entity):
   The entity means what placeable on map, so every `Unit` which herit `Entity` is placed unit.
   If you looking for specificaiton of unit like `Max HP`, `Size`, see `UnitDefinition`. 
   """
-  serial_number: int = -1
+  serial_number: Optional[int] = None
   """Identical number when unit placed on map. -1 When non-placed unit."""
   use_default: bool = True
   unit_definition: UnitDefinition

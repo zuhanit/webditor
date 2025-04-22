@@ -70,6 +70,7 @@ class CHK:
   player_table: list[Player] = []
   unitdata_table: list[CHKUnit] = []
   size: Size
+  unit_serial_number: int = 0
   """Not placed unit table."""
 
   def __init__(self, chkt: EPCHK):
@@ -135,7 +136,8 @@ class CHK:
 
       unitdata.transform.position.x = unit[1]
       unitdata.transform.position.y = unit[2]
-      unitdata.serial_number = unit[0]
+      unitdata.serial_number = self.unit_serial_number if unit_id != 214 else None # Start Location will be ignored.
+      self.unit_serial_number += 1 if unit_id != 214 else 0
       unitdata.relation_type = unit[4]
       unitdata.special_properties = unit[5]
       unitdata.valid_properties = unit[6]
@@ -707,7 +709,7 @@ class CHKBuilder():
       unit_ref = unit.unit_definition
       b += struct.pack( 
         "<I 6H 4B I 2H 2I",
-        unit.serial_number,
+        unit.serial_number if unit.serial_number is not None else 0,
         unit.transform.position.x,
         unit.transform.position.y,
         unit.id,
