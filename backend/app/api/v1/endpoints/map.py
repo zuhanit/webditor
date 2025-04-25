@@ -62,7 +62,7 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
 
 @router.get("/test_map")
 async def get_test_map(): 
-  with open("./example/hello12345.scx", "rb") as f:
+  with open("./example/devouring_ones.scx", "rb") as f:
     chkt = get_chkt(BytesIO(f.read()))
     chk = CHK(chkt)
     dat = DAT()
