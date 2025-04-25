@@ -1,6 +1,8 @@
-from eudplib import ExprProxy
+from eudplib import EUDMethod, EUDStruct
 
-class WObject(ExprProxy):
-  __slots__ = ()
+class WObject(EUDStruct):
+  @EUDMethod
+  def allocate(self):
+    ...
   
   
