@@ -1,7 +1,9 @@
 from app.core.w_logging import get_logger
-from eudplib import EUDMethod, EUDOnStart
+from eudplib import EUDDoEvents, EUDEndIf, EUDEndInfLoop, EUDFunc, EUDIf, EUDInfLoop, EUDMethod, CUnit, EUDTypedFunc, EUDTypedFuncPtr, f_println, f_simpleprint
+from eudplib.trigtrg.runtrigtrg import RunTrigTrigger
 from app.models.project import Usemap
 from typing import Callable
+from wengine.main import main_loop
 
 class Transformer():
   """Backend model into wengine-based trigger transformer."""
@@ -10,9 +12,18 @@ class Transformer():
     self.logger = get_logger("transformer")
     
   def transform(self) -> Callable:
+    @EUDFunc
     def _main():
-      EUDOnStart(self.allocate_objects)
-      EUDOnStart(self.initialize_specifications)
+      self.initialize_specifications()
+      self.allocate_objects()
+
+      if EUDInfLoop()():
+        main_loop()
+        RunTrigTrigger()
+        EUDDoEvents()
+
+      EUDEndInfLoop()
+
       
     return _main
   
@@ -25,6 +36,7 @@ class Transformer():
     
     Those specifications initialized once and never used.
     """
+    f_simpleprint("Initialize Specification Phase")
     self.initialize_weapon_specification()
     self.initialize_unit_specification()
     self.initialize_tech_specification()
@@ -38,7 +50,39 @@ class Transformer():
     Unlike `initialize_specifications()`, allocated objects will be used every tick
     on main loop.
     """
-    ... #TODO: Allocate objects, like placed unit, terrain, locations.
+    f_simpleprint("Allocationg Phase 1234")
+    self.allocate_placed_units()
+  
+  @EUDMethod
+  def allocate_placed_units(self):
+    from wengine.entities.unit import Unit
+
+    @EUDTypedFunc([Unit], [])
+    def on_burrow(unit: Unit):
+      cunit = CUnit.from_ptr(unit.ptr)
+      if EUDIf()(cunit.is_burrowed()):
+        cunit.die()
+      EUDEndIf()
+    
+    @EUDTypedFunc([Unit], [])
+    def event_tick(unit: Unit):
+      f_println("Unit address: {}", unit.ptr)
+
+    for rawunit in self.map.placed_unit:
+      if (rawunit.serial_number is not None):
+        unit = Unit.alloc(rawunit.serial_number)
+        cunit = CUnit.from_ptr(unit.ptr)
+        cunit.unitID = rawunit.unit_definition.id
+        self.logger.info(f"Allocating unit {rawunit.serial_number}: {rawunit.name}, ptr: {unit.ptr._vartrigger._initval}")
+        self.logger.info(f"Unit definition id: {rawunit.unit_definition.id}")
+
+        # unit.on_burrow = EUDFuncPtr(1, 0)(on_burrow)
+        unit.on_burrow = EUDTypedFuncPtr([Unit], [])(on_burrow)
+        unit.event_tick = EUDTypedFuncPtr([Unit], [])(event_tick)
+
+        unit.allocate()
+
+    self.logger.info(f"Allocating placed units were succesful. Total allocated {len(self.map.placed_unit)}")
     
   @EUDMethod
   def initialize_unit_specification(self):

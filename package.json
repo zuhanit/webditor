@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"pnpm run fastapi-dev\" \"pnpm run next-dev\"",
     "next-dev": "cd frontend && pnpm run dev",
-    "fastapi-dev": "source ./backend/.venv/bin/activate && cd backend && uvicorn app.main:app --reload --port 8000 --log-level debug",
+    "fastapi-dev": "source ./backend/.venv/bin/activate && cd backend && uvicorn app.main:app --reload --port 8000 --log-level debug --reload-dir ../wengine",
     "preprocess": "source ./preprocess/.venv/bin/activate && sh scripts/preprocess.sh",
     "gen-types": "sh ./scripts/schema_generator.sh"
   },
