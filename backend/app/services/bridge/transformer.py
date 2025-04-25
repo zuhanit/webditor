@@ -10,9 +10,18 @@ class Transformer():
     self.logger = get_logger("transformer")
     
   def transform(self) -> Callable:
+    @EUDFunc
     def _main():
-      EUDOnStart(self.allocate_objects)
-      EUDOnStart(self.initialize_specifications)
+      self.initialize_specifications()
+      self.allocate_objects()
+
+      if EUDInfLoop()():
+        main_loop()
+        RunTrigTrigger()
+        EUDDoEvents()
+
+      EUDEndInfLoop()
+
       
     return _main
   
