@@ -22,7 +22,8 @@
       "program": "${file}",
       "env": {
         "PYTHONPATH": "${workspaceFolder}/preprocess"
-      }
+      },
+      "cwd": "${workspaceFolder}/preprocess"
     }
   ]
 }
