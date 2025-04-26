@@ -9,7 +9,7 @@ import json
 
 def process_tileset(tileset: str, term_num: int):
     TA = TerrainAnalyzer(cast(Tilesets, tileset), term_num)
-    path = f"./output/{tileset}"
+    path = f"./output/terrain/{tileset}"
     os.makedirs(path, exist_ok=True)
 
     binary_path = f"{path}/megatile_color.bin"
