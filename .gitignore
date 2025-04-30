@@ -17,8 +17,13 @@ backend/__pycache__/*
 **/*/schemas/
 
 **/*/TileSet/
+
 preprocess/output
 preprocess/output/**/*
+
+preprocess/graphics/game/
+preprocess/graphics/unit/
+preprocess/graphics/anim/
 
 **/*/output
 **/*/output/**/*
