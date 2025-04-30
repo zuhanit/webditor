@@ -23,6 +23,7 @@ preprocess/output/**/*
 
 preprocess/graphics/game/
 preprocess/graphics/unit/
+preprocess/graphics/anim/
 
 **/*/output
 **/*/output/**/*
