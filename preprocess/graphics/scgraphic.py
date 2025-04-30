@@ -2,6 +2,7 @@ from io import BufferedReader
 from pathlib import Path
 from dataclasses import dataclass
 from graphics.types import Graphic, PCX
+from terrain.scterrain import WPE
 from PIL import Image
 from typing import Sequence
 import struct
@@ -90,15 +91,27 @@ class GRP:
     def __init__(self, palette: PCX | str, path: Graphic | str):
         flat_palette = read_pcx(palette).getpalette()
 
+        player = 1
+
         if flat_palette is None:
             raise ValueError(
                 f"Can't get palette from {palette}. Maybe you missed extract palettes from StarCraft?"
             )
 
-        self.palette = [
+        pcx_palette = [
             (flat_palette[i], flat_palette[i + 1], flat_palette[i + 2])
             for i in range(0, len(flat_palette), 3)
         ]
+        self.palette = [
+            (p["red"], p["green"], p["blue"]) for p in WPE("Twilight").graphics
+        ]
+
+        pcx = read_pcx(palette)
+        for i in range(8):
+            index = pcx.getpixel((8 * player + i, 0))
+            color = pcx_palette[index]
+            self.palette[8 + i] = color
+
         file_path = Path(__file__).parent / "unit" / path
         with open(file_path, "rb") as f:
             self.frames = self.read(f)
