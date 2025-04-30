@@ -24,6 +24,25 @@
         "PYTHONPATH": "${workspaceFolder}/preprocess"
       },
       "cwd": "${workspaceFolder}/preprocess"
+    },
+
+    {
+      "name": "Python Debugger: Preprocess .anim",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/preprocess"
+      },
+      "cwd": "${workspaceFolder}/preprocess",
+      "args": [
+        "--path",
+        "./graphics/anim",
+        "--output",
+        "./output/anim",
+        "--sd",
+        "--hd"
+      ]
     }
   ]
 }
