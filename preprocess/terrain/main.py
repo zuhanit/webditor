@@ -9,11 +9,11 @@ import json
 
 def process_tileset(tileset: str, term_num: int):
     TA = TerrainAnalyzer(cast(Tilesets, tileset), term_num)
-    path = f"./output/terrain/{tileset}"
-    os.makedirs(path, exist_ok=True)
+    output_path = f"./output/terrain/{tileset}"
+    os.makedirs(output_path, exist_ok=True)
 
-    binary_path = f"{path}/megatile_color.bin"
-    compressed_path = f"{path}/megatile_color.gz"
+    binary_path = f"{output_path}/megatile_color.bin"
+    compressed_path = f"{output_path}/megatile_color.gz"
 
     with open(binary_path, "wb") as f:
         g = TA.get_megatile_colors()
@@ -26,10 +26,10 @@ def process_tileset(tileset: str, term_num: int):
 
 def process_group_table(tileset: str, term_num: int):
     TA = TerrainAnalyzer(cast(Tilesets, tileset), term_num)
-    path = f"./output/{tileset}"
-    os.makedirs(path, exist_ok=True)
+    output_path = f"./output/terrain/{tileset}"
+    os.makedirs(output_path, exist_ok=True)
 
-    binary_path = f"{path}/cv5_group.json"
+    binary_path = f"{output_path}/cv5_group.json"
 
     with open(binary_path, "w") as f:
         g = TA.get_group_table()
