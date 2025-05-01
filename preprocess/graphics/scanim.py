@@ -322,20 +322,3 @@ def apply_teamcolor(
 
     # 4) 채널 합치기 (alpha 는 원본 유지)
     return Image.merge("RGBA", (out_r, out_g, out_b, da))
-
-
-# Process HD anim files
-# for anim_path in get_all_anim_path():
-#     anim = SCAnim(anim_path)
-
-#     _a = str(Path(anim_path).with_suffix(""))[5:]
-#     output_path = Path(__file__).parent.parent / "output" / "anim" / "hd" / _a
-#     output_path.mkdir(parents=True, exist_ok=True)
-
-#     anim.images[0].layers["Diffuse"].save(str(output_path) + "/diffuse.png")
-#     if "Team Color" in anim.images[0].layers.keys():
-#         anim.images[0].layers["Team Color"].save(str(output_path) + "/team_color.png")
-
-# a = SCAnim("mainSD.anim")
-# b = [*filter(lambda x: isinstance(x, RAWEntryRef), a.entries)]
-# print("K")
