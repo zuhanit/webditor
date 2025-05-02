@@ -113,8 +113,8 @@ class Image(TypedDict):
 
 ImagesDat = DAT[Image](
   "images",
-  entry_count=1,
-  field_formats=["I", "B", "B", "B", "B", "I", "I", "I", "I", "I", "I", "I", "I", "I"],
+  entry_count=999,
+  field_formats=["I", "B", "B", "B", "B", "B", "B", "I", "I", "I", "I", "I", "I", "I"],
   parse=lambda x: {
     "grp_id": x[0],
     "turnable": x[1],
@@ -669,3 +669,5 @@ if __name__ == "__main__":
     SpritesDat,
   ]:
     _ = dat.result
+
+print("")
