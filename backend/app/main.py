@@ -1,3 +1,4 @@
+from os import stat_result
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -8,6 +9,8 @@ from fastapi.responses import JSONResponse
 import firebase_admin
 from firebase_admin import auth as firebase_auth
 from firebase_admin._auth_utils import InvalidIdTokenError
+from starlette.responses import Response
+from starlette.types import Scope
 
 setup_logging()
 
@@ -25,7 +28,26 @@ app.add_middleware(
   allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+
+class StaticFilesCache(StaticFiles):
+  """Cached Static Files, see https://stackoverflow.com/questions/66093397/how-to-disable-starlette-static-files-caching"""
+
+  def __init__(
+    self,
+    *args,
+    cachecontrol="public, max-age=31536000, s-maxage=31536000, immutable",
+    **kwargs,
+  ):
+    self.cachecontrol = cachecontrol
+    super().__init__(*args, **kwargs)
+
+  def file_response(self, *args, **kwargs) -> Response:
+    resp: Response = super().file_response(*args, **kwargs)
+    resp.headers.setdefault("Cache-Control", self.cachecontrol)
+    return resp
+
+
+app.mount("/static", StaticFilesCache(directory="static"), name="static")
 
 logger = get_logger("fastapi")
 
