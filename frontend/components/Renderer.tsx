@@ -1,65 +1,48 @@
 import { useImage } from "@/hooks/useImage";
-import { useEffect, useRef } from "react";
-import { SCImageType } from "@/types/SCImage";
+import { useEffect, useRef, useState } from "react";
+import { SCImage } from "@/types/SCImage";
+import { fetchFrameImage } from "@/lib/scimage";
 
-interface RendererProps extends SCImageType {
+interface RendererProps extends SCImage {
   frame: number;
 }
 
 export function SCImageRenderer({ version, imageIndex, frame }: RendererProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { data, isLoading } = useImage({ version, imageIndex });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!data?.diffuse) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!data?.diffuse || !data?.meta) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    fetchFrameImage({ image: data.diffuse, frame: frame, meta: data.meta })
+      .then((bmp) => {
+        if (cancelled) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
 
-    const url = URL.createObjectURL(data.diffuse);
-    const img = new Image();
+        canvas.width = bmp.width;
+        canvas.height = bmp.height;
+        ctx.drawImage(bmp, 0, 0);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e.message ?? String(e));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
-    img.onload = () => {
-      // If meta + frame rect exists, draw only that region
-      const rect = data.meta?.[frame];
-      if (rect) {
-        canvas.width = rect.width;
-        canvas.height = rect.height;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(
-          img,
-          rect.x,
-          rect.y,
-          rect.width,
-          rect.height,
-          0,
-          0,
-          rect.width,
-          rect.height,
-        );
-      } else {
-        // Fallback: draw full image
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-      }
-      URL.revokeObjectURL(url);
+    return () => {
+      cancelled = true;
     };
+  }, [version, imageIndex, frame, isLoading]);
 
-    img.src = url;
-  }, [data?.diffuse, data?.meta, frame]);
-
-  if (!data || !data.diffuse || isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <div>
-      <canvas ref={canvasRef}></canvas>
-    </div>
-  );
+  return <canvas ref={canvasRef} style={{ imageRendering: "pixelated" }} />;
 }

@@ -12,6 +12,7 @@ async def send_tileset(tileset_name: str):
     Path(__file__).resolve().parent.parent.parent.parent.parent.parent
     / "preprocess"
     / "output"
+    / "terrain"
     / tileset_name
     / "megatile_color.gz"
   )
@@ -28,6 +29,7 @@ async def send_cv5_group(tileset_name: str):
     Path(__file__).resolve().parent.parent.parent.parent.parent.parent
     / "preprocess"
     / "output"
+    / "terrain"
     / tileset_name
     / "cv5_group.json"
   )
