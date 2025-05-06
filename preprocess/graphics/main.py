@@ -1,5 +1,6 @@
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+import re
 from typing import Literal, Optional, TypeAlias, cast
 from graphics.scgraphic import GRP, get_all_graphic_path
 from graphics.scanim import AnimImage, RAWEntryRef, SCAnim, get_all_anim_path
@@ -291,3 +292,31 @@ if __name__ == "__main__":
 
     if args.sd:
         process_sd()
+
+    STATIC = Path("../") / "backend" / "static"
+
+    print(STATIC.glob("anim/**/*.png"))
+    hd_manifest: dict[int, dict[str, bool]] = {}
+    sd_manifest: dict[int, dict[str, bool]] = {}
+    for png in STATIC.glob("anim/**/*.png"):
+        m = re.search(r"/anim/(sd|hd)/(\d+)/(diffuse|team_color)\.png$", png.as_posix())
+        if not m:
+            continue
+        ver, idx, kind = m.groups()
+        idx = int(idx)
+        if ver == "sd":
+            sd_manifest.setdefault(idx, {"diffuse": False, "team_color": False})
+            sd_manifest[idx][kind] = True
+        else:
+            hd_manifest.setdefault(idx, {"diffuse": False, "team_color": False})
+            hd_manifest[idx][kind] = True
+
+    (STATIC / "anim" / "hd" / "manifest.json").write_text(
+        json.dumps(hd_manifest), encoding="utf-8"
+    )
+    print("hd/manifest.json written:", len(hd_manifest), "entries")
+
+    (STATIC / "anim" / "sd" / "manifest.json").write_text(
+        json.dumps(sd_manifest), encoding="utf-8"
+    )
+    print("sd/manifest.json written:", len(sd_manifest), "entries")
