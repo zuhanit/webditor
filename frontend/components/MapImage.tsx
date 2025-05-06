@@ -1,20 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import useTileGroup from "@/hooks/useTileGroup";
 import useTilesetData from "@/hooks/useTilesetData";
 import { useRawMapStore } from "@/store/mapStore";
+import { useImages } from "@/hooks/useImage";
+import { Terrain } from "@/types/schemas/Terrain";
+import { Unit } from "@/types/schemas/Unit";
+import { Flingy } from "@/types/schemas/Flingy";
+import { Sprite } from "@/types/schemas/Sprite";
+import { SCImageBundle } from "@/types/SCImage";
+import { createTeamColorUnitImage, fetchFrameImage } from "@/lib/scimage";
+
+const TILE_SIZE = 32;
 
 function drawMegatile(
-  ctx: CanvasRenderingContext2D,
+  ctx: OffscreenCanvasRenderingContext2D,
   x: number,
   y: number,
   rgbData: Uint8Array,
 ) {
-  const tileSize = 32;
-  const imageData = ctx.createImageData(tileSize, tileSize);
+  const imageData = ctx.createImageData(TILE_SIZE, TILE_SIZE);
 
-  for (let i = 0; i < tileSize * tileSize; i++) {
+  for (let i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
     const r = rgbData[i * 3];
     const g = rgbData[i * 3 + 1];
     const b = rgbData[i * 3 + 2];
@@ -25,7 +33,88 @@ function drawMegatile(
     imageData.data[i * 4 + 3] = 255; // Alpha
   }
 
-  ctx.putImageData(imageData, x * tileSize, y * tileSize);
+  ctx.putImageData(imageData, x * TILE_SIZE, y * TILE_SIZE);
+}
+
+function getTerrainImage(
+  terrain: Terrain,
+  tileGroup: number[][],
+  tilesetData: Uint8Array,
+) {
+  const terrainCanvas = new OffscreenCanvas(
+    terrain.size.width * TILE_SIZE,
+    terrain.size.height * TILE_SIZE,
+  );
+  const terrainCtx = terrainCanvas.getContext("2d")!;
+
+  for (let y = 0; y < terrain.size.height; y++) {
+    for (let x = 0; x < terrain.size.width; x++) {
+      const tile = terrain.tile_id[y][x];
+      const megatileID = tileGroup[tile.group][tile.id];
+      const offset = megatileID * 3072;
+      const rgbData = tilesetData.slice(offset, offset + 3072);
+      drawMegatile(terrainCtx, x, y, rgbData);
+    }
+  }
+
+  return terrainCanvas.transferToImageBitmap();
+}
+
+async function getPlacedUnitImage(
+  terrain: Terrain,
+  placedUnit: Unit[],
+  flingy: Flingy[],
+  sprite: Sprite[],
+  SCImages: Map<number, SCImageBundle>,
+): Promise<ImageBitmap> {
+  const canvas = new OffscreenCanvas(
+    terrain.size.width * TILE_SIZE,
+    terrain.size.height * TILE_SIZE,
+  );
+  const ctx = canvas.getContext("2d")!;
+
+  const tasks = placedUnit.map(async (unit) => {
+    const flingyID = unit.unit_definition.specification.graphics;
+    const spriteID = flingy[flingyID].sprite;
+    const imageID = sprite[spriteID].image;
+    const image = SCImages.get(imageID);
+
+    if (!image || !image.diffuse) return;
+
+    if (image.teamColor) {
+      const diffuse = await fetchFrameImage({
+        image: image.diffuse,
+        frame: 0,
+        meta: image.meta,
+      });
+      const teamColor = await fetchFrameImage({
+        image: image.teamColor,
+        frame: 0,
+        meta: image.meta,
+      });
+      const colored = createTeamColorUnitImage(diffuse, teamColor, [255, 0, 0]);
+
+      ctx.drawImage(
+        colored,
+        unit.transform!.position.x,
+        unit.transform!.position.y,
+      );
+    } else {
+      ctx.drawImage(
+        await fetchFrameImage({
+          image: image.diffuse,
+          frame: 0,
+          meta: image.meta,
+        }),
+        unit.transform!.position.x,
+        unit.transform!.position.y,
+      );
+    }
+  });
+
+  await Promise.all(tasks);
+
+  return canvas.transferToImageBitmap();
 }
 
 export const MapImage = () => {
@@ -34,97 +123,132 @@ export const MapImage = () => {
   const tileGroup = useTileGroup();
   const tilesetData = useTilesetData();
   const rawmap = useRawMapStore((state) => state.rawMap);
+  const requiredImageIDs = useMemo(() => {
+    const result = new Set<number>();
+    if (rawmap) {
+      rawmap.placed_unit.forEach((unit) => {
+        const flingyID = unit.unit_definition.specification.graphics;
+        const spriteID = rawmap.flingy[flingyID].sprite;
+        const imageID = rawmap.sprite[spriteID].image;
 
-  const [viewport, setViewport] = useState({
+        result.add(imageID);
+      });
+    }
+    return result;
+  }, [rawmap?.placed_unit]);
+  const { data: imagesData, loading: imagesLoading } = useImages(
+    requiredImageIDs,
+    "sd",
+  );
+
+  const viewportRef = useRef({
     startX: 0,
     startY: 0,
     tileWidth: 40,
     tileHeight: 75,
   });
 
-  useEffect(() => {
-    if (!rawmap || !tileGroup || !tilesetData) return;
+  const terrainImage = useMemo<ImageBitmap | undefined>(() => {
+    if (!rawmap || !tileGroup || !tilesetData) return undefined;
+    return getTerrainImage(rawmap.terrain, tileGroup, tilesetData);
+  }, [rawmap?.terrain]);
 
-    const tileSize = 32;
-    const width = rawmap.terrain.size.width;
-    const height = rawmap.terrain.size.height;
+  const [placedUnitImage, setPlacedUnitImage] = useState<
+    ImageBitmap | undefined
+  >(undefined);
+
+  useEffect(() => {
+    async function createImage() {
+      if (!rawmap || imagesLoading) return undefined;
+      const img = await getPlacedUnitImage(
+        rawmap.terrain,
+        rawmap.placed_unit,
+        rawmap.flingy,
+        rawmap.sprite,
+        imagesData,
+      );
+
+      setPlacedUnitImage(img);
+    }
+    createImage();
+  }, [rawmap?.terrain, imagesLoading]);
+
+  useEffect(() => {
+    if (!rawmap) return;
 
     const mapCanvas = document.createElement("canvas");
-    mapCanvas.width = width * tileSize;
-    mapCanvas.height = height * tileSize;
+    mapCanvas.width = rawmap.terrain.size.width * 32;
+    mapCanvas.height = rawmap.terrain.size.height * 32;
 
-    const mapCtx = mapCanvas.getContext("2d");
-    if (!mapCtx) return;
-
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const tile = rawmap.terrain.tile_id[y][x];
-        const megatileID = tileGroup[tile.group][tile.id];
-        const offset = megatileID * 3072;
-        const rgbData = tilesetData.slice(offset, offset + 3072);
-        drawMegatile(mapCtx, x, y, rgbData);
-      }
-    }
-
+    const mapCtx = mapCanvas.getContext("2d")!;
+    terrainImage && mapCtx.drawImage(terrainImage, 0, 0);
+    placedUnitImage && mapCtx.drawImage(placedUnitImage, 0, 0);
     entireMapCanvasRef.current = mapCanvas;
+  }, [rawmap, placedUnitImage, terrainImage]);
 
-    // Initialize viewport
-    setViewport((prev) => ({ ...prev }));
-  }, [rawmap, tileGroup, tilesetData]);
-
-  useEffect(() => {
+  function paint() {
     const viewCanvas = viewportCanvasRef.current;
     const mapCanvas = entireMapCanvasRef.current;
     if (!viewCanvas || !mapCanvas) return;
 
-    const tileSize = 32;
-    const viewCtx = viewCanvas.getContext("2d");
-    if (!viewCtx) return;
+    const viewCtx = viewCanvas.getContext("2d")!;
+    const v = viewportRef.current;
 
-    viewCanvas.width = viewport.tileWidth * tileSize;
-    viewCanvas.height = viewport.tileHeight * tileSize;
+    viewCanvas.width = v.tileWidth * TILE_SIZE;
+    viewCanvas.height = v.tileHeight * TILE_SIZE;
 
     viewCtx.drawImage(
       mapCanvas,
-      viewport.startX * tileSize,
-      viewport.startY * tileSize,
-      viewport.tileWidth * tileSize,
-      viewport.tileHeight * tileSize,
+      v.startX * TILE_SIZE,
+      v.startY * TILE_SIZE,
+      v.tileWidth * TILE_SIZE,
+      v.tileHeight * TILE_SIZE,
       0,
       0,
-      viewport.tileWidth * tileSize,
-      viewport.tileHeight * tileSize,
+      v.tileWidth * TILE_SIZE,
+      v.tileHeight * TILE_SIZE,
     );
-  }, [viewport]);
-
-  const [isDragging, setIsDragging] = useState(false);
+  }
+  const isDragging = useRef(false);
   const dragStart = useRef<{ x: number; y: number } | null>(null);
 
   function handleMouseDown(e: React.MouseEvent) {
-    setIsDragging(true);
+    isDragging.current = true;
     dragStart.current = { x: e.clientX, y: e.clientY };
   }
 
+  const raf = useRef(0);
   function handleMouseMove(e: React.MouseEvent) {
-    if (!isDragging || !dragStart.current) return;
+    if (!isDragging.current || !dragStart.current) return;
 
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
 
-    const tileSize = 32;
+    const deltaX = Math.round(dx / TILE_SIZE);
+    const deltaY = Math.round(dy / TILE_SIZE);
+    if (deltaX === 0 && deltaY === 0) return;
 
-    const deltaX = Math.round(dx / tileSize);
-    const deltaY = Math.round(dy / tileSize);
+    viewportRef.current.startX = Math.max(
+      0,
+      viewportRef.current.startX - deltaX,
+    );
+    viewportRef.current.startY = Math.max(
+      0,
+      viewportRef.current.startY - deltaY,
+    );
+    dragStart.current = { x: e.clientX, y: e.clientY };
 
-    if (deltaX !== 0 || deltaY !== 0) {
-      setViewport((prev) => ({
-        ...prev,
-        startX: Math.max(0, prev.startX - deltaX),
-        startY: Math.max(0, prev.startY - deltaY),
-      }));
-
-      dragStart.current = { x: e.clientX, y: e.clientY };
+    if (!raf.current) {
+      raf.current = requestAnimationFrame(() => {
+        paint();
+        raf.current = 0;
+      });
     }
+  }
+
+  function handleMouseUp() {
+    isDragging.current = false;
+    dragStart.current = null;
   }
 
   useEffect(() => {
@@ -132,13 +256,10 @@ export const MapImage = () => {
       const canvas = entries[0].target as HTMLCanvasElement;
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
-      const tileSize = 32;
 
-      setViewport((prev) => ({
-        ...prev,
-        tileWidth: Math.floor(width / tileSize),
-        tileHeight: Math.floor(height / tileSize),
-      }));
+      viewportRef.current.tileWidth = Math.floor(width / TILE_SIZE);
+      viewportRef.current.tileHeight = Math.floor(height / TILE_SIZE);
+      paint();
     });
 
     if (viewportCanvasRef.current) {
@@ -151,11 +272,6 @@ export const MapImage = () => {
       }
     };
   }, []);
-
-  function handleMouseUp() {
-    setIsDragging(false);
-    dragStart.current = null;
-  }
 
   return (
     <div className="w-full">
