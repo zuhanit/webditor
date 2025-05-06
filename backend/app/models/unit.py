@@ -10,8 +10,8 @@ from enum import Flag
 
 
 class CHKUnit(Entity):
-  """CHK compatible Unit.
-  """
+  """CHK compatible Unit."""
+
   serial_number: Optional[int] = None
   """Identical number when unit placed on map. -1 When non-placed unit."""
   cost: Cost
@@ -19,7 +19,9 @@ class CHKUnit(Entity):
   shield_points: Stat = Stat()
   energy_points: Stat = Stat()
   armor_points: int = Field(default=0, lt=256)
-  owner: Player = Player(player_type="Inactive", race="Inactive", color=0)
+  owner: Player = Player(
+    player_type="Inactive", race="Inactive", color=0, rgb_color=(0, 0, 0)
+  )
   resource_amount: int = 0
   hangar: int = 0
   unit_state: int = 0
@@ -29,18 +31,22 @@ class CHKUnit(Entity):
   valid_properties: int = 0
   use_default: bool = True
 
+
 class Unit(Entity):
   """Unit placed on map.
-  
+
   The entity means what placeable on map, so every `Unit` which herit `Entity` is placed unit.
-  If you looking for specificaiton of unit like `Max HP`, `Size`, see `UnitDefinition`. 
+  If you looking for specificaiton of unit like `Max HP`, `Size`, see `UnitDefinition`.
   """
+
   serial_number: Optional[int] = None
   """Identical number when unit placed on map. -1 When non-placed unit."""
   use_default: bool = True
   unit_definition: UnitDefinition
 
-  owner: Player = Player(player_type="Inactive", race="Inactive", color=0)
+  owner: Player = Player(
+    player_type="Inactive", race="Inactive", color=0, rgb_color=(0, 0, 0)
+  )
   resource_amount: int = 0
   hangar: int = 0
   unit_state: int = 0
@@ -48,7 +54,7 @@ class Unit(Entity):
   related_unit: int = 0
   special_properties: int = 0
   valid_properties: int = 0
-  
+
 
 class PlacedUnitRelationFlag(Flag):
   nydus_link = 0b10000000
@@ -79,8 +85,10 @@ class UnitStateFlag(Flag):
   hallucinated = 0b1000
   invincible = 0b10000
 
+
 class UnitProperty(WObject):
   """Create units with properties trigger used."""
+
   special_properties: int
   unit_data: int
   owner: int = Field(default=0, le=1)
@@ -90,7 +98,8 @@ class UnitProperty(WObject):
   resource_amount: int
   units_in_hangar: int
   flags: int
-  
+
+
 class UnitRestriction(WObject):
   availability: list[bool]
   global_availability: bool

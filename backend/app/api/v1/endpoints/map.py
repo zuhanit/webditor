@@ -1,6 +1,6 @@
 import io
 import os
-from app.core.w_logging import get_logger 
+from app.core.w_logging import get_logger
 from app.services.rawdata.dat import DAT
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import StreamingResponse
@@ -17,6 +17,8 @@ import datetime
 router = APIRouter()
 
 upload_logger = get_logger("upload")
+
+
 @router.post("/upload/")
 async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user)):
   """Get webditor-based transformed data by uploaded map."""
@@ -61,22 +63,24 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
 
 
 @router.get("/test_map")
-async def get_test_map(): 
-  with open("./example/devouring_ones.scx", "rb") as f:
+async def get_test_map():
+  with open("./example/various_units.scx", "rb") as f:
     chkt = get_chkt(BytesIO(f.read()))
     chk = CHK(chkt)
     dat = DAT()
     map = get_map(chk, dat)
-    
-    return map.model_dump(mode="json")
-  
 
-build_logger = get_logger("build") 
+    return map.model_dump(mode="json")
+
+
+build_logger = get_logger("build")
+
+
 @router.post("/build")
 def get_build_map(map: Usemap):
   build_logger.info("Started to building map.")
 
-  try: 
+  try:
     map_bytes = build_map(map)
   except Exception as e:
     build_logger.critical(f"Building map was failed, because of {e}")
@@ -84,13 +88,14 @@ def get_build_map(map: Usemap):
 
   buffer = io.BytesIO(map_bytes)
   buffer.seek(0)
-  
+
   timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d_%H%M%S")
   json_path = f"logs/map_{timestamp}.json"
   os.makedirs("logs", exist_ok=True)
 
   with open(json_path, mode="a", newline="") as f:
     import json
+
     json.dump(map.model_dump(mode="json"), f, indent=2)
     build_logger.info(f"Map structure saved in {json_path}")
 
@@ -99,5 +104,5 @@ def get_build_map(map: Usemap):
   return StreamingResponse(
     buffer,
     media_type="application/octet-stream",
-    headers={"content-Disposition": "attachment; filename=generated_map.scx"}
+    headers={"content-Disposition": "attachment; filename=generated_map.scx"},
   )

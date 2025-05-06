@@ -28,7 +28,7 @@ OwnrPlayerTypeDict: dict[int, PlayerType] = {
 }
 
 OwnrPlayerTypeReverseDict: dict[PlayerType, int] = {
-    v: k for k, v in OwnrPlayerTypeDict.items()
+  v: k for k, v in OwnrPlayerTypeDict.items()
 }
 
 PlayerRace: TypeAlias = Literal[
@@ -60,6 +60,7 @@ SidePlayerRaceReverseDict: dict[PlayerRace, int] = {
 
 class Player(WObject):
   color: int
+  rgb_color: tuple[int, int, int]
   player_type: PlayerType
   race: PlayerRace
   force: int = Field(default=0, lt=4, ge=0)
@@ -70,6 +71,7 @@ class ForcePropertyFlag(Flag):
   allies = 0b00000010
   allied_victory = 0b00000100
   shared_vision = 0b00001000
+
 
 class Force(WObject):
   properties: int

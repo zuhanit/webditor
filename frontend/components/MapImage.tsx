@@ -82,6 +82,7 @@ async function getPlacedUnitImage(
     if (!image || !image.diffuse) return;
 
     if (image.teamColor) {
+      const playerColor = unit.owner ? unit.owner.rgb_color : [255, 255, 0];
       const diffuse = await fetchFrameImage({
         image: image.diffuse,
         frame: 0,
@@ -92,7 +93,11 @@ async function getPlacedUnitImage(
         frame: 0,
         meta: image.meta,
       });
-      const colored = createTeamColorUnitImage(diffuse, teamColor, [255, 0, 0]);
+      const colored = createTeamColorUnitImage(
+        diffuse,
+        teamColor,
+        playerColor as [number, number, number],
+      );
 
       ctx.drawImage(
         colored,
