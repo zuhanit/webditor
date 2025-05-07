@@ -152,7 +152,7 @@ def process_hd():
             result, diffuse, team_color, anim_path, meta, msg = future.result()
 
             if result == "success" or result == "success_without_team_color":
-                _a = Path(anim_path).with_suffix("").name[5:]
+                _a = str(int(Path(anim_path).with_suffix("").name[5:]))
                 output_path = Path(args.output) / "hd" / _a
                 output_path.mkdir(parents=True, exist_ok=True)
 
