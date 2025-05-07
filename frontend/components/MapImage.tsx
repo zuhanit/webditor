@@ -11,6 +11,7 @@ import { Flingy } from "@/types/schemas/Flingy";
 import { Sprite } from "@/types/schemas/Sprite";
 import { SCImageBundle } from "@/types/SCImage";
 import { createTeamColorUnitImage, fetchFrameImage } from "@/lib/scimage";
+import { Location } from "@/types/schemas/Location";
 
 const TILE_SIZE = 32;
 
@@ -230,7 +231,7 @@ export const MapImage = () => {
   const terrainImage = useMemo<ImageBitmap | undefined>(() => {
     if (!rawmap || !tileGroup || !tilesetData) return undefined;
     return getTerrainImage(rawmap.terrain, tileGroup, tilesetData);
-  }, [rawmap?.terrain]);
+  }, [rawmap?.terrain, tileGroup, tilesetData]);
 
   const [placedUnitImage, setPlacedUnitImage] = useState<
     ImageBitmap | undefined
