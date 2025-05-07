@@ -23,6 +23,8 @@ class ElevationFlag(Flag):
 
 
 class Location(BaseModel):
+  id: int
   position: RectPosition
   name_id: int
   elevation_flags: int
+  name: str
