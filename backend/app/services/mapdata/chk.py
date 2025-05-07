@@ -398,15 +398,18 @@ class CHK:
       MRGN = struct.unpack(
         CHK_FORMATDICT["MRGN"], mrgn_bytes[i * format_size : (i + 1) * format_size]
       )
-      result.append(
-        Location(
-          position=RectPosition(
-            left=MRGN[0], top=MRGN[1], right=MRGN[2], bottom=MRGN[3]
-          ),
-          name_id=MRGN[4],
-          elevation_flags=MRGN[5],
+      if (MRGN[0], MRGN[1], MRGN[2], MRGN[3]) != (0, 0, 0, 0):
+        result.append(
+          Location(
+            id=i,
+            position=RectPosition(
+              left=MRGN[0], top=MRGN[1], right=MRGN[2], bottom=MRGN[3]
+            ),
+            name_id=MRGN[4],
+            elevation_flags=MRGN[5],
+            name=self.string_table[MRGN[4] - 1].content,
+          )
         )
-      )
 
     self.logger.debug(f"get_locations complete. {len(result)} locations parsed.")
     return result
