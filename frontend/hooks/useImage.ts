@@ -72,7 +72,6 @@ export function useImageManifest(version: ImageVersion) {
 export function useImages(imageIDs: Set<number>, version: ImageVersion) {
   const { data: manifest } = useImageManifest(version);
 
-  console.log(imageIDs);
   const imageQueries = useQueries({
     queries: [...imageIDs].map((id) => ({
       enabled: !!manifest?.get(id)?.diffuse, // skip if diffuse missing
@@ -103,7 +102,6 @@ export function useImages(imageIDs: Set<number>, version: ImageVersion) {
       const dataMap = new Map<number, SCImageBundle>();
 
       [...imageIDs].forEach((id, idx) => {
-        console.log(id, idx);
         const r = results[idx];
         if (r.data) dataMap.set(id, r.data);
       });
