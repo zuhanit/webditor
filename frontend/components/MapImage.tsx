@@ -122,6 +122,78 @@ async function getPlacedUnitImage(
   return canvas.transferToImageBitmap();
 }
 
+async function getPlacedSpriteImages(
+  terrain: Terrain,
+  placedSprite: Sprite[],
+  SCImages: Map<number, SCImageBundle>,
+) {
+  const canvas = new OffscreenCanvas(
+    terrain.size.width * TILE_SIZE,
+    terrain.size.height * TILE_SIZE,
+  );
+  const ctx = canvas.getContext("2d")!;
+
+  const tasks = placedSprite.map(async (sprite) => {
+    const imageID = sprite.image;
+    const image = SCImages.get(imageID);
+
+    if (!image) return;
+    ctx.drawImage(
+      await fetchFrameImage({
+        image: image.diffuse,
+        frame: 0,
+        meta: image.meta,
+      }),
+      sprite.transform!.position.x,
+      sprite.transform!.position.y,
+    );
+  });
+
+  await Promise.all(tasks);
+
+  return canvas.transferToImageBitmap();
+}
+
+function getLocationImage(terrain: Terrain, locations: Location[]) {
+  const thickness = 3;
+  const canvas = new OffscreenCanvas(
+    terrain.size.width * TILE_SIZE,
+    terrain.size.height * TILE_SIZE,
+  );
+  const ctx = canvas.getContext("2d")!;
+  console.log(locations);
+
+  locations.forEach((location) => {
+    if (location.id != 63) {
+      const width = location.position.right - location.position.left;
+      const height = location.position.bottom - location.position.top;
+      ctx.fillStyle = "rgba(0, 0, 255, 0.15)";
+      ctx.fillRect(
+        location.position.left,
+        location.position.top,
+        width,
+        height,
+      );
+      ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      ctx.strokeRect(
+        location.position.left,
+        location.position.top,
+        width + thickness,
+        height + thickness,
+      );
+      ctx.font = "40px serif";
+      ctx.fillStyle = "rgb(255, 255, 255)";
+      ctx.fillText(
+        location.name,
+        location.position.left,
+        location.position.top,
+      );
+    }
+  });
+
+  return canvas.transferToImageBitmap();
+}
+
 export const MapImage = () => {
   const viewportCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const entireMapCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -138,6 +210,8 @@ export const MapImage = () => {
 
         result.add(imageID);
       });
+
+      rawmap.placed_sprite.forEach((sprite) => result.add(sprite.image));
     }
     return result;
   }, [rawmap?.placed_unit]);
@@ -162,18 +236,34 @@ export const MapImage = () => {
     ImageBitmap | undefined
   >(undefined);
 
+  const [placedSpriteImage, setPlacedSpriteImage] = useState<
+    ImageBitmap | undefined
+  >(undefined);
+
+  const locationImage = useMemo<ImageBitmap | undefined>(() => {
+    if (!rawmap) return;
+    console.log(rawmap?.string);
+    return getLocationImage(rawmap.terrain, rawmap.location);
+  }, [rawmap?.terrain]);
+
   useEffect(() => {
     async function createImage() {
       if (!rawmap || imagesLoading) return undefined;
-      const img = await getPlacedUnitImage(
+      const unitImage = await getPlacedUnitImage(
         rawmap.terrain,
         rawmap.placed_unit,
         rawmap.flingy,
         rawmap.sprite,
         imagesData,
       );
+      const spriteImage = await getPlacedSpriteImages(
+        rawmap.terrain,
+        rawmap.placed_sprite,
+        imagesData,
+      );
 
-      setPlacedUnitImage(img);
+      setPlacedUnitImage(unitImage);
+      setPlacedSpriteImage(spriteImage);
     }
     createImage();
   }, [rawmap?.terrain, imagesLoading]);
@@ -188,8 +278,10 @@ export const MapImage = () => {
     const mapCtx = mapCanvas.getContext("2d")!;
     terrainImage && mapCtx.drawImage(terrainImage, 0, 0);
     placedUnitImage && mapCtx.drawImage(placedUnitImage, 0, 0);
+    placedSpriteImage && mapCtx.drawImage(placedSpriteImage, 0, 0);
+    locationImage && mapCtx.drawImage(locationImage, 0, 0);
     entireMapCanvasRef.current = mapCanvas;
-  }, [rawmap, placedUnitImage, terrainImage]);
+  }, [rawmap, placedUnitImage, terrainImage, placedSpriteImage]);
 
   function paint() {
     const viewCanvas = viewportCanvasRef.current;
