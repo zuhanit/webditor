@@ -8,6 +8,9 @@ backend/__pycache__/*
 **/__pycache__/
 **/__pycache__/*
 
+backend/build
+backend/*.egg-info
+
 **/*/.DS_Store
 .DS_Store
 
