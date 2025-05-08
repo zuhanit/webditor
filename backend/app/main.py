@@ -73,7 +73,7 @@ async def log_reqeust(request: Request, call_next):
   try:
     response = await call_next(request)
   except Exception as e:
-    logger.exception("🔥 Unhandled exception occurred during request")
+    logger.exception("Unhandled exception occurred during request")
     return JSONResponse(
       status_code=500,
       content={"detail": "Internal Server Error"},
