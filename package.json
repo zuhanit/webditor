@@ -4,10 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"pnpm run fastapi-dev\" \"pnpm run next-dev\"",
+    "dev-windows": "concurrently \"pnpm run fastapi-dev-windows\" \"pnpm run next-dev\"",
+    "dev-linux": "concurrently \"pnpm run fastapi-dev-linux\" \"pnpm run next-dev\"",
     "next-dev": "cd frontend && pnpm run dev",
-    "fastapi-dev": "source ./backend/.venv/bin/activate && cd backend && uvicorn app.main:app --reload --port 8000 --log-level debug --reload-dir ../wengine",
-    "build": "source ./preprocess/.venv/bin/activate && python scripts/build.py"
+    "fastapi-dev-windows": "./backend/.venv/Scripts/activate && cd backend && uvicorn app.main:app --reload --port 8000 --log-level debug --reload-dir ../wengine",
+    "fastapi-dev-linux": "source ./backend/.venv/bin/activate && cd backend && uvicorn app.main:app --reload --port 8000 --log-level debug --reload-dir ../wengine",
+    "build-windows": "./preprocess/.venv/Scripts/activate && python scripts/build.py",
+    "build-linux": "source ./preprocess/.venv/bin/activate && python scripts/build.py"
   },
   "keywords": [],
   "author": "",
