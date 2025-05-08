@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"pnpm run fastapi-dev\" \"pnpm run next-dev\"",
+    "build": "pnpm run next-build",
+    "start": "concurrently \"pnpm run fastapi-dev\" \"pnpm run next-start\"",
     "next-dev": "cd frontend && pnpm run dev",
+    "next-build": "cd frontend && pnpm run build",
+    "next-start": "cd frontend && pnpm run start",
     "fastapi-dev": "node scripts/run_fastapi.js",
     "build-windows": "./preprocess/.venv/Scripts/activate && python scripts/build.py",
     "build-linux": "source ./preprocess/.venv/bin/activate && python scripts/build.py"
