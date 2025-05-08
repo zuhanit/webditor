@@ -1,4 +1,3 @@
-import { projectItems } from "@/fixtures/project_items";
 import { SideBar, SideBarItem } from "./placed_container/SideBar";
 import { useState } from "react";
 import { Resizable } from "re-resizable";
@@ -29,7 +28,6 @@ export function Project({ className }: ProjectProps) {
       className={twMerge("bg-background-secondary shadow-inner", className)}
     >
       <SideBar
-        items={projectItems}
         hideSearchbox
         onSelectItem={handleSelectItem}
         selectedItem={selectedItem}

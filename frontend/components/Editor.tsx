@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { SideBar, SideBarItem } from "./placed_container/SideBar";
-import { defaultItems } from "@/fixtures/default_items";
 import useFetchRawMap from "@/hooks/useRawMap";
 import { Item } from "@/types/InspectorItem";
 import { PanelLeft } from "lucide-react";
@@ -97,7 +96,6 @@ export default function Editor() {
           {/* Left Explorer (SideBar) */}
           <Resizable>
             <SideBar
-              items={defaultItems}
               onSelectItem={handleSelectedEntity}
               selectedItem={selectedEntity}
               className="h-full overflow-y-scroll"

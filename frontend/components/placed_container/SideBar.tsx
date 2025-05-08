@@ -94,7 +94,6 @@ function SideBarRow<T>({
 }
 
 interface SideBarProps<T> {
-  items: SideBarItem<T>[];
   hideSearchbox?: boolean;
   onSelectItem: (item: SideBarItem<T>) => void;
   selectedItem: SideBarItem<T> | null;
@@ -113,7 +112,6 @@ interface SideBarProps<T> {
  * @returns SideBar
  */
 export function SideBar<T>({
-  items,
   hideSearchbox,
   onSelectItem,
   selectedItem,
