@@ -9,7 +9,7 @@ interface AssetEditorContentProps {
   label: string;
   value: any;
   path: (string | number)[];
-  onChange: (path: string[], newValue: any) => void;
+  onChange: (path: (string | number)[], newValue: any) => void;
 }
 
 function AssetEditorContent({
@@ -114,8 +114,8 @@ interface AssetEditorProps {
 
 export default function AssetEditor({ label, item }: AssetEditorProps) {
   const updateRawMap = useRawMapStore((state) => state.updateRawMap); // zustand 또는 context 등
-  const handleChange = (path: string[], newValue: any) => {
-    updateRawMap((draft) => {
+  const handleChange = (path: (string | number)[], newValue: any) => {
+    updateRawMap((draft: any) => {
       let target = draft;
       for (let i = 0; i < path.length - 1; i++) {
         target = target[path[i]];

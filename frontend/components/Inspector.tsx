@@ -49,8 +49,8 @@ function InspectorContent({
 }: {
   label: string;
   value: any;
-  onChange: (path: string[], newValue: any) => void;
-  path?: string[];
+  onChange: (path: (string | number)[], newValue: any) => void;
+  path?: (string | number)[];
 }) {
   const fullPath = [...path, label];
 
@@ -147,13 +147,13 @@ function InspectorContent({
 
 interface InspectorProps {
   item: Item | undefined;
-  draggingAsset: AssetType<WObject> | null;
+  draggingAsset: AssetType | null;
 }
 
 export const Inspector = ({ item, draggingAsset }: InspectorProps) => {
   const updateRawMap = useRawMapStore((state) => state.updateRawMap); // zustand 또는 context 등
-  const handleChange = (path: string[], newValue: any) => {
-    updateRawMap((draft) => {
+  const handleChange = (path: (string | number)[], newValue: any) => {
+    updateRawMap((draft: any) => {
       let target = draft;
       for (let i = 0; i < path.length - 1; i++) {
         target = target[path[i]];
@@ -161,7 +161,7 @@ export const Inspector = ({ item, draggingAsset }: InspectorProps) => {
       target[path[path.length - 1]] = newValue;
     });
 
-    trackInspectorEdit(item.label, path.join("."), newValue);
+    item && trackInspectorEdit(item.label, path.join("."), newValue);
   };
 
   if (!item)
