@@ -3,7 +3,7 @@ from app.services.merger import Merger
 from eudplib import CompressPayload
 from eudplib.core.mapdata import chktok, mapdata
 from eudplib.maprw.savemap import SaveMap
-from eudplib.maprw.loadmap import LoadMap 
+from eudplib.maprw.loadmap import LoadMap
 from eudplib.bindings._rust import mpqapi
 from tempfile import NamedTemporaryFile
 from io import BytesIO
@@ -95,8 +95,7 @@ def build_map(map: Usemap, delete: bool = True):
   Returns:
       bytes: The compiled SCX map file content as raw bytes.
   """
-  # original_fname = "./app/services/rawdata/original.scx"
-  original_fname = "/Volumes/External/Programming/webditor/backend/app/services/rawdata/original.scx"
+  original_fname = "./app/services/rawdata/original.scx"
 
   serializer = CHKBuilder(map)
 
