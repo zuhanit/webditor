@@ -1,20 +1,26 @@
-[tool.poetry]
+[project]
 name = "backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-packages = [{ include = "app" }]
+requires-python = ">=3.11, <3.14"
 
-[tool.poetry.dependencies]
-python = ">=3.11, <3.14"
-eudplib = { file = "../eudplib-0.80.0-cp310-abi3-macosx_11_0_arm64.whl" }
-fastapi = {extras = ["standard"], version = "^0.115.11"}
-firebase-admin = "^6.7.0"
-rich = "^14.0.0"
-wengine = {path = "../wengine", develop = true}
+dependencies = [
+  "fastapi[standard] >=0.115.11",
+  "firebase-admin >=6.7.0",
+  "rich >=14.0.0",
+  "eudplib",
+  "wengine",
+]
 
-[tool.poetry.group.dev.dependencies]
-datamodel-code-generator = "^0.28.5"
+[tool.uv.sources]
+eudplib = { path = "../eudplib-0.80.0-cp310-abi3-macosx_11_0_arm64.whl", marker = "platform_system == 'Linux'" }
+wengine = { path = "../wengine", editable = true }
+
+[project.optional-dependencies]
+dev = [
+  "datamodel-code-generator >=0.28.5"
+]
 
 [tool.setuptools]
 packages = ["app"]
