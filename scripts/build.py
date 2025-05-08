@@ -8,14 +8,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 def run_preprocess():
     subprocess.run(
-        ["poetry", "run", "python", "-m", "terrain.main"],
+        ["python", "-m", "terrain.main"],
         cwd=BASE_DIR / "preprocess",
         check=True,
     )
     subprocess.run(
         [
-            "poetry",
-            "run",
             "python",
             "-m",
             "graphics.main",
