@@ -1,9 +1,11 @@
 import subprocess
 import shutil
 import os
+import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+SHELL_ENABLE = True if sys.platform.startswith("win") else False
 
 
 def run_preprocess():
@@ -11,6 +13,7 @@ def run_preprocess():
         ["python", "-m", "terrain.main"],
         cwd=BASE_DIR / "preprocess",
         check=True,
+        shell=SHELL_ENABLE,
     )
     subprocess.run(
         [
@@ -26,6 +29,7 @@ def run_preprocess():
         ],
         cwd=BASE_DIR / "preprocess",
         check=True,
+        shell=SHELL_ENABLE,
     )
 
 
@@ -37,7 +41,11 @@ def generate_schemas():
     shutil.rmtree(BASE_DIR / "frontend/schemas", ignore_errors=True)
 
     subprocess.run(
-        ["python", "-m", "scripts.schema_generator"], cwd=BASE_DIR, env=env, check=True
+        ["python", "-m", "scripts.schema_generator"],
+        cwd=BASE_DIR,
+        env=env,
+        check=True,
+        shell=SHELL_ENABLE,
     )
 
     (BASE_DIR / "frontend/types/schemas").mkdir(parents=True, exist_ok=True)
