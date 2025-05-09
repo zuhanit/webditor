@@ -287,11 +287,11 @@ if __name__ == "__main__":
     console = Console(width=200)
     args = parser.parse_args()
 
-    # if args.hd:
-    #     process_hd()
+    if args.hd:
+        process_hd()
 
-    # if args.sd:
-    #     process_sd()
+    if args.sd:
+        process_sd()
 
     STATIC = Path(args.output)
 

@@ -9,12 +9,12 @@ SHELL_ENABLE = True if sys.platform.startswith("win") else False
 
 
 def run_preprocess():
-    # subprocess.run(
-    #     ["python", "-m", "terrain.main"],
-    #     cwd=BASE_DIR / "preprocess" / "preprocess",
-    #     check=True,
-    #     shell=SHELL_ENABLE,
-    # )
+    subprocess.run(
+        ["python", "-m", "terrain.main"],
+        cwd=BASE_DIR / "preprocess" / "preprocess",
+        check=True,
+        shell=SHELL_ENABLE,
+    )
     subprocess.run(
         [
             "python",
