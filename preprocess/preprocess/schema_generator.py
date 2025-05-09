@@ -31,4 +31,4 @@ for finder, name, ispkg in pkgutil.walk_packages(
             filename = f"{attr_name}.schema.json"
             path = output_dir / filename
             path.write_text(json.dumps(schema, indent=2, ensure_ascii=False))
-            print(f"✅ Saved schema for {attr_name} to {path}")
+            print(f"Saved schema for {attr_name} to {path}")
