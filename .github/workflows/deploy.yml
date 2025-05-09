@@ -23,6 +23,13 @@ jobs:
             frontend/types/schemas
           key: preprocess-${{ runner.os }}-${{ hashFiles('preprocess/uv.lock', 'preprocess/**/*.py') }}
 
+      - name: Cache rawdata
+        id: cache-rawdata
+        uses: actions/cache@v3
+        with:
+          path: preprocess/preprocess/rawdata
+          key: preprocess-${{ runner.os }}-${{ hashFiles('preprocess/preprocess/rawdata/**/*') }}
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
@@ -34,6 +41,10 @@ jobs:
         run: |
           cd ./preprocess
           uv sync --locked --all-extras --dev
+
+      - name: Copy raw data
+        run: |
+          robocopy "${{ secrets.RAW_DATA_PATH  }}" "./preprocess/preprocess/rawdata" /E
 
       - name: Run preprocess
         if: steps.cache-preprocess.outputs.cache-hit != 'true'
