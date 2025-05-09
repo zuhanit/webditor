@@ -37,7 +37,7 @@ jobs:
 
       - name: Copy raw data
         run: |
-          robocopy "${{ secrets.RAW_DATA_PATH  }}" "./preprocess/preprocess/rawdata" /E /NP /NFL /NDL /NJH /NS /NC
+          cmd /c 'robocopy "${{ secrets.RAW_DATA_PATH  }}" "./preprocess/preprocess/rawdata" /E /NP /NFL /NDL /NJH /NS /NC' -Wait -PassThru
           if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
 
       - name: Run preprocess
