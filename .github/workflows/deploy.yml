@@ -18,7 +18,9 @@ jobs:
         id: cache-preprocess
         uses: actions/cache@v3
         with:
-          path: ~/preprocess
+          path: |
+            backend/static/anim
+            frontend/types/schemas
           key: preprocess-${{ runner.os }}-${{ hashFiles('preprocess/uv.lock', 'preprocess/**/*.py') }}
 
       - name: Install uv
