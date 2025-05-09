@@ -57,9 +57,9 @@ def generate_schemas():
             output_file = BASE_DIR / f"frontend/types/schemas/{name}.ts"
             with output_file.open("w") as f:
                 subprocess.run(command, shell=True, stdout=f, check=True)
-            print(f"✅ Saved zod schema for {schema} to {output_file}")
+            print(f"Saved zod schema for {schema} to {output_file}")
         except Exception as e:
-            print(f"❌ Failed to save zod schema for {schema}", e)
+            print(f"Failed to save zod schema for {schema}", e)
 
 
 if __name__ == "__main__":
