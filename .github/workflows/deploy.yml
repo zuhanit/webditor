@@ -24,7 +24,6 @@ jobs:
           path: |
             backend/static/anim
             frontend/types/schemas
-            preprocess/
           key: preprocess-${{ runner.os }}-${{ hashFiles('preprocess/uv.lock', 'preprocess/**/*.py') }}
 
       # - name: Install pnpm
