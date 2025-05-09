@@ -21,12 +21,12 @@ backend/*.egg-info
 
 **/*/TileSet/
 
-preprocess/output
-preprocess/output/**/*
+**/*/preprocess/output
+**/*/preprocess/output/**/*
 
-preprocess/graphics/game/
-preprocess/graphics/unit/
-preprocess/graphics/anim/
+**/*/preprocess/graphics/game/
+**/*/preprocess/graphics/unit/
+**/*/preprocess/graphics/anim/
 
 **/*/output
 **/*/output/**/*

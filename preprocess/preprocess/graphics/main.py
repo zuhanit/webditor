@@ -287,18 +287,18 @@ if __name__ == "__main__":
     console = Console(width=200)
     args = parser.parse_args()
 
-    if args.hd:
-        process_hd()
+    # if args.hd:
+    #     process_hd()
 
-    if args.sd:
-        process_sd()
+    # if args.sd:
+    #     process_sd()
 
-    STATIC = Path("../") / "backend" / "static"
+    STATIC = Path(args.output)
 
-    print(STATIC.glob("anim/**/*.png"))
+    print(STATIC.glob("**/*.png"))
     hd_manifest: dict[int, dict[str, bool]] = {}
     sd_manifest: dict[int, dict[str, bool]] = {}
-    for png in STATIC.glob("anim/**/*.png"):
+    for png in STATIC.glob("**/*.png"):
         m = re.search(r"/anim/(sd|hd)/(\d+)/(diffuse|team_color)\.png$", png.as_posix())
         if not m:
             continue
@@ -311,12 +311,12 @@ if __name__ == "__main__":
             hd_manifest.setdefault(idx, {"diffuse": False, "team_color": False})
             hd_manifest[idx][kind] = True
 
-    (STATIC / "anim" / "hd" / "manifest.json").write_text(
+    (STATIC / "hd" / "manifest.json").write_text(
         json.dumps(hd_manifest), encoding="utf-8"
     )
     print("hd/manifest.json written:", len(hd_manifest), "entries")
 
-    (STATIC / "anim" / "sd" / "manifest.json").write_text(
+    (STATIC / "sd" / "manifest.json").write_text(
         json.dumps(sd_manifest), encoding="utf-8"
     )
     print("sd/manifest.json written:", len(sd_manifest), "entries")
