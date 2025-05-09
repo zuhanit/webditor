@@ -29,7 +29,9 @@ jobs:
 
       - name: Install the project
         if: steps.cache-preprocess.outputs.cache-hit != 'true'
-        run: cd ./preprocess && uv sync --locked --all-extras --dev
+        run: |
+          cd ./preprocess
+          uv sync --locked --all-extras --dev
 
       - name: Run preprocess
         if: steps.cache-preprocess.outputs.cache-hit != 'true'
