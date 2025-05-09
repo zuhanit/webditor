@@ -37,7 +37,9 @@ jobs:
 
       - name: Run preprocess
         if: steps.cache-preprocess.outputs.cache-hit != 'true'
-        run: uv run build.py
+        run: |
+          cd ./preprocess
+          uv run build.py
 
   # deploy-backend:
   #   name: Deploy on Self-hosted Windows Server
