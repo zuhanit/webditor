@@ -38,7 +38,7 @@ jobs:
       - name: Copy raw data
         run: |
           robocopy "${{ secrets.RAW_DATA_PATH  }}" "./preprocess/preprocess/rawdata" /E
-          if ($LASTEXITCODE -gt 1) { exit $LASTEXITCODE }
+          if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
 
       - name: Run preprocess
         if: steps.cache-preprocess.outputs.cache-hit != 'true'
