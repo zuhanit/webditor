@@ -10,6 +10,9 @@ jobs:
   preprocess:
     name: Preprocess before deploy server
     runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [20]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -22,6 +25,17 @@ jobs:
             backend/static/anim
             frontend/types/schemas
           key: preprocess-${{ runner.os }}-${{ hashFiles('preprocess/uv.lock', 'preprocess/**/*.py') }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
 
       - name: Install node dependencies
         run: pnpm install
