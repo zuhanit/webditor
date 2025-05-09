@@ -103,7 +103,8 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          pnpm install -r
 
       - name: Build App
         run: pnpm run build
