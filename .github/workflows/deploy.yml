@@ -26,42 +26,42 @@ jobs:
             frontend/types/schemas
           key: preprocess-${{ runner.os }}-${{ hashFiles('preprocess/uv.lock', 'preprocess/**/*.py') }}
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
+      # - name: Install pnpm
+      #   uses: pnpm/action-setup@v4
+      #   with:
+      #     version: 10
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "pnpm"
+      # - name: Use Node.js ${{ matrix.node-version }}
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: ${{ matrix.node-version }}
+      #     cache: "pnpm"
 
-      - name: Install node dependencies
-        run: pnpm install
+      # - name: Install node dependencies
+      #   run: pnpm install
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          cache-dependency-glob: "preprocess/uv.lock"
+      # - name: Install uv
+      #   uses: astral-sh/setup-uv@v5
+      #   with:
+      #     enable-cache: true
+      #     cache-dependency-glob: "preprocess/uv.lock"
 
-      - name: Install the project
-        if: steps.cache-preprocess.outputs.cache-hit != 'true'
-        run: |
-          cd ./preprocess
-          uv sync --locked --all-extras --dev
+      # - name: Install the project
+      #   if: steps.cache-preprocess.outputs.cache-hit != 'true'
+      #   run: |
+      #     cd ./preprocess
+      #     uv sync --locked --all-extras --dev
 
-      - name: Copy raw data
-        run: |
-          cmd /c 'robocopy "${{ secrets.RAW_DATA_PATH  }}" "./preprocess/preprocess" /E /NP /NFL /NDL /NJH /NS /NC & exit 0'
-          if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
+      # - name: Copy raw data
+      #   run: |
+      #     cmd /c 'robocopy "${{ secrets.RAW_DATA_PATH  }}" "./preprocess/preprocess" /E /NP /NFL /NDL /NJH /NS /NC & exit 0'
+      #     if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
 
-      - name: Run preprocess
-        if: steps.cache-preprocess.outputs.cache-hit != 'true'
-        run: |
-          cd ./preprocess
-          uv run build.py
+      # - name: Run preprocess
+      #   if: steps.cache-preprocess.outputs.cache-hit != 'true'
+      #   run: |
+      #     cd ./preprocess
+      #     uv run build.py
 
   # deploy-backend:
   #   name: Deploy on Self-hosted Windows Server
