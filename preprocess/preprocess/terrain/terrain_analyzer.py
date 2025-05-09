@@ -1,7 +1,6 @@
 from .scterrain import CV5, VF4, VX4, VR4, WPE, Tilesets, VF4Flag
 from pydantic import BaseModel, Field
 from typing import cast
-from tqdm import tqdm
 import numpy as np
 
 
@@ -48,11 +47,7 @@ class TerrainAnalyzer:
     def get_group_table(self):
         result = []
 
-        for group_id, group in tqdm(
-            enumerate(self.cv5.groups),
-            desc=f"Processing {self.tileset} CV5 Group",
-            position=self.term_num,
-        ):
+        for group_id, group in enumerate(self.cv5.groups):
             result.append(group["tiles"])
 
         return result
