@@ -9,7 +9,7 @@ on:
 jobs:
   preprocess:
     name: Preprocess before deploy server
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         node-version: [20]
