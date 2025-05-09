@@ -83,7 +83,9 @@ class TerrainAnalyzer:
         but got {len(result)}"
         )
 
-        print(f"get_megatile_colors() succesfully finished. Output size: {len(result)}")
+        print(
+            f"{self.tileset} get_megatile_colors() succesfully finished. Output size: {len(result)}"
+        )
         return result
 
     def get_megatile(self, id: int) -> Megatile:
