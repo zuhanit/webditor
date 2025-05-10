@@ -135,6 +135,7 @@ jobs:
 
       - name: Pull latest code
         run: |
+          git config --global --add safe.directory C:\\webditor
           cd ${{ secrets.LIVE_SERVER_PATH }}
           git pull origin master
 
