@@ -59,9 +59,7 @@ jobs:
 
       - name: Run preprocess
         if: steps.cache-preprocess.outputs.cache-hit != 'true'
-        run: |
-          cd ./preprocess
-          uv run build.py
+        run: pnpm run build-windows
 
       - name: Upload frontend schemas
         if: steps.cache-preprocess.outcome.cache-hit != 'true'
