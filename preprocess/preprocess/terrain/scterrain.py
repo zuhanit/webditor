@@ -26,7 +26,7 @@ def read(
     tileset_format: str,
     analyze: Callable[[Tuple[Any, ...]], T],
 ):
-    FILE_PATH = f"./terrain/TileSet/{tileset}.{kind}"
+    FILE_PATH = f"./rawdata/TileSet/{tileset}.{kind}"
     FILE_SIZE = os.path.getsize(FILE_PATH)
     FORMAT_SIZE = struct.calcsize(tileset_format)
 
