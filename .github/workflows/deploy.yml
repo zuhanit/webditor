@@ -123,7 +123,7 @@ jobs:
             frontend/.next
             frontend/public
 
-  deploy:
+  Deploy:
     needs: build_frontend
     runs-on: self-hosted
     steps:
