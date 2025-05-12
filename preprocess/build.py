@@ -11,7 +11,7 @@ SHELL_ENABLE = True if sys.platform.startswith("win") else False
 def run_preprocess():
     subprocess.run(
         [
-            "python",
+            sys.executable,
             "-m",
             "terrain.main",
             "--path",
@@ -25,7 +25,7 @@ def run_preprocess():
     )
     subprocess.run(
         [
-            "python",
+            sys.executable,
             "-m",
             "graphics.main",
             "--path",
@@ -49,7 +49,7 @@ def generate_schemas():
     shutil.rmtree(BASE_DIR / "frontend/schemas", ignore_errors=True)
 
     subprocess.run(
-        ["python", "-m", "preprocess.schema_generator"],
+        [sys.executable, "-m", "preprocess.schema_generator"],
         cwd=BASE_DIR,
         env=env,
         check=True,
