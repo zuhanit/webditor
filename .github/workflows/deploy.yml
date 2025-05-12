@@ -52,10 +52,22 @@ jobs:
           cd ./preprocess
           uv sync --locked --all-extras --dev
 
-      - name: Copy raw data
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.2.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: auto
+
+      - name: Download rawdata from R2
+        env:
+          R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+        run: aws s3 --endpoint-url $R2 cp s3://${{ secrets.R2_BUCKET_NAME }}//${{ secrets.R2_OBJECT_KEY }} rawdata.tar.zst
+
+      - name: Extract rawdata archive
         run: |
-          cmd /c 'robocopy "${{ secrets.RAW_DATA_PATH  }}" "./preprocess/preprocess" /E /NP /NFL /NDL /NJH /NS /NC & exit 0'
-          if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
+          mkdir -p ./preprocess/preprocess/rawdata
+          tar -I zstd xvf rawdata.tar.zst
 
       - name: Run preprocess
         if: steps.cache-preprocess.outputs.cache-hit != 'true'
@@ -68,9 +80,14 @@ jobs:
           name: frontend-schemas
           path: frontend/types/schemas
 
-      - name: Robocopy static anims to live server
+      - name: Upload rawdata
         if: steps.cache-preprocess.outcome.cache-hit != 'true'
-        run: cmd /c 'robocopy "${{ secrets.LIVE_SERVER_PATH }}"/backend/static/anim "./backend/static/anim" /E /NP /NFL /NDL /NJH /NS /NC & exit 0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-rawdata
+          path: |
+            backend/static/anim
+            backend/static/terrain
 
   build_frontend:
     needs: preprocess
@@ -141,6 +158,12 @@ jobs:
         with:
           name: frontend-build
           path: ${{ secrets.LIVE_SERVER_PATH }}/frontend
+
+      - name: Download Backend Static Anim Images
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-rawdata
+          path: ${{ secrets.LIVE_SERVER_PATH}}/backend/static
 
       - name: Pull latest code
         run: |
