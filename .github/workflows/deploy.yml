@@ -69,7 +69,7 @@ jobs:
 
       - name: Run preprocess
         if: steps.cache-preprocess.outputs.cache-hit != 'true'
-        run: pnpm run build-windows
+        run: pnpm run build-linux
 
       - name: Upload frontend schemas
         if: steps.cache-preprocess.outcome.cache-hit != 'true'
