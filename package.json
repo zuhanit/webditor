@@ -11,8 +11,7 @@
     "next-build": "cd frontend && pnpm run build",
     "next-start": "cd frontend && pnpm run start",
     "fastapi-dev": "node scripts/run_fastapi.js",
-    "build-windows": "preprocess\\.venv\\Scripts\\activate && python preprocess\\build.py",
-    "build-linux": "source ./preprocess/.venv/bin/activate && python preprocess/build.py"
+    "build-preprocess": "uv run preprocess/build.py"
   },
   "keywords": [],
   "author": "",
