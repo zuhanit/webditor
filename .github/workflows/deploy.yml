@@ -147,8 +147,8 @@ jobs:
         with:
           name: frontend-build
           path: |
-            frontend/.next
-            frontend/public
+            frontend/.next/**
+            frontend/public/**
 
   Deploy:
     needs: build_frontend
