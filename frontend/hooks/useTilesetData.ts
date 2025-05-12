@@ -8,9 +8,12 @@ export default function useTilesetData(): Uint8Array | null {
   useEffect(() => {
     (async () => {
       try {
-        const response = await api.get("/api/v1/tileset/megatile/badlands", {
-          responseType: "arraybuffer",
-        });
+        const response = await api.get(
+          "/static/terrain/badlands/megatile_color.gz",
+          {
+            responseType: "arraybuffer",
+          },
+        );
 
         const compressed = new Uint8Array(response.data);
         const decompressed = decompressSync(compressed);

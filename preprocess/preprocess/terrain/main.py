@@ -2,14 +2,17 @@ from concurrent.futures import ProcessPoolExecutor
 from .scterrain import Tilesets
 from .terrain_analyzer import TerrainAnalyzer
 from typing import cast
+from pathlib import Path
 import os
 import gzip
 import json
+import argparse
+import zstandard as zstd
 
 
-def process_tileset(tileset: str, term_num: int):
-    TA = TerrainAnalyzer(cast(Tilesets, tileset), term_num)
-    output_path = f"./output/terrain/{tileset}"
+def process_tileset(tileset: str, input_path: str, output: str):
+    TA = TerrainAnalyzer(input_path, cast(Tilesets, tileset))
+    output_path = f"{output}/{tileset}"
     os.makedirs(output_path, exist_ok=True)
 
     binary_path = f"{output_path}/megatile_color.bin"
@@ -24,9 +27,9 @@ def process_tileset(tileset: str, term_num: int):
             f_out.writelines(f_in)
 
 
-def process_group_table(tileset: str, term_num: int):
-    TA = TerrainAnalyzer(cast(Tilesets, tileset), term_num)
-    output_path = f"./output/terrain/{tileset}"
+def process_group_table(tileset: str, input_path: str, output: str):
+    TA = TerrainAnalyzer(input_path, cast(Tilesets, tileset))
+    output_path = f"{output}/{tileset}"
     os.makedirs(output_path, exist_ok=True)
 
     binary_path = f"{output_path}/cv5_group.json"
@@ -35,6 +38,24 @@ def process_group_table(tileset: str, term_num: int):
         g = TA.get_group_table()
         json.dump(g, f)
 
+
+parser = argparse.ArgumentParser(
+    description="Extract terrain data from StarCraft: Remastered terrain files."
+)
+parser.add_argument(
+    "--path",
+    "-p",
+    type=Path,
+    required=True,
+    help="folder path where terrain files included.",
+)
+parser.add_argument(
+    "--output",
+    "-o",
+    type=Path,
+    required=True,
+    help="output path",
+)
 
 if __name__ == "__main__":
     tilesets = [
@@ -47,21 +68,20 @@ if __name__ == "__main__":
         "platform",
         "Twilight",
     ]
-
-    tilesets_with_index = [(tileset, i) for i, tileset in enumerate(tilesets)]
+    args = parser.parse_args()
 
     with ProcessPoolExecutor() as executor:
         futures = [
-            executor.submit(process_tileset, tileset, term_num)
-            for tileset, term_num in tilesets_with_index
+            executor.submit(process_tileset, tileset, args.path, args.output)
+            for tileset in tilesets
         ]
         for future in futures:
             future.result()
 
     with ProcessPoolExecutor() as executor:
         futures = [
-            executor.submit(process_group_table, tileset, term_num)
-            for tileset, term_num in tilesets_with_index
+            executor.submit(process_group_table, tileset, args.path, args.output)
+            for tileset in tilesets
         ]
         for future in futures:
             future.result()
