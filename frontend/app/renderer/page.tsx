@@ -27,7 +27,7 @@ export default function RendererTest() {
     <QueryClientProvider client={client}>
       <div>
         <div className="m-4 p-4">
-          Is SD?
+          Is SD? foo bar
           <input
             className="h-4 w-4"
             type="checkbox"
