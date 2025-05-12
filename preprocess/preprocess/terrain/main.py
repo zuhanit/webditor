@@ -7,8 +7,8 @@ import gzip
 import json
 
 
-def process_tileset(tileset: str, term_num: int):
-    TA = TerrainAnalyzer(cast(Tilesets, tileset), term_num)
+def process_tileset(tileset: str):
+    TA = TerrainAnalyzer(cast(Tilesets, tileset))
     output_path = f"./output/terrain/{tileset}"
     os.makedirs(output_path, exist_ok=True)
 
@@ -24,8 +24,8 @@ def process_tileset(tileset: str, term_num: int):
             f_out.writelines(f_in)
 
 
-def process_group_table(tileset: str, term_num: int):
-    TA = TerrainAnalyzer(cast(Tilesets, tileset), term_num)
+def process_group_table(tileset: str):
+    TA = TerrainAnalyzer(cast(Tilesets, tileset))
     output_path = f"./output/terrain/{tileset}"
     os.makedirs(output_path, exist_ok=True)
 
@@ -48,20 +48,14 @@ if __name__ == "__main__":
         "Twilight",
     ]
 
-    tilesets_with_index = [(tileset, i) for i, tileset in enumerate(tilesets)]
-
     with ProcessPoolExecutor() as executor:
-        futures = [
-            executor.submit(process_tileset, tileset, term_num)
-            for tileset, term_num in tilesets_with_index
-        ]
+        futures = [executor.submit(process_tileset, tileset) for tileset in tilesets]
         for future in futures:
             future.result()
 
     with ProcessPoolExecutor() as executor:
         futures = [
-            executor.submit(process_group_table, tileset, term_num)
-            for tileset, term_num in tilesets_with_index
+            executor.submit(process_group_table, tileset) for tileset in tilesets
         ]
         for future in futures:
             future.result()

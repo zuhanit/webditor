@@ -28,9 +28,8 @@ class Terrain(BaseModel):
 
 
 class TerrainAnalyzer:
-    def __init__(self, tileset: Tilesets, term_num: int = 0) -> None:
+    def __init__(self, tileset: Tilesets) -> None:
         self.tileset = tileset
-        self.term_num = term_num
         self.cv5 = CV5(tileset)
         self.vx4 = VX4(tileset)
         self.vf4 = VF4(tileset)
