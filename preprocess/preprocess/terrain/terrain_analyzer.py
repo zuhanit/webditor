@@ -1,7 +1,6 @@
 from .scterrain import CV5, VF4, VX4, VR4, WPE, Tilesets, VF4Flag
 from pydantic import BaseModel, Field
 from typing import cast
-from tqdm import tqdm
 import numpy as np
 
 
@@ -44,15 +43,11 @@ class TerrainAnalyzer:
         self.vf4 = VF4(tileset)
         self.vr4 = VR4(tileset)
         self.wpe = WPE(tileset)
-    
+
     def get_group_table(self):
         result = []
 
-        for group_id, group in tqdm(
-            enumerate(self.cv5.groups),
-            desc=f"Processing {self.tileset} CV5 Group",
-            position=self.term_num,
-        ):
+        for group_id, group in enumerate(self.cv5.groups):
             result.append(group["tiles"])
 
         return result
@@ -61,21 +56,24 @@ class TerrainAnalyzer:
         result = bytearray()
         megatile_count = len(self.vx4.graphics)
 
-        for megatile_index in tqdm(
-            range(megatile_count),
-            desc=f"Processing {self.tileset} Megatile Color",
-            position=self.term_num,
-        ):
+        print(
+            f"Start to processing {self.tileset} get megatile colors. Total: {megatile_count}"
+        )
+        for megatile_index in range(megatile_count):
             megatile = self.get_megatile(megatile_index)
             pixel = np.zeros((32, 32, 3), dtype=np.uint8)
-            
+
             for y_tile in range(4):
                 for x_tile in range(4):
                     minitile = megatile.minitiles[y_tile * 4 + x_tile]
                     for y in range(8):
                         for x in range(8):
                             color = minitile.color[y * 8 + x]
-                            pixel[y_tile * 8 + y][x_tile * 8 + x] = [color.red, color.green, color.blue] 
+                            pixel[y_tile * 8 + y][x_tile * 8 + x] = [
+                                color.red,
+                                color.green,
+                                color.blue,
+                            ]
 
             result.extend(pixel.tobytes())
 
@@ -85,7 +83,9 @@ class TerrainAnalyzer:
         but got {len(result)}"
         )
 
-        print(f"get_megatile_colors() succesfully finished. Output size: {len(result)}")
+        print(
+            f"{self.tileset} get_megatile_colors() succesfully finished. Output size: {len(result)}"
+        )
         return result
 
     def get_megatile(self, id: int) -> Megatile:
@@ -113,7 +113,7 @@ class TerrainAnalyzer:
                 Color(red=palette["red"], green=palette["green"], blue=palette["blue"])
             )
         if flipped:
-            rows = [colors[i * 8:(i + 1) * 8] for i in range(8)]
+            rows = [colors[i * 8 : (i + 1) * 8] for i in range(8)]
             flipped_rows = [list(reversed(row)) for row in rows]
             colors = [color for row in flipped_rows for color in row]
 

@@ -4,11 +4,15 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   preprocess:
     name: Preprocess before deploy server
     runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [20]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -17,8 +21,24 @@ jobs:
         id: cache-preprocess
         uses: actions/cache@v3
         with:
-          path: ~/preprocess
+          path: |
+            backend/static/anim
+            frontend/types/schemas
           key: preprocess-${{ runner.os }}-${{ hashFiles('preprocess/uv.lock', 'preprocess/**/*.py') }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+
+      - name: Install node dependencies
+        run: pnpm install
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -28,23 +48,106 @@ jobs:
 
       - name: Install the project
         if: steps.cache-preprocess.outputs.cache-hit != 'true'
-        run: cd ./preprocess && uv sync --locked --all-extras --dev
+        run: |
+          cd ./preprocess
+          uv sync --locked --all-extras --dev
+
+      - name: Copy raw data
+        run: |
+          cmd /c 'robocopy "${{ secrets.RAW_DATA_PATH  }}" "./preprocess/preprocess" /E /NP /NFL /NDL /NJH /NS /NC & exit 0'
+          if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE }
 
       - name: Run preprocess
         if: steps.cache-preprocess.outputs.cache-hit != 'true'
-        run: uv run build.py
+        run: pnpm run build-windows
 
-  # deploy-backend:
-  #   name: Deploy on Self-hosted Windows Server
-  #   runs-on: self-hosted
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v3
+      - name: Upload frontend schemas
+        if: steps.cache-preprocess.outcome.cache-hit != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-schemas
+          path: frontend/types/schemas
 
-  #     - name: Install uv
-  #       uses: astral-sh/setup-uv@v5
+      - name: Robocopy static anims to live server
+        if: steps.cache-preprocess.outcome.cache-hit != 'true'
+        run: cmd /c 'robocopy "${{ secrets.LIVE_SERVER_PATH }}"/backend/static/anim "./backend/static/anim" /E /NP /NFL /NDL /NJH /NS /NC & exit 0'
 
-  #     - name: Stop Webditor Services
-  #       run: |
-  #         net stop WebditorBackend
-  #       shell: pwsh
+  build_frontend:
+    needs: preprocess
+    name: Build Next.js Frontend
+    runs-on: ubuntu-latest
+    environment: FIREBASE
+    env:
+      NEXT_PUBLIC_FIREBASE_API_KEY: ${{ vars.NEXT_PUBLIC_FIREBASE_API_KEY }}
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ vars.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ vars.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+      NEXT_PUBLIC_FIREBASE_APP_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_APP_ID }}
+    strategy:
+      matrix:
+        node-version: [20]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/frontend/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('frontend/pnpm-lock.yaml') }}-${{ hashFiles('frontend/**/*.ts', 'frontend/**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+
+      - name: Download processed schemas
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-schemas
+          path: frontend/types/schemas
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: |
+          pnpm install -r
+
+      - name: Build App
+        run: pnpm run build
+
+      - name: Upload frontend build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: |
+            frontend/.next
+            frontend/public
+
+  Deploy:
+    needs: build_frontend
+    runs-on: self-hosted
+    steps:
+      - name: Download built frontend
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: ${{ secrets.LIVE_SERVER_PATH }}/frontend
+
+      - name: Pull latest code
+        run: |
+          cd ${{ secrets.LIVE_SERVER_PATH }}
+          git pull origin master
+
+      - name: Deploy
+        run: |
+          net stop Webditor
+          net start Webditor

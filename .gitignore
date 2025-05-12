@@ -24,9 +24,7 @@ backend/*.egg-info
 **/*/preprocess/output
 **/*/preprocess/output/**/*
 
-**/*/preprocess/graphics/game/
-**/*/preprocess/graphics/unit/
-**/*/preprocess/graphics/anim/
+**/*/preprocess/rawdata/
 
 **/*/output
 **/*/output/**/*
