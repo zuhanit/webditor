@@ -7,7 +7,6 @@ import os
 import gzip
 import json
 import argparse
-import zstandard as zstd
 
 
 def process_tileset(tileset: str, input_path: str, output: str):
