@@ -65,7 +65,7 @@ jobs:
       - name: Extract rawdata archive
         run: |
           mkdir -p ./preprocess/preprocess/rawdata
-          tar -I zstd xvf rawdata.tar.zst
+          tar -I zstd -xvf rawdata.tar.zst
 
       - name: Run preprocess
         if: steps.cache-preprocess.outputs.cache-hit != 'true'
