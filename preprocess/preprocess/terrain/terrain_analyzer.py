@@ -28,20 +28,20 @@ class Terrain(BaseModel):
 
 
 class TerrainAnalyzer:
-    def __init__(self, tileset: Tilesets) -> None:
+    def __init__(self, path: str, tileset: Tilesets) -> None:
         self.tileset = tileset
-        self.cv5 = CV5(tileset)
-        self.vx4 = VX4(tileset)
-        self.vf4 = VF4(tileset)
-        self.vr4 = VR4(tileset)
-        self.wpe = WPE(tileset)
+        self.cv5 = CV5(path, tileset)
+        self.vx4 = VX4(path, tileset)
+        self.vf4 = VF4(path, tileset)
+        self.vr4 = VR4(path, tileset)
+        self.wpe = WPE(path, tileset)
 
-    def change_tileset(self, tileset: Tilesets) -> None:
-        self.cv5 = CV5(tileset)
-        self.vx4 = VX4(tileset)
-        self.vf4 = VF4(tileset)
-        self.vr4 = VR4(tileset)
-        self.wpe = WPE(tileset)
+    def change_tileset(self, path: str, tileset: Tilesets) -> None:
+        self.cv5 = CV5(path, tileset)
+        self.vx4 = VX4(path, tileset)
+        self.vf4 = VF4(path, tileset)
+        self.vr4 = VR4(path, tileset)
+        self.wpe = WPE(path, tileset)
 
     def get_group_table(self):
         result = []

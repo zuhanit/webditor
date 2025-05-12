@@ -21,12 +21,13 @@ Tilesets = Literal[
 
 
 def read(
+    path: str,
     tileset: Tilesets,
     kind: TERRAIN_FORMAT_KIND,
     tileset_format: str,
     analyze: Callable[[Tuple[Any, ...]], T],
 ):
-    FILE_PATH = f"./rawdata/TileSet/{tileset}.{kind}"
+    FILE_PATH = f"{path}/{tileset}.{kind}"
     FILE_SIZE = os.path.getsize(FILE_PATH)
     FORMAT_SIZE = struct.calcsize(tileset_format)
 
@@ -180,8 +181,8 @@ class CV5:
 
         return result
 
-    def __init__(self, tileset: Tilesets):
-        result = read(tileset, "cv5", "HH4H4H16H", self.chunk_analyze)
+    def __init__(self, path: str, tileset: Tilesets):
+        result = read(path, tileset, "cv5", "HH4H4H16H", self.chunk_analyze)
         self.groups = result
 
 
@@ -196,8 +197,8 @@ class VR4:
 
     graphics: list[tuple[Any, ...]]
 
-    def __init__(self, tileset: Tilesets):
-        result = read(tileset, "vr4", "64B", lambda x: x)
+    def __init__(self, path: str, tileset: Tilesets):
+        result = read(path, tileset, "vr4", "64B", lambda x: x)
         self.graphics: list[tuple[Any, ...]] = result
 
 
@@ -231,8 +232,8 @@ class VX4:
 
         return tuple(graphics)
 
-    def __init__(self, tileset: Tilesets):
-        result = read(tileset, "vx4ex", "16I", self.chunk_to_flags)
+    def __init__(self, path: str, tileset: Tilesets):
+        result = read(path, tileset, "vx4ex", "16I", self.chunk_to_flags)
         self.graphics = result
 
 
@@ -280,8 +281,8 @@ class VF4:
         }
         return result
 
-    def __init__(self, tileset: Tilesets):
-        result = read(tileset, "vf4", "16H", self.chunk_to_flags)
+    def __init__(self, path: str, tileset: Tilesets):
+        result = read(path, tileset, "vf4", "16H", self.chunk_to_flags)
         self.flags = result
 
 
@@ -314,6 +315,6 @@ class WPE:
             "unused": chunk[3],
         }
 
-    def __init__(self, tileset: Tilesets):
-        result = read(tileset, "wpe", "4B", self.chunk_to_pallette)
+    def __init__(self, path: str, tileset: Tilesets):
+        result = read(path, tileset, "wpe", "4B", self.chunk_to_pallette)
         self.graphics = result
