@@ -1,6 +1,7 @@
 from .wobject import WObject
 from enum import Flag
 
+
 class MaskFlag(Flag):
   player_1 = 0b00000001
   player_2 = 0b00000010
@@ -11,6 +12,8 @@ class MaskFlag(Flag):
   player_7 = 0b01000000
   player_8 = 0b10000000
 
+
 class Mask(WObject):
   """Fog of War"""
+
   flags: int

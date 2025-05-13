@@ -2,6 +2,7 @@ from typing import Literal
 from pydantic import Field, BaseModel
 from .definition import Definition
 
+
 class Damage(BaseModel):
   amount: int = Field(le=65536, ge=0)
   """Default damage."""
@@ -9,15 +10,18 @@ class Damage(BaseModel):
   """Additional damage when weapon upgrade completed."""
   factor: int
   """How many weapon shoot."""
-  
+
+
 class Range(BaseModel):
   min: int
   max: int
-  
+
+
 class Splash(BaseModel):
   inner: int
   medium: int
   outer: int
+
 
 class Bullet(BaseModel):
   behaviour: int
@@ -26,6 +30,7 @@ class Bullet(BaseModel):
   launch_spin: int
   x_offset: int
   y_offset: int
+
 
 class WeaponDefinition(Definition):
   damage: Damage
@@ -39,6 +44,7 @@ class WeaponDefinition(Definition):
   error_message: int
   icon: int
   graphics: int
-  
+
+
 class CHKWeapon(BaseModel):
   damage: Damage

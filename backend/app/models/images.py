@@ -1,5 +1,6 @@
 from .wobject import WObject
 
+
 class Image(WObject):
   graphic: int
   turnable: bool

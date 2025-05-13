@@ -1,4 +1,4 @@
 from .entity import Entity
 
-class Location(Entity):
-  ...
+
+class Location(Entity): ...

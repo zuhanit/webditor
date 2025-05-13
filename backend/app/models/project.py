@@ -17,12 +17,14 @@ from .order import Order
 from .portrait import Portrait
 import datetime
 
+
 class ScenarioProperty(BaseModel):
   name: String
   description: String
-  
+
+
 class Usemap(BaseModel):
-  terrain: RawTerrain 
+  terrain: RawTerrain
   player: list[Player]
   location: list[Location]
   string: list[String]
@@ -47,6 +49,7 @@ class Usemap(BaseModel):
   flingy: list[Flingy]
   orders: list[Order]
   portrait: list[Portrait]
+
 
 class Project(BaseModel):
   filename: str

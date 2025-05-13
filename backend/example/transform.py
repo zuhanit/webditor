@@ -1,4 +1,3 @@
-
 from io import BytesIO
 from app.services.mapdata.chk import CHK
 from app.services.mapdata.io import build_map, get_chkt, get_map
@@ -15,8 +14,8 @@ def build(filename: str):
     dat = DAT()
     map = get_map(chk, dat)
 
-    
-    merger = Merger(chk) 
+    merger = Merger(chk)
     map_bytes = build_map(map)
-     
+
+
 build("hello12345.scx")

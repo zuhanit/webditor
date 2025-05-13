@@ -8,7 +8,7 @@ from .scdat import (
   TechdataDat,
   UnitsDat,
   UpgradesDat,
-  WeaponsDat
+  WeaponsDat,
 )
 
 __all__ = [

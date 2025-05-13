@@ -7,6 +7,7 @@ from .stat import Stat
 from .cost import Cost
 from ..definitions.weapon_definition import WeaponDefinition
 
+
 class UnitSpecification(Struct):
   name: str = "Unit Specification"
   graphics: int
@@ -18,7 +19,8 @@ class UnitSpecification(Struct):
   unit_direction: int
   portrait: int
   label: int
-    
+
+
 class UnitStatus(Struct):
   name: str = "Unit Status"
   hit_points: Stat
@@ -29,7 +31,8 @@ class UnitStatus(Struct):
   armor_upgrade: int
   rank: int
   elevation_level: int
-  
+
+
 class UnitAI(Struct):
   name: str = "Unit AI"
   computer_idle: int
@@ -39,6 +42,7 @@ class UnitAI(Struct):
   attack_and_move: int
   internal: int
   right_click: int
+
 
 class UnitSound(Struct):
   name: str = "Unit Sound"
@@ -54,7 +58,8 @@ class UnitSound(Struct):
   "ID 0-105 Only"
   yes_end: Optional[int]
   "ID 0-105 Only"
-  
+
+
 class UnitSize(Struct):
   name: str = "Unit Size"
   size_type: int
@@ -62,6 +67,7 @@ class UnitSize(Struct):
   bounds: RectPosition
   addon_position: Optional[Position2D]  # noqa: F821
   """ID 106-201 only"""
+
 
 class UnitCost(Struct):
   name: str = "Unit Cost"
@@ -71,6 +77,7 @@ class UnitCost(Struct):
   is_broodwar: bool
   supply: RequiredAndProvided
   space: RequiredAndProvided
+
 
 class UnitWeapon(Struct):
   ground_weapon: Optional[WeaponDefinition]

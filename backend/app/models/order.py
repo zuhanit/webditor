@@ -1,6 +1,7 @@
 from .wobject import WObject
 
-class Order(WObject): 
+
+class Order(WObject):
   label: int
   use_weapon_targeting: bool
   can_be_interrupted: bool

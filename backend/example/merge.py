@@ -10,26 +10,47 @@ from rich.table import Table
 def check(original: EPCHK, serialized: EPCHK):
   print("Start check")
   original.optimize()
-  
+
   print(
-  f"Size Comparison,\
+    f"Size Comparison,\
   Original: {len(original.savechk())},\
   Serialized: {len(serialized.savechk())}"
   )
-  
+
   original_section_list = original.enumsection()
   serialized_section_list = serialized.enumsection()
   missing = [s for s in original_section_list if s not in serialized_section_list]
   missed: bool = len(missing) != 0
-  
+
   print(f"Missing Section: {missing if missed else 'None'}")
-  
+
   print("Section size comparison started")
-  
+
   USED_SECTION = (
-      "VER", "VCOD", "OWNR", "SIDE", "COLR", "ERA", "DIM", "MTXM",
-      "UNIT", "PUNI", "UNIx", "PUPx", "UPGx", "THG2", "MASK", "MRGN",
-      "STRx", "SPRP", "FORC", "PTEx", "TECx", "MBRF", "TRIG", "UPRP"
+    "VER",
+    "VCOD",
+    "OWNR",
+    "SIDE",
+    "COLR",
+    "ERA",
+    "DIM",
+    "MTXM",
+    "UNIT",
+    "PUNI",
+    "UNIx",
+    "PUPx",
+    "UPGx",
+    "THG2",
+    "MASK",
+    "MRGN",
+    "STRx",
+    "SPRP",
+    "FORC",
+    "PTEx",
+    "TECx",
+    "MBRF",
+    "TRIG",
+    "UPRP",
   )
   NOT_EQUAL_SECTION = []
 
@@ -50,17 +71,16 @@ def check(original: EPCHK, serialized: EPCHK):
         f"[red][bold]{section_name}",
         f"[red][bold]{str(len(o))}",
         f"[red][bold]{str(len(s))}",
-        "[red][bold]NO"
+        "[red][bold]NO",
       )
       NOT_EQUAL_SECTION.append(section_name)
     else:
       length_equal_table.add_row(section_name, str(len(o)), str(len(s)), "YES")
-      
-    
+
   console.print(length_equal_table)
   if len(NOT_EQUAL_SECTION) != 0:
     print(f"Total unmatched sections {NOT_EQUAL_SECTION}")
-  
+
   content_equal_table = Table(show_header=True, header_style="bold magenta")
   content_equal_table.add_column("Section Name")
   content_equal_table.add_column("Equal?")
@@ -71,16 +91,11 @@ def check(original: EPCHK, serialized: EPCHK):
     is_equal: bool = o == s
 
     if not is_equal:
-      content_equal_table.add_row(
-        f"[red][bold]{section_name}",
-        "[red][bold]NO"
-      )
+      content_equal_table.add_row(f"[red][bold]{section_name}", "[red][bold]NO")
     else:
-      content_equal_table.add_row(
-        f"{section_name}",
-        "YES"
-      )
+      content_equal_table.add_row(f"{section_name}", "YES")
   console.print(content_equal_table)
+
 
 def build(filename: str):
   filename = "backend/example/" + filename
@@ -88,14 +103,12 @@ def build(filename: str):
   with open(filename, "rb") as f:
     chkt = get_chkt(BytesIO(f.read()))
     chk = CHK(chkt)
-    
+
     merger = Merger(chk)
     w = merger.merge_weapon()
     u = merger.merge_unit_definitions()
-    
+
     print("asdf")
-    
 
 
-  
 build("hello12345.scx")

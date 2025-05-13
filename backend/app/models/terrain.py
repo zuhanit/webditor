@@ -30,9 +30,7 @@ EraTilesetDict: dict[int, Tileset] = {
   7: "Twilight",
 }
 
-EraTilesetReverseDict: dict[Tileset, int] = {
-  v: k for k, v in EraTilesetDict.items()
-}
+EraTilesetReverseDict: dict[Tileset, int] = {v: k for k, v in EraTilesetDict.items()}
 
 
 class RawTerrain(BaseModel):
