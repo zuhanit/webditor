@@ -1,12 +1,9 @@
 import {
   GoogleAuthProvider,
-  GithubAuthProvider,
   signInWithPopup,
-  signInWithEmailAndPassword,
   onAuthStateChanged as _onAuthStateChanged,
   NextOrObserver,
   User,
-  getAuth
 } from "firebase/auth";
 
 import { auth } from "@/lib/firebase/clientApp";

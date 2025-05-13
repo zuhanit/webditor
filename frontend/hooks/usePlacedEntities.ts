@@ -1,12 +1,10 @@
 import { SideBarItem } from "@/components/placed_container/SideBar";
 import { useRawMapStore } from "@/store/mapStore";
-import { Entity } from "@/types/schemas/Entity";
 import { Usemap } from "@/types/schemas/Usemap";
 import { Unit } from "@/types/schemas/Unit";
 import { Sprite } from "@/types/schemas/Sprite";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { z } from "zod";
 
 function getUnitItems(gameMap: Usemap): SideBarItem<Unit>[] {
   const items = gameMap.placed_unit.map<SideBarItem<Unit>>((unit, index) => ({

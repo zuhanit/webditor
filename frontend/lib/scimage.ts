@@ -1,5 +1,4 @@
 import { FrameMeta } from "@/types/SCImage";
-import { ucs2 } from "punycode";
 
 type props = { image: Blob; frame: number; meta: FrameMeta };
 export async function fetchFrameImage({ image, frame, meta }: props) {
@@ -37,7 +36,7 @@ export function createTeamColorUnitImage(
       if (!applyTeamColor) continue;
 
       // From the diffuse image, we read the pixel and use its RGB as a weight mask for blending
-      const [dR, dG, dB, dA] = uCtx.getImageData(x, y, 1, 1).data;
+      const [dR, dG, dB] = uCtx.getImageData(x, y, 1, 1).data;
       const weightR = dR / 255;
       const weightG = dG / 255;
       const weightB = dB / 255;

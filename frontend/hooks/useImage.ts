@@ -8,8 +8,6 @@ import {
   ImageVersion,
 } from "@/types/SCImage";
 import axios from "axios";
-import { fetchFrameImage } from "@/lib/scimage";
-import { useMemo } from "react";
 
 const safeGet = async <T>(promise: Promise<{ data: T }>) => {
   try {

@@ -20,32 +20,32 @@ export default function Page() {
 
     setUploading(true);
     setError(null);
-    try {
-      const result = await uploadFile(file);
-      setUploadedUrl(result.url);
-    } catch (err: any) {
-      console.error(err);
-      setError("업로드 중 오류가 발생했어요.");
-    } finally {
-      setUploading(false);
-    }
+    uploadFile(file)
+      .then((result) => {
+        setUploadedUrl(result.url);
+      })
+      .catch((reason) => {
+        console.error(reason);
+        setError("Error raised while uploading");
+      })
+      .finally(() => setUploading(false));
   };
 
   return (
-    <div className="p-8 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">📤 파일 업로드</h1>
+    <div className="mx-auto max-w-xl p-8">
+      <h1 className="mb-4 text-2xl font-bold">📤 파일 업로드</h1>
 
       <input type="file" onChange={handleChange} className="mb-4" />
       <button
         onClick={handleUpload}
         disabled={!file || uploading}
-        className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+        className="bg-blue-500 text-white rounded px-4 py-2 disabled:opacity-50"
       >
         {uploading ? "업로드 중..." : "업로드"}
       </button>
 
       {uploadedUrl && (
-        <div className="mt-4 text-green-600">
+        <div className="text-green-600 mt-4">
           ✅ 업로드 완료:{" "}
           <a href={uploadedUrl} target="_blank" className="underline">
             파일 보기
@@ -53,7 +53,7 @@ export default function Page() {
         </div>
       )}
 
-      {error && <div className="mt-4 text-red-500">{error}</div>}
+      {error && <div className="text-red-500 mt-4">{error}</div>}
     </div>
   );
 }

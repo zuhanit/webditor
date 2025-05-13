@@ -31,5 +31,5 @@ interface AccordionTriggerProps {
 }
 
 export function AccordionTrigger({ children }: AccordionTriggerProps) {
-  return <div>AccordionTrigger</div>;
+  return <div>{children}</div>;
 }

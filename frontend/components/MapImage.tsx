@@ -277,10 +277,10 @@ export const MapImage = () => {
     mapCanvas.height = rawmap.terrain.size.height * 32;
 
     const mapCtx = mapCanvas.getContext("2d")!;
-    terrainImage && mapCtx.drawImage(terrainImage, 0, 0);
-    placedUnitImage && mapCtx.drawImage(placedUnitImage, 0, 0);
-    placedSpriteImage && mapCtx.drawImage(placedSpriteImage, 0, 0);
-    locationImage && mapCtx.drawImage(locationImage, 0, 0);
+    if (terrainImage) mapCtx.drawImage(terrainImage, 0, 0);
+    if (placedUnitImage) mapCtx.drawImage(placedUnitImage, 0, 0);
+    if (placedSpriteImage) mapCtx.drawImage(placedSpriteImage, 0, 0);
+    if (locationImage) mapCtx.drawImage(locationImage, 0, 0);
     entireMapCanvasRef.current = mapCanvas;
   }, [rawmap, placedUnitImage, terrainImage, placedSpriteImage]);
 
