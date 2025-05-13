@@ -9,12 +9,11 @@ import { useRawMapStore } from "@/store/mapStore";
 import { trackInspectorEdit } from "@/lib/firebase/analytics";
 import { useDndMonitor, useDroppable } from "@dnd-kit/core";
 import { AssetType } from "@/types/Asset";
-import { WObject } from "@/types/schemas/WObject";
 
 function InspectorHeader({ label }: { label: string }) {
   const [isChecked, setIsChecked] = useState(false);
 
-  function onClickCheck(e: React.MouseEvent<HTMLInputElement>) {
+  function onClickCheck() {
     setIsChecked(!isChecked);
   }
 
@@ -28,7 +27,7 @@ function InspectorHeader({ label }: { label: string }) {
         <input
           type="checkbox"
           id={`${label}-checkbox`}
-          onClick={(e) => onClickCheck(e)}
+          onClick={() => onClickCheck()}
           className="hidden"
         />
         {isChecked ? (
@@ -150,7 +149,7 @@ interface InspectorProps {
   draggingAsset: AssetType | null;
 }
 
-export const Inspector = ({ item, draggingAsset }: InspectorProps) => {
+export const Inspector = ({ item }: InspectorProps) => {
   const updateRawMap = useRawMapStore((state) => state.updateRawMap); // zustand 또는 context 등
   const handleChange = (path: (string | number)[], newValue: any) => {
     updateRawMap((draft: any) => {
@@ -161,7 +160,9 @@ export const Inspector = ({ item, draggingAsset }: InspectorProps) => {
       target[path[path.length - 1]] = newValue;
     });
 
-    item && trackInspectorEdit(item.label, path.join("."), newValue);
+    if (item) {
+      trackInspectorEdit(item.label, path.join("."), newValue);
+    }
   };
 
   if (!item)

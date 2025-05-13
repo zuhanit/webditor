@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SideBar, SideBarItem } from "./placed_container/SideBar";
 import useFetchRawMap from "@/hooks/useRawMap";
 import { Item } from "@/types/InspectorItem";
@@ -13,15 +13,8 @@ import { MapImage } from "./MapImage";
 import { Project } from "./Project";
 import { TopBar, TopBarButton } from "./topbar/TopBar";
 import api from "@/lib/api";
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverEvent,
-  DragOverlay,
-  DragStartEvent,
-} from "@dnd-kit/core";
+import { DndContext, DragOverlay, DragStartEvent } from "@dnd-kit/core";
 import { AssetType } from "@/types/Asset";
-import { WObject } from "@/types/schemas/WObject";
 import { AssetCard } from "./asset_viewer/Asset";
 import ModalContainer from "./ModalContainer";
 
@@ -69,7 +62,7 @@ export default function Editor() {
       item: event.active.data.current as Item,
     });
   };
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = () => {
     setDraggingAsset(null);
   };
 

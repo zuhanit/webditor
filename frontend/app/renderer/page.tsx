@@ -2,7 +2,7 @@
 
 import { SCImageRenderer } from "@/components/Renderer";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ChangeEvent, ChangeEventHandler, useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 const client = new QueryClient();
 

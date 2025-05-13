@@ -1,5 +1,4 @@
 import { useRawMapStore } from "@/store/mapStore";
-import { WObject } from "@/types/schemas/WObject";
 import { Usemap } from "@/types/schemas/Usemap";
 import { useDroppable } from "@dnd-kit/core";
 import React from "react";
@@ -8,7 +7,7 @@ import { AssetCard } from "./Asset";
 
 function collectDefaultAssets(gameMap: Usemap): AssetResult {
   let assetID = 0;
-  let result: AssetResult = {};
+  const result: AssetResult = {};
   result["weapon"] = gameMap.weapons.map((weapon) => {
     return {
       id: assetID++,

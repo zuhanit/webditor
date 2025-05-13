@@ -1,7 +1,7 @@
 import { useModals } from "@/hooks/useModals";
-import { TopBar, TopBarButton } from "@/components/topbar/TopBar";
+import { TopBar } from "@/components/topbar/TopBar";
 import { Collapsible, CollapsibleContent } from "../ui/collapsible";
-import { DndContext, useDndMonitor, useDroppable } from "@dnd-kit/core";
+import { DndContext, useDroppable } from "@dnd-kit/core";
 import { useRawMapStore } from "@/store/mapStore";
 import { Item } from "@/types/InspectorItem";
 

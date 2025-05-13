@@ -10,8 +10,8 @@ interface RendererProps extends SCImage {
 export function SCImageRenderer({ version, imageIndex, frame }: RendererProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { data, isLoading } = useImage({ version, imageIndex });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setLoading] = useState(true);
+  const [, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
