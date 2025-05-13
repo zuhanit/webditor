@@ -14,8 +14,8 @@ def build(filename: str):
     dat = DAT()
     map = get_map(chk, dat)
 
-    merger = Merger(chk)
-    map_bytes = build_map(map)
+    Merger(chk)
+    build_map(map)
 
 
 build("hello12345.scx")

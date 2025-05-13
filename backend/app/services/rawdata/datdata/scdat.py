@@ -1,4 +1,3 @@
-import abc
 import struct
 from typing import Callable, Literal, Optional, TypeVar, Generic, TypedDict, cast
 from pathlib import Path

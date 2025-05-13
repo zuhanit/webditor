@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, APIRouter
+from fastapi import Depends, APIRouter
 from app.core.firebase.auth import get_current_user
 
 router = APIRouter()

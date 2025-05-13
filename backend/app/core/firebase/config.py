@@ -1,4 +1,4 @@
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials
 from dotenv import load_dotenv
 import firebase_admin
 import os

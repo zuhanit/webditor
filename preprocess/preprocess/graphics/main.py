@@ -1,7 +1,7 @@
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 import re
-from typing import Literal, Optional, TypeAlias, cast
+from typing import Literal, Optional, TypeAlias
 from graphics.scgraphic import GRP, get_all_graphic_path
 from graphics.scanim import AnimImage, RAWEntryRef, SCAnim, get_all_anim_path
 from graphics.packer import pack_images

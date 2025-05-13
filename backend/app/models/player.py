@@ -1,5 +1,5 @@
 from enum import Flag
-from pydantic import BaseModel, Field
+from pydantic import Field
 from typing import TypeAlias, Literal
 from .wobject import WObject
 

@@ -2,7 +2,6 @@ from graphics.scgraphic import GRP
 from rectpack import newPacker, PackingMode, PackingBin, MaxRectsBssf, SORT_AREA
 from PIL import Image
 
-from graphics.types import Graphic
 
 
 def pack_images(grp: GRP, bin_size=(512, 512)):

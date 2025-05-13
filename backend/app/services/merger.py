@@ -23,7 +23,7 @@ from app.models.definitions.weapon_definition import (
 from app.models.tech import Technology, Upgrade
 from app.models.unit import Unit
 from app.services.rawdata.dat import DAT
-from .rawdata.datdata import *
+from .rawdata.datdata import WeaponsDat, UpgradesDat, UnitsDat, TechdataDat
 from .utils.reverse import reverse_tbl_dict
 
 
@@ -139,7 +139,7 @@ class Merger:
           weapon_definitions[ground_weapon_id] if ground_weapon_id < 130 else None
         )
         air_weapon = weapon_definitions[air_weapon_id] if air_weapon_id < 130 else None
-      except IndexError as e:
+      except IndexError:
         raise IndexError(
           f"Invalid weapon id of unit {id}. Ground: {ground_weapon_id}, Air: {air_weapon_id}"
         )

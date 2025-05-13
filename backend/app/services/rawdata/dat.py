@@ -6,7 +6,7 @@ from app.models.portrait import Portrait
 from app.models.structs.spatial import Position2D
 from app.models.sprite import Sprite
 from ..utils.reverse import reverse_tbl_dict
-from .datdata import *
+from .datdata import ImagesDat, FlingyDat, OrdersDat, PortdataDat, SpritesDat
 
 
 class DAT:

@@ -1,16 +1,12 @@
-from os import stat_result
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.api.v1.endpoints import map, user, tileset
-from app.core.firebase import config  # Automatically initialized by importing `config`.
 from app.core.w_logging import get_logger, setup_logging
 from fastapi.responses import JSONResponse
-import firebase_admin
 from firebase_admin import auth as firebase_auth
 from firebase_admin._auth_utils import InvalidIdTokenError
 from starlette.responses import Response
-from starlette.types import Scope
 
 setup_logging()
 
@@ -72,7 +68,7 @@ async def log_reqeust(request: Request, call_next):
 
   try:
     response = await call_next(request)
-  except Exception as e:
+  except Exception:
     logger.exception("Unhandled exception occurred during request")
     return JSONResponse(
       status_code=500,

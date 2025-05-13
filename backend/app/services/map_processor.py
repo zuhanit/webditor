@@ -9,5 +9,5 @@ async def process_map(file: UploadFile):
 
 
 def convert_to_project_format(content: bytes):
-  chkt = get_chkt(content)
+  get_chkt(content)
   return {"map_name": "example", "size": "128x128"}
