@@ -146,6 +146,7 @@ jobs:
           path: |
             frontend/.next
             frontend/public
+          include-hidden-files: true
 
   Deploy:
     needs: build_frontend
