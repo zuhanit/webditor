@@ -1,23 +1,19 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useRawMapStore } from "@/store/mapStore";
 import { useViewportImage } from "@/hooks/useImage";
 import { TILE_SIZE } from "@/lib/scterrain";
+import { Viewport } from "@/types/Viewport";
+import { useDragViewport } from "@/hooks/useDragViewport";
 
 export const MapImage = () => {
   const viewportCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const entireMapCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const rawmap = useRawMapStore((state) => state.rawMap);
+
+  /** Draw images on Viewport Canvas */
   const viewportImage = useViewportImage();
-
-  const viewportRef = useRef({
-    startX: 0,
-    startY: 0,
-    tileWidth: 40,
-    tileHeight: 75,
-  });
-
   useEffect(() => {
     if (!rawmap) return;
 
@@ -33,7 +29,15 @@ export const MapImage = () => {
     entireMapCanvasRef.current = mapCanvas;
   }, [rawmap, viewportImage]);
 
-  function paint() {
+  /** Controller for dragging viewport */
+  const viewportRef = useRef<Viewport>({
+    startX: 0,
+    startY: 0,
+    tileWidth: 40,
+    tileHeight: 75,
+  });
+
+  const paint = useCallback(() => {
     const viewCanvas = viewportCanvasRef.current;
     const mapCanvas = entireMapCanvasRef.current;
     if (!viewCanvas || !mapCanvas) return;
@@ -55,48 +59,12 @@ export const MapImage = () => {
       v.tileWidth * TILE_SIZE,
       v.tileHeight * TILE_SIZE,
     );
-  }
-  const isDragging = useRef(false);
-  const dragStart = useRef<{ x: number; y: number } | null>(null);
+  }, []);
 
-  function handleMouseDown(e: React.MouseEvent) {
-    isDragging.current = true;
-    dragStart.current = { x: e.clientX, y: e.clientY };
-  }
-
-  const raf = useRef(0);
-  function handleMouseMove(e: React.MouseEvent) {
-    if (!isDragging.current || !dragStart.current) return;
-
-    const dx = e.clientX - dragStart.current.x;
-    const dy = e.clientY - dragStart.current.y;
-
-    const deltaX = Math.round(dx / TILE_SIZE);
-    const deltaY = Math.round(dy / TILE_SIZE);
-    if (deltaX === 0 && deltaY === 0) return;
-
-    viewportRef.current.startX = Math.max(
-      0,
-      viewportRef.current.startX - deltaX,
-    );
-    viewportRef.current.startY = Math.max(
-      0,
-      viewportRef.current.startY - deltaY,
-    );
-    dragStart.current = { x: e.clientX, y: e.clientY };
-
-    if (!raf.current) {
-      raf.current = requestAnimationFrame(() => {
-        paint();
-        raf.current = 0;
-      });
-    }
-  }
-
-  function handleMouseUp() {
-    isDragging.current = false;
-    dragStart.current = null;
-  }
+  const { onMouseMove, onMouseUp, onMousedown, isDragging } = useDragViewport(
+    viewportRef,
+    paint,
+  );
 
   useEffect(() => {
     const observer = new ResizeObserver((entries) => {
@@ -128,10 +96,10 @@ export const MapImage = () => {
           cursor: isDragging ? "grabbing" : "grab",
         }}
         className="h-full w-full"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseDown={onMousedown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
       />
     </div>
   );
