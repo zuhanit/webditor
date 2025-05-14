@@ -129,7 +129,7 @@ jobs:
       matrix:
         node-version: [20]
     outputs:
-      frontend-uploaded: ${{ steps.frontend_flag.outputs.uploaded }}
+      frontend-uploaded: ${{ steps.rawdata_flag.outputs.uploaded }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
