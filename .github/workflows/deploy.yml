@@ -68,7 +68,15 @@ jobs:
             s3://${{ secrets.R2_BUCKET_NAME }}/${{ secrets.R2_OBJECT_KEY }} \
             rawdata.tar.zst
 
+      - name: Cache rawdata
+        id: cache-rawdata
+        uses: actions/cache@v3
+        with:
+          path: rawdata.tar.zst
+          key: rawdata-${{ hashFiles('rawdata.tar.zst') }}
+
       - name: Extract rawdata archive
+        if: steps.cache-rawdata.outputs.cache-hit != 'true'
         run: |
           mkdir -p ./preprocess/preprocess/rawdata
           tar -I zstd -xvf rawdata.tar.zst
