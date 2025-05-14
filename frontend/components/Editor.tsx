@@ -13,10 +13,9 @@ import { MapImage } from "./MapImage";
 import { Project } from "./Project";
 import { TopBar, TopBarButton } from "./topbar/TopBar";
 import api from "@/lib/api";
-import { DndContext, DragOverlay, DragStartEvent } from "@dnd-kit/core";
-import { AssetType } from "@/types/Asset";
-import { AssetCard } from "./asset_viewer/Asset";
+import { DndContext } from "@dnd-kit/core";
 import ModalContainer from "./ModalContainer";
+import { DragHandler } from "./DragHandler";
 
 export default function Editor() {
   const [selectedEntity, setSelectedEntity] =
@@ -54,21 +53,10 @@ export default function Editor() {
     }
   };
 
-  const [draggingAsset, setDraggingAsset] = useState<AssetType | null>(null);
-  const handleDragStart = (event: DragStartEvent) => {
-    if (event.active === null) return;
-    setDraggingAsset({
-      id: event.active.id as number,
-      item: event.active.data.current as Item,
-    });
-  };
-  const handleDragEnd = () => {
-    setDraggingAsset(null);
-  };
-
   return (
     <div className="flex h-screen flex-col overflow-hidden">
-      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <DndContext>
+        <DragHandler />
         {/* Upside Tab Bar */}
         <TopBar label="any-starcraft-map" minimize popup close>
           <div className="flex items-center gap-2.5">
@@ -113,10 +101,7 @@ export default function Editor() {
             {/* Center Map Viewer */}
             <div className="flex h-full">
               <MapImage />
-              <Inspector
-                item={selectedEntity?.data}
-                draggingAsset={draggingAsset}
-              />
+              <Inspector item={selectedEntity?.data} />
             </div>
           </div>
         </Resizable>
@@ -124,11 +109,8 @@ export default function Editor() {
         {/* Bottom Project/Asset Container */}
         <div className="flex h-full flex-1 overflow-hidden border-t-2 border-t-fills-primary">
           <Project className="overflow-auto" />
-          <AssetContainer draggingAsset={draggingAsset} />
+          <AssetContainer />
         </div>
-        <DragOverlay>
-          {draggingAsset ? <AssetCard item={draggingAsset.item} /> : null}
-        </DragOverlay>
       </DndContext>
       <ModalContainer />
     </div>
