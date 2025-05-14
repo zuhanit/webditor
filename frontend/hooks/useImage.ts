@@ -12,7 +12,7 @@ import { useRawMapStore } from "@/store/mapStore";
 import useTileGroup from "./useTileGroup";
 import useTilesetData from "./useTilesetData";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getTerrainImage } from "@/lib/scterrain";
+import { getTerrainImage, TILE_SIZE } from "@/lib/scterrain";
 import {
   getLocationImage,
   getPlacedSpriteImages,
@@ -209,4 +209,36 @@ export function useViewportImage(): ViewportImageBundle {
     sprite: spriteImage,
     location: locationImage.current,
   };
+}
+
+export function useEntireCanvas() {
+  const usemap = useRawMapStore((state) => state.rawMap);
+  const { terrain, unit, sprite, location } = useViewportImage();
+
+  const [bitmap, setBitmap] = useState<ImageBitmap>();
+
+  useEffect(() => {
+    if (!usemap) return;
+
+    const w = usemap.terrain.size.width * TILE_SIZE;
+    const h = usemap.terrain.size.height * TILE_SIZE;
+    const canvas = new OffscreenCanvas(w, h);
+    const ctx = canvas.getContext("2d")!;
+
+    ctx.clearRect(0, 0, w, h);
+    if (terrain) ctx.drawImage(terrain, 0, 0);
+    if (unit) ctx.drawImage(unit, 0, 0);
+    if (sprite) ctx.drawImage(sprite, 0, 0);
+    if (location) ctx.drawImage(location, 0, 0);
+
+    setBitmap(canvas.transferToImageBitmap());
+  }, [
+    usemap?.terrain, // 맵 크기 변할 때
+    terrain,
+    unit,
+    sprite,
+    location,
+  ]);
+
+  return { image: bitmap };
 }

@@ -1,33 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
-import { useRawMapStore } from "@/store/mapStore";
-import { useViewportImage } from "@/hooks/useImage";
+import { useCallback, useRef } from "react";
+import { useEntireCanvas } from "@/hooks/useImage";
 import { TILE_SIZE } from "@/lib/scterrain";
 import { Viewport } from "@/types/Viewport";
 import { useDragViewport } from "@/hooks/useDragViewport";
 
 export const MapImage = () => {
   const viewportCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const entireMapCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const rawmap = useRawMapStore((state) => state.rawMap);
-
-  /** Draw images on Viewport Canvas */
-  const viewportImage = useViewportImage();
-  useEffect(() => {
-    if (!rawmap) return;
-
-    const mapCanvas = document.createElement("canvas");
-    mapCanvas.width = rawmap.terrain.size.width * 32;
-    mapCanvas.height = rawmap.terrain.size.height * 32;
-
-    const mapCtx = mapCanvas.getContext("2d")!;
-    if (viewportImage.terrain) mapCtx.drawImage(viewportImage.terrain, 0, 0);
-    if (viewportImage.unit) mapCtx.drawImage(viewportImage.unit, 0, 0);
-    if (viewportImage.sprite) mapCtx.drawImage(viewportImage.sprite, 0, 0);
-    if (viewportImage.location) mapCtx.drawImage(viewportImage.location, 0, 0);
-    entireMapCanvasRef.current = mapCanvas;
-  }, [rawmap, viewportImage]);
+  const { image } = useEntireCanvas();
 
   /** Controller for dragging viewport */
   const viewportRef = useRef<Viewport>({
@@ -39,8 +20,7 @@ export const MapImage = () => {
 
   const paint = useCallback(() => {
     const viewCanvas = viewportCanvasRef.current;
-    const mapCanvas = entireMapCanvasRef.current;
-    if (!viewCanvas || !mapCanvas) return;
+    if (!viewCanvas || !image) return;
 
     const viewCtx = viewCanvas.getContext("2d")!;
     const v = viewportRef.current;
@@ -49,7 +29,7 @@ export const MapImage = () => {
     viewCanvas.height = v.tileHeight * TILE_SIZE;
 
     viewCtx.drawImage(
-      mapCanvas,
+      image,
       v.startX * TILE_SIZE,
       v.startY * TILE_SIZE,
       v.tileWidth * TILE_SIZE,
@@ -59,7 +39,7 @@ export const MapImage = () => {
       v.tileWidth * TILE_SIZE,
       v.tileHeight * TILE_SIZE,
     );
-  }, []);
+  }, [image]);
 
   const { onMouseMove, onMouseUp, onMousedown, isDragging } = useDragViewport(
     viewportRef,
