@@ -1,42 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import useTileGroup from "@/hooks/useTileGroup";
-import useTilesetData from "@/hooks/useTilesetData";
+import { useEffect, useRef } from "react";
 import { useRawMapStore } from "@/store/mapStore";
-import { useImages } from "@/hooks/useImage";
-import {
-  getLocationImage,
-  getPlacedSpriteImages,
-  getPlacedUnitImage,
-} from "@/lib/scimage";
-import { TILE_SIZE, getTerrainImage } from "@/lib/scterrain";
+import { useViewportImage } from "@/hooks/useImage";
+import { TILE_SIZE } from "@/lib/scterrain";
 
 export const MapImage = () => {
   const viewportCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const entireMapCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const tileGroup = useTileGroup();
-  const tilesetData = useTilesetData();
   const rawmap = useRawMapStore((state) => state.rawMap);
-  const requiredImageIDs = useMemo(() => {
-    const result = new Set<number>();
-    if (rawmap) {
-      rawmap.placed_unit.forEach((unit) => {
-        const flingyID = unit.unit_definition.specification.graphics;
-        const spriteID = rawmap.flingy[flingyID].sprite;
-        const imageID = rawmap.sprite[spriteID].image;
-
-        result.add(imageID);
-      });
-
-      rawmap.placed_sprite.forEach((sprite) => result.add(sprite.image));
-    }
-    return result;
-  }, [rawmap?.placed_unit]);
-  const { data: imagesData, loading: imagesLoading } = useImages(
-    requiredImageIDs,
-    "sd",
-  );
+  const viewportImage = useViewportImage();
 
   const viewportRef = useRef({
     startX: 0,
@@ -44,47 +17,6 @@ export const MapImage = () => {
     tileWidth: 40,
     tileHeight: 75,
   });
-
-  const terrainImage = useMemo<ImageBitmap | undefined>(() => {
-    if (!rawmap || !tileGroup || !tilesetData) return undefined;
-    return getTerrainImage(rawmap.terrain, tileGroup, tilesetData);
-  }, [rawmap?.terrain, tileGroup, tilesetData]);
-
-  const [placedUnitImage, setPlacedUnitImage] = useState<
-    ImageBitmap | undefined
-  >(undefined);
-
-  const [placedSpriteImage, setPlacedSpriteImage] = useState<
-    ImageBitmap | undefined
-  >(undefined);
-
-  const locationImage = useMemo<ImageBitmap | undefined>(() => {
-    if (!rawmap) return;
-    console.log(rawmap?.string);
-    return getLocationImage(rawmap.terrain, rawmap.location);
-  }, [rawmap?.terrain]);
-
-  useEffect(() => {
-    async function createImage() {
-      if (!rawmap || imagesLoading) return undefined;
-      const unitImage = await getPlacedUnitImage(
-        rawmap.terrain,
-        rawmap.placed_unit,
-        rawmap.flingy,
-        rawmap.sprite,
-        imagesData,
-      );
-      const spriteImage = await getPlacedSpriteImages(
-        rawmap.terrain,
-        rawmap.placed_sprite,
-        imagesData,
-      );
-
-      setPlacedUnitImage(unitImage);
-      setPlacedSpriteImage(spriteImage);
-    }
-    createImage();
-  }, [rawmap?.terrain, imagesLoading]);
 
   useEffect(() => {
     if (!rawmap) return;
@@ -94,12 +26,12 @@ export const MapImage = () => {
     mapCanvas.height = rawmap.terrain.size.height * 32;
 
     const mapCtx = mapCanvas.getContext("2d")!;
-    if (terrainImage) mapCtx.drawImage(terrainImage, 0, 0);
-    if (placedUnitImage) mapCtx.drawImage(placedUnitImage, 0, 0);
-    if (placedSpriteImage) mapCtx.drawImage(placedSpriteImage, 0, 0);
-    if (locationImage) mapCtx.drawImage(locationImage, 0, 0);
+    if (viewportImage.terrain) mapCtx.drawImage(viewportImage.terrain, 0, 0);
+    if (viewportImage.unit) mapCtx.drawImage(viewportImage.unit, 0, 0);
+    if (viewportImage.sprite) mapCtx.drawImage(viewportImage.sprite, 0, 0);
+    if (viewportImage.location) mapCtx.drawImage(viewportImage.location, 0, 0);
     entireMapCanvasRef.current = mapCanvas;
-  }, [rawmap, placedUnitImage, terrainImage, placedSpriteImage]);
+  }, [rawmap, viewportImage]);
 
   function paint() {
     const viewCanvas = viewportCanvasRef.current;

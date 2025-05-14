@@ -8,6 +8,16 @@ import {
   ImageVersion,
 } from "@/types/SCImage";
 import axios from "axios";
+import { useRawMapStore } from "@/store/mapStore";
+import useTileGroup from "./useTileGroup";
+import useTilesetData from "./useTilesetData";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { getTerrainImage } from "@/lib/scterrain";
+import {
+  getLocationImage,
+  getPlacedSpriteImages,
+  getPlacedUnitImage,
+} from "@/lib/scimage";
 
 const safeGet = async <T>(promise: Promise<{ data: T }>) => {
   try {
@@ -113,4 +123,90 @@ export function useImages(imageIDs: Set<number>, version: ImageVersion) {
   });
 
   return imageQueries;
+}
+
+interface ViewportImageBundle {
+  terrain?: ImageBitmap;
+  unit?: ImageBitmap;
+  location?: ImageBitmap;
+  sprite?: ImageBitmap;
+}
+
+export function useViewportImage(): ViewportImageBundle {
+  const usemap = useRawMapStore((store) => store.rawMap);
+  const tileGroup = useTileGroup();
+  const tilesetData = useTilesetData();
+
+  const terrainImage = useRef<ImageBitmap>();
+  const [unitImage, setUnitImage] = useState<ImageBitmap>();
+  const [spriteImage, setSpriteImage] = useState<ImageBitmap>();
+  const locationImage = useRef<ImageBitmap>();
+
+  /** Create terrain image */
+  useEffect(() => {
+    if (!usemap || !tileGroup || !tilesetData) return;
+
+    terrainImage.current = getTerrainImage(
+      usemap.terrain,
+      tileGroup,
+      tilesetData,
+    );
+  }, [usemap?.terrain]);
+
+  const requiredImageIDs = useMemo(() => {
+    const result = new Set<number>();
+    if (usemap) {
+      usemap.placed_unit.forEach((unit) => {
+        const flingyID = unit.unit_definition.specification.graphics;
+        const spriteID = usemap.flingy[flingyID].sprite;
+        const imageID = usemap.sprite[spriteID].image;
+
+        result.add(imageID);
+      });
+
+      usemap.placed_sprite.forEach((sprite) => result.add(sprite.image));
+    }
+    return result;
+  }, [usemap?.placed_unit]);
+  const { data: imagesData, loading } = useImages(requiredImageIDs, "sd");
+
+  /** Create placed unit image */
+  useEffect(() => {
+    if (!usemap) return;
+    (async () => {
+      const bmp = await getPlacedUnitImage(
+        usemap.terrain,
+        usemap.placed_unit,
+        usemap.flingy,
+        usemap.sprite,
+        imagesData,
+      );
+      setUnitImage(bmp);
+    })();
+  }, [usemap?.placed_unit, usemap?.flingy, usemap?.sprite, loading]);
+
+  /** Create sprite image */
+  useEffect(() => {
+    if (!usemap) return;
+    (async () => {
+      const bmp = await getPlacedSpriteImages(
+        usemap.terrain,
+        usemap.placed_sprite,
+        imagesData,
+      );
+      setSpriteImage(bmp);
+    })();
+  }, [usemap?.placed_sprite, loading]);
+
+  useEffect(() => {
+    if (!usemap) return;
+    locationImage.current = getLocationImage(usemap.terrain, usemap.location);
+  }, [usemap?.location]);
+
+  return {
+    terrain: terrainImage.current,
+    unit: unitImage,
+    sprite: spriteImage,
+    location: locationImage.current,
+  };
 }
