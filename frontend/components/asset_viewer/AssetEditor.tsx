@@ -58,14 +58,8 @@ function AssetEditorContent({
         const { isOver, setNodeRef } = useDroppableContext({
           id: fullPath.join("."),
           kind: "asset-editor",
+          data: fullPath,
         });
-        // useDndMonitor({
-        //   onDragEnd(event) {
-        //     if (event.active.data !== null) {
-        //       onChange(fullPath, event.active.data.current);
-        //     }
-        //   },
-        // });
 
         content = (
           <div

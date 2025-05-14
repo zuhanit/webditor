@@ -7,7 +7,6 @@ import { Item } from "@/types/InspectorItem";
 import { Resizable } from "re-resizable";
 import { useRawMapStore } from "@/store/mapStore";
 import { trackInspectorEdit } from "@/lib/firebase/analytics";
-import { useDndMonitor } from "@dnd-kit/core";
 import { useDroppableContext } from "@/hooks/useDraggableAsset";
 
 function InspectorHeader({ label }: { label: string }) {
@@ -93,15 +92,9 @@ function InspectorContent({
 
       if ("ref_type" in value) {
         const { isOver, setNodeRef } = useDroppableContext({
-          id: fullPath.join("."),
+          id: fullPath.join("-"),
           kind: "inspector-content",
-        });
-        useDndMonitor({
-          onDragEnd(event) {
-            if (event.active.data !== null) {
-              onChange(fullPath, event.active.data.current);
-            }
-          },
+          data: fullPath,
         });
 
         content = (
