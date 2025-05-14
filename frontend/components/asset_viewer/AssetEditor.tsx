@@ -1,9 +1,10 @@
 import { useModals } from "@/hooks/useModals";
 import { TopBar } from "@/components/topbar/TopBar";
 import { Collapsible, CollapsibleContent } from "../ui/collapsible";
-import { DndContext, useDroppable } from "@dnd-kit/core";
+import { DndContext } from "@dnd-kit/core";
 import { useRawMapStore } from "@/store/mapStore";
 import { Item } from "@/types/InspectorItem";
+import { useDroppableContext } from "@/hooks/useDraggableAsset";
 
 interface AssetEditorContentProps {
   label: string;
@@ -54,8 +55,9 @@ function AssetEditorContent({
       }
 
       if ("ref_type" in value) {
-        const { isOver, setNodeRef } = useDroppable({
+        const { isOver, setNodeRef } = useDroppableContext({
           id: fullPath.join("."),
+          kind: "asset-editor",
         });
         // useDndMonitor({
         //   onDragEnd(event) {

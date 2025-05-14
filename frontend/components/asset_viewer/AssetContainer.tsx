@@ -1,9 +1,9 @@
 import { useRawMapStore } from "@/store/mapStore";
 import { Usemap } from "@/types/schemas/Usemap";
-import { useDroppable } from "@dnd-kit/core";
 import React from "react";
-import { AssetResult, AssetType } from "@/types/Asset";
+import { AssetResult } from "@/types/Asset";
 import { AssetCard } from "./Asset";
+import { useDroppableContext } from "@/hooks/useDraggableAsset";
 
 function collectDefaultAssets(gameMap: Usemap): AssetResult {
   let assetID = 0;
@@ -35,14 +35,14 @@ function collectDefaultAssets(gameMap: Usemap): AssetResult {
 
 interface AssetContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
-  draggingAsset: AssetType | null;
 }
 
 export function AssetContainer({ children }: AssetContainerProps) {
   const gameMap = useRawMapStore((state) => state.rawMap);
 
-  const { isOver, setNodeRef } = useDroppable({
+  const { isOver, setNodeRef } = useDroppableContext({
     id: "AssetContainer",
+    kind: "asset-container",
   });
 
   if (gameMap === null) return <div>Loading...</div>;
