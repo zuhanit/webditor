@@ -19,7 +19,9 @@ app = FastAPI(
 app.add_middleware(
   CORSMiddleware,
   allow_origins=[
-    "webditor.net",
+    "https://webditor.net",
+    "https://www.webditor.net",
+    "https://api.webditor.net",
     "http://localhost:3000",
   ],  # Change origin if domain changed
   allow_credentials=True,
