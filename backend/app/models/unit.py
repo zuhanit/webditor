@@ -3,9 +3,11 @@ from app.models.definitions.unit_definition import UnitDefinition
 from app.models.structs.stat import Stat
 from pydantic import Field
 from .player import Player
-from .wobject import WObject
 from .entity import Entity
 from .structs.cost import Cost
+from .structs.spatial import Position2D
+from .wobject import WObject
+from .components.transform import TransformComponent
 from enum import Flag
 
 
@@ -30,6 +32,7 @@ class CHKUnit(Entity):
   special_properties: int = 0
   valid_properties: int = 0
   use_default: bool = True
+  # transform = TransformComponent(position=Position2D(x=0, y=0))
 
 
 class Unit(Entity):
