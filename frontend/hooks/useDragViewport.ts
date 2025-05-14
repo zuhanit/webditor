@@ -2,6 +2,12 @@ import { TILE_SIZE } from "@/lib/scterrain";
 import { useRef } from "react";
 import { Viewport } from "@/types/Viewport";
 
+/**
+ * Hook for handle dragging viewport.
+ * @param vpRef Viewport Ref
+ * @param onViewportChange Event handler for viewport changed.
+ * @returns
+ */
 export function useDragViewport(
   vpRef: React.MutableRefObject<Viewport>,
   onViewportChange: () => void,

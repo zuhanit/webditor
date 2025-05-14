@@ -19,6 +19,11 @@ export const MapImage = () => {
     tileHeight: 75,
   });
 
+  /**
+   * Viewport painting callback.
+   * when user dragging, or touch-moved viewport, viewport will be changed and
+   * entire viewport image need to repainted.
+   *  */
   const paint = useCallback(() => {
     const viewCanvas = viewportCanvasRef.current;
     if (!viewCanvas || !image) return;
@@ -42,6 +47,9 @@ export const MapImage = () => {
     );
   }, [image]);
 
+  /**
+   * Viewport dragging handling hook.
+   */
   const { onMouseMove, onMouseUp, onMousedown, isDragging } = useDragViewport(
     viewportRef,
     paint,
