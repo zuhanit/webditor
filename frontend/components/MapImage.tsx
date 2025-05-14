@@ -5,6 +5,7 @@ import { useEntireCanvas } from "@/hooks/useImage";
 import { TILE_SIZE } from "@/lib/scterrain";
 import { Viewport } from "@/types/Viewport";
 import { useDragViewport } from "@/hooks/useDragViewport";
+import { useElementResize } from "@/hooks/useElementResize";
 
 export const MapImage = () => {
   const viewportCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -46,27 +47,12 @@ export const MapImage = () => {
     paint,
   );
 
-  useEffect(() => {
-    const observer = new ResizeObserver((entries) => {
-      const canvas = entries[0].target as HTMLCanvasElement;
-      const width = canvas.clientWidth;
-      const height = canvas.clientHeight;
-
-      viewportRef.current.tileWidth = Math.floor(width / TILE_SIZE);
-      viewportRef.current.tileHeight = Math.floor(height / TILE_SIZE);
-      paint();
-    });
-
-    if (viewportCanvasRef.current) {
-      observer.observe(viewportCanvasRef.current);
-    }
-
-    return () => {
-      if (viewportCanvasRef.current) {
-        observer.unobserve(viewportCanvasRef.current);
-      }
-    };
-  }, []);
+  useElementResize(viewportCanvasRef, (entry) => {
+    const { width, height } = entry.contentRect;
+    viewportRef.current.tileWidth = Math.floor(width / TILE_SIZE);
+    viewportRef.current.tileHeight = Math.floor(height / TILE_SIZE);
+    paint();
+  });
 
   return (
     <div className="w-full">
