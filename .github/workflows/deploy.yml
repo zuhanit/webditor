@@ -17,6 +17,8 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
+    outputs:
+      rawdata-uploaded: ${{ steps.rawdata_flag.outputs.uploaded }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -76,20 +78,29 @@ jobs:
         run: pnpm run build-preprocess
 
       - name: Upload frontend schemas
-        if: steps.cache-preprocess.outcome.cache-hit != 'true'
+        if: steps.cache-preprocess.outputs.cache-hit != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: frontend-schemas
           path: frontend/types/schemas
 
       - name: Upload rawdata
-        if: steps.cache-preprocess.outcome.cache-hit != 'true'
+        if: steps.cache-preprocess.outputs.cache-hit != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: backend-rawdata
           path: |
             backend/static/anim
             backend/static/terrain
+
+      - name: Set rawdata flag
+        id: rawdata_flag
+        run: |
+          if [ "${{ steps.cache-preprocess.outputs.cache-hit }}" = 'true' ]; then
+            echo "uploaded=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "uploaded=true"  >> "$GITHUB_OUTPUT"
+          fi
 
   build_frontend:
     needs: preprocess
@@ -106,11 +117,14 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
+    outputs:
+      frontend-uploaded: ${{ steps.frontend_flag.outputs.uploaded }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
       - uses: actions/cache@v4
+        id: cache-frontend
         with:
           path: |
             ~/.npm
@@ -120,30 +134,36 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('frontend/pnpm-lock.yaml') }}
 
       - name: Download processed schemas
+        if: steps.cache-frontend.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v4
         with:
           name: frontend-schemas
           path: frontend/types/schemas
 
       - name: Install pnpm
+        if: steps.cache-frontend.outputs.cache-hit != 'true'
         uses: pnpm/action-setup@v4
         with:
           version: 10
 
       - name: Use Node.js ${{ matrix.node-version }}
+        if: steps.cache-frontend.outputs.cache-hit != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
 
       - name: Install dependencies
+        if: steps.cache-frontend.outputs.cache-hit != 'true'
         run: |
           pnpm install -r
 
       - name: Build App
+        if: steps.cache-frontend.outputs.cache-hit != 'true'
         run: pnpm run build
 
       - name: Upload frontend build artifact
+        if: steps.cache-frontend.outputs.cache-hit != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
@@ -152,17 +172,28 @@ jobs:
             frontend/public
           include-hidden-files: true
 
+      - name: Set frontend flag
+        id: rawdata_flag
+        run: |
+          if [ "${{ steps.cache-frontend.outputs.cache-hit }}" = 'true' ]; then
+            echo "uploaded=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "uploaded=true"  >> "$GITHUB_OUTPUT"
+          fi
+
   Deploy:
-    needs: build_frontend
+    needs: [preprocess, build_frontend]
     runs-on: self-hosted
     steps:
       - name: Download built frontend
+        if: needs.build_frontend.outputs.frontend-uploaded == 'true'
         uses: actions/download-artifact@v4
         with:
           name: frontend-build
           path: ${{ secrets.LIVE_SERVER_PATH }}/frontend
 
       - name: Download Backend Static Anim Images
+        if: needs.preprocess.outputs.rawdata-uploaded == 'true'
         uses: actions/download-artifact@v4
         with:
           name: backend-rawdata
