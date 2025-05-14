@@ -161,7 +161,6 @@ export function getLocationImage(terrain: Terrain, locations: Location[]) {
     terrain.size.height * TILE_SIZE,
   );
   const ctx = canvas.getContext("2d")!;
-  console.log(locations);
 
   locations.forEach((location) => {
     if (location.id != 63) {
