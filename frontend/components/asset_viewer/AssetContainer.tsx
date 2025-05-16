@@ -19,7 +19,7 @@ function collectDefaultAssets(gameMap: Usemap): AssetResult {
     };
   });
 
-  result["unit"] = gameMap.unit_definitions.map((unit_def) => {
+  result["unit_definition"] = gameMap.unit_definitions.map((unit_def) => {
     return {
       id: assetID++,
       item: {
