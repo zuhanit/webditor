@@ -1,10 +1,39 @@
 import { useRawMapStore } from "@/store/mapStore";
 import { Usemap } from "@/types/schemas/Usemap";
-import { useDroppable } from "@dnd-kit/core";
 import React from "react";
-import { AssetResult, AssetType } from "@/types/Asset";
+import { AssetResult } from "@/types/Asset";
 import { AssetCard } from "./Asset";
+import { useDroppableContext } from "@/hooks/useDraggableAsset";
+import { Unit } from "@/types/schemas/Unit";
+import { UnitDefinition } from "@/types/schemas/UnitDefinition";
 
+function unitDefinitionToUnit(def: UnitDefinition): Unit {
+  return {
+    id: 0,
+    name: def.name,
+    kind: "Unit",
+    use_default: false,
+    resource_amount: 0,
+    hangar: 0,
+    unit_state: 0,
+    relation_type: 0,
+    related_unit: 0,
+    special_properties: 0,
+    valid_properties: 0,
+    serial_number: 0,
+    unit_definition: def,
+    transform: {
+      id: 0,
+      name: "transform",
+      position: {
+        current: 0,
+        max: 0,
+        x: 0,
+        y: 0,
+      },
+    },
+  };
+}
 function collectDefaultAssets(gameMap: Usemap): AssetResult {
   let assetID = 0;
   const result: AssetResult = {};
@@ -19,7 +48,7 @@ function collectDefaultAssets(gameMap: Usemap): AssetResult {
     };
   });
 
-  result["unit"] = gameMap.unit_definitions.map((unit_def) => {
+  result["unit_definition"] = gameMap.unit_definitions.map((unit_def) => {
     return {
       id: assetID++,
       item: {
@@ -30,19 +59,30 @@ function collectDefaultAssets(gameMap: Usemap): AssetResult {
     };
   });
 
+  result["unit"] = gameMap.unit_definitions.map((def) => {
+    return {
+      id: assetID++,
+      item: {
+        label: def.name,
+        path: ["units", def.id],
+        properties: unitDefinitionToUnit(def),
+      },
+    };
+  });
+
   return result;
 }
 
 interface AssetContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
-  draggingAsset: AssetType | null;
 }
 
 export function AssetContainer({ children }: AssetContainerProps) {
   const gameMap = useRawMapStore((state) => state.rawMap);
 
-  const { isOver, setNodeRef } = useDroppable({
+  const { isOver, setNodeRef } = useDroppableContext({
     id: "AssetContainer",
+    kind: "asset-container",
   });
 
   if (gameMap === null) return <div>Loading...</div>;

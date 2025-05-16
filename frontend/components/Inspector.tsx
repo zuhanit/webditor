@@ -7,8 +7,7 @@ import { Item } from "@/types/InspectorItem";
 import { Resizable } from "re-resizable";
 import { useRawMapStore } from "@/store/mapStore";
 import { trackInspectorEdit } from "@/lib/firebase/analytics";
-import { useDndMonitor, useDroppable } from "@dnd-kit/core";
-import { AssetType } from "@/types/Asset";
+import { useDroppableContext } from "@/hooks/useDraggableAsset";
 
 function InspectorHeader({ label }: { label: string }) {
   const [isChecked, setIsChecked] = useState(false);
@@ -92,15 +91,10 @@ function InspectorContent({
       }
 
       if ("ref_type" in value) {
-        const { isOver, setNodeRef } = useDroppable({
-          id: fullPath.join("."),
-        });
-        useDndMonitor({
-          onDragEnd(event) {
-            if (event.active.data !== null) {
-              onChange(fullPath, event.active.data.current);
-            }
-          },
+        const { isOver, setNodeRef } = useDroppableContext({
+          id: fullPath.join("-"),
+          kind: "inspector-content",
+          data: fullPath,
         });
 
         content = (
@@ -146,7 +140,6 @@ function InspectorContent({
 
 interface InspectorProps {
   item: Item | undefined;
-  draggingAsset: AssetType | null;
 }
 
 export const Inspector = ({ item }: InspectorProps) => {

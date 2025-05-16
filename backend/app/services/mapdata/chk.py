@@ -156,6 +156,7 @@ class CHK:
           hangar=0,
           unit_state=0,
           related_unit=0,
+          transform=TransformComponent(position=Position2D(x=0, y=0)),
         )
       )
 

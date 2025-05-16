@@ -3,15 +3,16 @@ from app.models.definitions.unit_definition import UnitDefinition
 from app.models.structs.stat import Stat
 from pydantic import Field
 from .player import Player
-from .wobject import WObject
-from .entity import Entity
+from .entity import Entity, EntityKind
 from .structs.cost import Cost
+from .wobject import WObject
 from enum import Flag
 
 
 class CHKUnit(Entity):
   """CHK compatible Unit."""
 
+  kind: EntityKind = "Unit"
   serial_number: Optional[int] = None
   """Identical number when unit placed on map. -1 When non-placed unit."""
   cost: Cost
@@ -30,6 +31,7 @@ class CHKUnit(Entity):
   special_properties: int = 0
   valid_properties: int = 0
   use_default: bool = True
+  # transform = TransformComponent(position=Position2D(x=0, y=0))
 
 
 class Unit(Entity):
@@ -39,6 +41,7 @@ class Unit(Entity):
   If you looking for specificaiton of unit like `Max HP`, `Size`, see `UnitDefinition`.
   """
 
+  kind: EntityKind = "Unit"
   serial_number: Optional[int] = None
   """Identical number when unit placed on map. -1 When non-placed unit."""
   use_default: bool = True

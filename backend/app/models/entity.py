@@ -1,6 +1,9 @@
+from typing import Literal, TypeAlias
+from pydantic import Field
 from .wobject import WObject
 from .components.transform import TransformComponent
-from .structs.spatial import Position2D
+
+EntityKind: TypeAlias = Literal["Unit", "Sprite", "Location", "Terrain"]
 
 
 class Entity(WObject):
@@ -8,4 +11,7 @@ class Entity(WObject):
   Placeable `object`.
   """
 
-  transform: TransformComponent = TransformComponent(position=Position2D(x=0, y=0))
+  transform: TransformComponent = Field(
+    ..., description="Spatial transform is mandatory"
+  )
+  kind: EntityKind
