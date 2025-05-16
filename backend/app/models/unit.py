@@ -5,9 +5,7 @@ from pydantic import Field
 from .player import Player
 from .entity import Entity, EntityKind
 from .structs.cost import Cost
-from .structs.spatial import Position2D
 from .wobject import WObject
-from .components.transform import TransformComponent
 from enum import Flag
 
 

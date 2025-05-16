@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Literal, TypeAlias
 from pydantic import Field
 from .wobject import WObject
