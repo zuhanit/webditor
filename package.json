@@ -11,7 +11,8 @@
     "next-build": "cd frontend && pnpm run build",
     "next-start": "cd frontend && pnpm run start",
     "fastapi-dev": "node scripts/run_fastapi.js",
-    "build-preprocess": "uv run --project ./preprocess preprocess/build.py"
+    "build-rawdata": "uv run --project ./preprocess preprocess/rawdata.py",
+    "schema": "uv run --project ./preprocess preprocess/schema.py"
   },
   "keywords": [],
   "author": "",
