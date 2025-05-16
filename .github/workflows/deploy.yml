@@ -23,14 +23,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Cache preprocess
-        id: cache-preprocess
+      - name: Cache rawdata
+        id: cache-rawdata
         uses: actions/cache@v3
         with:
           path: |
             backend/static/anim
-            frontend/types/schemas
           key: preprocess-${{ runner.os }}-${{ hashFiles('preprocess/uv.lock', 'preprocess/**/*.py') }}
+
+      - name: Cache Backend Schemas
+        id: cache-schema
+        uses: actions/cache@v3
+        with:
+          path: |
+            frontend/types/schemas
+          key: schema-${{ runner.os }}-${{ hashFiles('backend/app/models/**/*.py')}}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -53,7 +60,7 @@ jobs:
           cache-dependency-glob: "preprocess/uv.lock"
 
       - name: Install the project
-        if: steps.cache-preprocess.outputs.cache-hit != 'true'
+        if: steps.cache-rawdata.outputs.cache-hit != 'true' && steps.cache-schema.outputs.cache-hit != 'true'
         run: |
           cd ./preprocess
           uv sync --locked --all-extras --dev
@@ -69,7 +76,7 @@ jobs:
             rawdata.tar.zst
 
       - name: Cache rawdata
-        id: cache-rawdata
+        id: cache-compressed-rawdata
         uses: actions/cache@v3
         with:
           path: rawdata.tar.zst
@@ -81,21 +88,14 @@ jobs:
           mkdir -p ./preprocess/preprocess/rawdata
           tar -I zstd -xvf rawdata.tar.zst
 
-      - name: Run preprocess
-        id: preprocess_run
-        if: steps.cache-preprocess.outputs.cache-hit != 'true' && steps.cache-rawdata.outputs.cache-hit != 'true'
+      - name: Build rawdata
+        id: build-rawdata
+        if: steps.cache-rawdata.outputs.cache-hit != 'true' && steps.cache-compressed-rawdata.outputs.cache-hit != 'true'
         run: |
           pnpm run build-preprocess
 
-      - name: Upload frontend schemas
-        if: steps.preprocess_run.outcome == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-schemas
-          path: frontend/types/schemas
-
       - name: Upload rawdata
-        if: steps.preprocess_run.outcome == 'success'
+        if: steps.build-rawdata.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: backend-rawdata
@@ -106,11 +106,24 @@ jobs:
       - name: Set rawdata flag
         id: rawdata_flag
         run: |
-          if [ "${{ steps.cache-preprocess.outputs.cache-hit }}" = 'true' ]; then
+          if [ "${{ steps.cache-compressed-rawdata.outputs.cache-hit }}" = 'true' ]; then
             echo "uploaded=false" >> "$GITHUB_OUTPUT"
           else
             echo "uploaded=true"  >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Generate schemas
+        id: schema_run
+        if: steps.cache-schema.outputs.cache-hit != 'true'
+        run: |
+          pnpm run build-schema
+
+      - name: Upload frontend schemas
+        if: steps.schema_run.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-schemas
+          path: frontend/types/schemas
 
   build_frontend:
     needs: preprocess
