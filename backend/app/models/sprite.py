@@ -1,5 +1,5 @@
 from typing import Optional
-from .entity import Entity
+from .entity import Entity, EntityKind
 from enum import IntFlag
 
 
@@ -9,11 +9,13 @@ class SpriteFlag(IntFlag):
 
 
 class CHKSprite(Entity):
+  kind: EntityKind = "Sprite"
   owner: int
   flags: int
 
 
 class Sprite(Entity):
+  kind: EntityKind = "Sprite"
   owner: int
   flags: int
   image: int
