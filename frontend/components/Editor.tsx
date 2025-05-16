@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SideBar, SideBarItem } from "./placed_container/SideBar";
+import { SideBar, SideBarItem } from "./ui/sidebar";
 import useFetchRawMap from "@/hooks/useRawMap";
 import { Item } from "@/types/InspectorItem";
 import { PanelLeft } from "lucide-react";

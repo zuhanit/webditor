@@ -1,4 +1,4 @@
-import { SideBar, SideBarItem } from "./placed_container/SideBar";
+import { SideBar, SideBarItem } from "./ui/sidebar";
 import { useState } from "react";
 import { Resizable } from "re-resizable";
 import { twMerge } from "tailwind-merge";

@@ -1,4 +1,4 @@
-import { SideBarItem } from "@/components/placed_container/SideBar";
+import { SideBarItem } from "@/components/ui/sidebar";
 import { useRawMapStore } from "@/store/mapStore";
 import { Usemap } from "@/types/schemas/Usemap";
 import { Unit } from "@/types/schemas/Unit";
