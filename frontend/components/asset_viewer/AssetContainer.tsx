@@ -4,7 +4,36 @@ import React from "react";
 import { AssetResult } from "@/types/Asset";
 import { AssetCard } from "./Asset";
 import { useDroppableContext } from "@/hooks/useDraggableAsset";
+import { Unit } from "@/types/schemas/Unit";
+import { UnitDefinition } from "@/types/schemas/UnitDefinition";
 
+function unitDefinitionToUnit(def: UnitDefinition): Unit {
+  return {
+    id: 0,
+    name: def.name,
+    kind: "Unit",
+    use_default: false,
+    resource_amount: 0,
+    hangar: 0,
+    unit_state: 0,
+    relation_type: 0,
+    related_unit: 0,
+    special_properties: 0,
+    valid_properties: 0,
+    serial_number: 0,
+    unit_definition: def,
+    transform: {
+      id: 0,
+      name: "transform",
+      position: {
+        current: 0,
+        max: 0,
+        x: 0,
+        y: 0,
+      },
+    },
+  };
+}
 function collectDefaultAssets(gameMap: Usemap): AssetResult {
   let assetID = 0;
   const result: AssetResult = {};
@@ -26,6 +55,17 @@ function collectDefaultAssets(gameMap: Usemap): AssetResult {
         label: unit_def.name,
         path: ["unit_definitions", unit_def.id],
         properties: unit_def,
+      },
+    };
+  });
+
+  result["unit"] = gameMap.unit_definitions.map((def) => {
+    return {
+      id: assetID++,
+      item: {
+        label: def.name,
+        path: ["units", def.id],
+        properties: unitDefinitionToUnit(def),
       },
     };
   });
