@@ -116,7 +116,7 @@ jobs:
         id: schema_run
         if: steps.cache-schema.outputs.cache-hit != 'true'
         run: |
-          pnpm run build-schema
+          pnpm run schema
 
       - name: Upload frontend schemas
         if: steps.schema_run.outcome == 'success'
