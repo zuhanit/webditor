@@ -6,6 +6,7 @@ import { TILE_SIZE } from "@/lib/scterrain";
 import { Viewport } from "@/types/Viewport";
 import { useDragViewport } from "@/hooks/useDragViewport";
 import { useElementResize } from "@/hooks/useElementResize";
+import { useDroppableContext } from "@/hooks/useDraggableAsset";
 
 export const MapImage = () => {
   const viewportCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -55,6 +56,12 @@ export const MapImage = () => {
     paint,
   );
 
+  const { setNodeRef } = useDroppableContext({
+    id: "viewport",
+    kind: "viewport",
+    data: viewportRef.current,
+  });
+
   useElementResize(viewportCanvasRef, (entry) => {
     const { width, height } = entry.contentRect;
     viewportRef.current.tileWidth = Math.floor(width / TILE_SIZE);
@@ -63,7 +70,7 @@ export const MapImage = () => {
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full" ref={setNodeRef}>
       <canvas
         ref={viewportCanvasRef}
         style={{
