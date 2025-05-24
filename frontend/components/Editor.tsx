@@ -57,20 +57,7 @@ export default function Editor() {
     <div className="flex h-screen flex-col overflow-hidden">
       <DndContext>
         <DragHandler />
-        {/* Upside Tab Bar */}
-        <TopBar label="any-starcraft-map" minimize popup close>
-          <div className="flex items-center gap-2.5">
-            <TopBarButton
-              label="File"
-              dropdownItems={["New Project", "Download", "Compile"]}
-            />
-            <TopBarButton label="Edit" />
-            <TopBarButton label="View" />
-            <TopBarButton label="Selection" />
-            <TopBarButton label="Help" />
-            <TopBarButton label="Build" onClick={onClickBuild} />
-          </div>
-        </TopBar>
+          <AppMenu />
 
         {/* Main Content */}
         <Resizable className="flex flex-1 overflow-hidden">
