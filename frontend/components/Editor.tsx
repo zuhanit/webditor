@@ -86,15 +86,14 @@ export default function Editor() {
           <div className="flex w-full flex-col gap-2.5">
             {/* Layer Tab Bar */}
             <div className="flex w-full justify-center">
-              <div className="flex w-[588px] items-center gap-2.5 rounded-[10px] bg-fills-primary px-2.5 py-1 text-lg font-medium">
-                <PanelLeft />
-                <LayerBar>
-                  <LayerBarButton label="Terrain" />
-                  <LayerBarButton label="Unit" />
-                  <LayerBarButton label="Location" />
-                  <LayerBarButton label="Sprite" />
-                  <LayerBarButton label="Doodads" />
-                </LayerBar>
+                <div className="bg-fills-primary flex w-[588px] items-center gap-2.5 rounded-[10px] px-2.5 py-1 text-lg font-medium">
+                  <ToggleGroup>
+                    <ToggleGroupItem label="Terrain" />
+                    <ToggleGroupItem label="Unit" />
+                    <ToggleGroupItem label="Location" />
+                    <ToggleGroupItem label="Sprite" />
+                    <ToggleGroupItem label="Doodads" />
+                  </ToggleGroup>
               </div>
             </div>
 
