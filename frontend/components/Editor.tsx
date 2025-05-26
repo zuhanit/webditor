@@ -18,11 +18,6 @@ import ModalContainer from "./ModalContainer";
 import { DragHandler } from "./DragHandler";
 
 export default function Editor() {
-  const [selectedEntity, setSelectedEntity] =
-    useState<SideBarItem<Item> | null>(null);
-  const handleSelectedEntity = (item: SideBarItem<Item>) => {
-    setSelectedEntity(item);
-  };
   const rawMap = useFetchRawMap("test_map");
 
   if (!rawMap) return <div>Loading...</div>;
