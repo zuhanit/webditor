@@ -1,7 +1,8 @@
 import { useModals } from "@/hooks/useModals";
 import { useDraggable } from "@dnd-kit/core";
-import AssetEditor from "./AssetEditor";
+import AssetEditor from "../asset_viewer/AssetEditor";
 import { Item } from "@/types/InspectorItem";
+import { Card, CardHeader } from "../ui/card";
 
 interface AssetCardProps {
   item: Item;
@@ -24,15 +25,14 @@ export function AssetCard({ item }: AssetCardProps) {
     : undefined;
 
   return (
-    <div
+    <Card
       ref={setNodeRef}
       style={style}
       onDoubleClick={handleDoubleClick}
-      className="flex h-32 w-32 items-center justify-center bg-background-secondary p-2"
+      {...listeners}
+      {...attributes}
     >
-      <div {...listeners} {...attributes} className="cursor-move">
-        {item.label}
-      </div>
-    </div>
+      <CardHeader>{item.label}</CardHeader>
+    </Card>
   );
 }

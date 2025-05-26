@@ -7,7 +7,7 @@ import { Viewport } from "@/types/Viewport";
 import { TILE_SIZE } from "@/lib/scterrain";
 import { Unit, UnitSchema } from "@/types/schemas/Unit";
 import { Entity, EntitySchema } from "@/types/schemas/Entity";
-import { SCImageRenderer } from "./Renderer";
+import { SCImageRenderer } from "./renderer";
 import { Sprite } from "@/types/schemas/Sprite";
 
 type DraggingAssetKind = "Asset" | "Unit" | "Sprite" | "Terrain" | "Location";
