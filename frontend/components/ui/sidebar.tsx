@@ -1,135 +1,329 @@
-import { Aperture, ChevronRight } from "lucide-react";
-import { SearchBox } from "../SearchBox";
-import { useState } from "react";
-import { cva } from "class-variance-authority";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import { twMerge } from "tailwind-merge";
-import { usePlacedEntities } from "@/hooks/usePlacedEntities";
-import { Item } from "@/types/InspectorItem";
+import { Slot } from "./slot";
+import { Input } from "./input";
 
-const SideBarRowStyle = cva(
-  "rounded-md transition-all hover:bg-background-secondary px-1 py-1",
-  {
-    variants: {
-      isClicked: {
-        true: "rounded-md shadow-md text-blue font-medium",
-      },
+const SIDEBAR_COOKIE_NAME = "sidebar_state";
+const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+
+interface SidebarContextProps {
+  state: "expanded" | "collapsed";
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
+}
+
+const SidebarContext = createContext<SidebarContextProps | null>(null);
+
+export function useSidebar() {
+  const context = useContext(SidebarContext);
+  if (!context) {
+    throw new Error("useSidebar must be used withn a SidebarProvider.");
+  }
+
+  return context;
+}
+
+interface SidebarProviderProps extends React.ComponentProps<"div"> {
+  defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function SidebarProvider({
+  defaultOpen = true,
+  open: openProp,
+  onOpenChange: setOpenProp,
+  className,
+  children,
+  ...props
+}: SidebarProviderProps) {
+  const [_open, _setOpen] = useState(defaultOpen);
+  const open = openProp ?? _open;
+  const setOpen = useCallback(
+    (value: boolean | ((value: boolean) => boolean)) => {
+      const openState = typeof value === "function" ? value(open) : value;
+      if (setOpenProp) {
+        setOpenProp(openState);
+      } else {
+        _setOpen(openState);
+      }
+
+      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
-  },
-);
+    [setOpenProp, open],
+  );
 
-export interface SideBarItem<T> {
-  label: string;
-  id: string;
-  icon?: React.ReactNode;
-  items?: SideBarItem<T>[];
-  depth?: number;
-  data?: Item;
-}
+  const toggleSidebar = useCallback(() => {
+    return setOpen((open) => !open);
+  }, [setOpen]);
 
-interface SideBarRowProps<T> {
-  item: SideBarItem<T>;
-  depth?: number;
-  onSelectItem: (item: SideBarItem<T>) => void;
-  selectedItem: SideBarItem<T> | null;
-}
+  const state = open ? "expanded" : "collapsed";
 
-/**
- * SideBarRow component
- *
- * SideBarRow shows a single item in the SideBar.
- * @param item - The item to be shown.
- * @param depth - The depth of the item.
- * @param onSelectItem - A function to be called when an item is selected.
- * @param selectedItem - The currently selected item.
- * @returns SideBarRow
- */
-function SideBarRow<T>({
-  item,
-  depth,
-  onSelectItem,
-  selectedItem,
-}: SideBarRowProps<T>) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const handleClick = () => {
-    if (!item.items || selectedItem?.id === item.id) {
-      console.log("SideBar Clicking", item);
-      onSelectItem(item);
-    } else {
-      setIsCollapsed(!isCollapsed);
-    }
-  };
-  const paddingStyle = depth
-    ? { width: `${depth * 10}px`, height: "100%", display: "block" }
-    : {};
-  const depthValue = depth ?? 0;
-  const isClicked = selectedItem?.id === item.id;
+  const contextValue = useMemo<SidebarContextProps>(
+    () => ({
+      state,
+      open,
+      setOpen,
+      toggleSidebar,
+    }),
+    [state, open, setOpen, toggleSidebar],
+  );
 
   return (
-    <>
-      <div className={SideBarRowStyle({ isClicked })} onClick={handleClick}>
-        <span className="flex items-center gap-1 rounded-md px-2 transition-all hover:bg-background-secondary">
-          <span style={paddingStyle}></span>
-          <span className="flex h-4 w-4 items-center justify-center">
-            {item.items && <ChevronRight strokeWidth={2} />}
-          </span>
-          <span className="flex h-4 w-4 items-center justify-center">
-            {item.icon ? item.icon : <Aperture />}
-          </span>
-          <p className="">{item.label}</p>
-        </span>
+    <SidebarContext.Provider value={contextValue}>
+      <div className={className} {...props}>
+        {children}
       </div>
-      {item.items &&
-        !isCollapsed &&
-        item.items.map((subItem) => (
-          <SideBarRow
-            key={subItem.id}
-            item={subItem}
-            depth={depthValue + 1}
-            onSelectItem={onSelectItem}
-            selectedItem={selectedItem}
-          />
-        ))}
-    </>
+    </SidebarContext.Provider>
   );
 }
 
-interface SideBarProps<T> {
-  hideSearchbox?: boolean;
-  onSelectItem: (item: SideBarItem<T>) => void;
-  selectedItem: SideBarItem<T> | null;
-  className?: string;
-}
-
-/**
- * SideBar component
- *
- * SideBar shows a list of items as a tree structure.
- * @param items - A list of items to be shown.
- * @param hideSearchbox - Whether to hide the searchbox.
- * @param onSelectItem - A function to be called when an item is selected.
- * @param selectedItem - The currently selected item.
- * @param className - Additional CSS classes to be applied to the SideBar.
- * @returns SideBar
- */
-export function SideBar<T>({
-  hideSearchbox,
-  onSelectItem,
-  selectedItem,
-  className,
-}: SideBarProps<T>) {
-  const placedEntities = usePlacedEntities();
+export function Sidebar({
+  collapsible = "offcanvas",
+  side = "left",
+  children,
+  ...props
+}: React.ComponentProps<"div"> & {
+  side?: "left" | "right";
+  collapsible?: "offcanvas" | "icon" | "none";
+}) {
+  const { state } = useSidebar();
 
   return (
-    <div className={twMerge("flex flex-col gap-0.5", className)}>
-      {!hideSearchbox && <SearchBox />}
-      {placedEntities.map((item, index) => (
-        <SideBarRow
-          key={"row" + index}
-          item={item}
-          onSelectItem={onSelectItem}
-          selectedItem={selectedItem}
-        />
-      ))}
+    <div
+      className="group hidden h-full flex-col overflow-auto md:block"
+      data-state={state}
+      data-collapsible={state === "collapsed" ? collapsible : ""}
+      data-side={side}
+    >
+      <div
+        className={twMerge(
+          "hidden h-full min-w-0 border-text-muted bg-background-secondary group-data-[collapsible=offcanvas]:w-0 md:flex",
+          "group-data-[side=left]:border-r group-data-[side=right]:border-l",
+        )}
+        {...props}
+      >
+        <div className="flex h-full w-full flex-col items-start justify-start">
+          {children}
+        </div>
+      </div>
     </div>
+  );
+}
+
+export function SidebarTrigger({ ...props }: React.ComponentProps<"button">) {
+  const { toggleSidebar } = useSidebar();
+
+  return <button onClick={() => toggleSidebar()} {...props}></button>;
+}
+
+export function SidebarInput({
+  className,
+  ...props
+}: React.ComponentProps<"input">) {
+  return (
+    <Input
+      className={twMerge(
+        "h-8 w-full border-none bg-surface-secondary",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+export function SidebarHeader({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-sidebar="header"
+      className={`flex flex-col gap-2 p-2 ${className}`}
+      {...props}
+    />
+  );
+}
+
+export function SidebarFooter({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-sidebar="footer"
+      className={`flex flex-col gap-2 p-2 ${className}`}
+      {...props}
+    />
+  );
+}
+
+export function SidebarSeparator({
+  className,
+  ...props
+}: React.ComponentProps<"hr">) {
+  return <hr className="-mx-1.5 h-px border-0 bg-text-muted" {...props} />;
+}
+
+export function SidebarContent({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-sidebar="content"
+      className={twMerge(
+        "flex w-full min-w-0 flex-1 flex-col gap-2 overflow-auto p-2",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+export function SidebarGroup({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-sidebar="group"
+      className={`relative flex w-full min-w-0 flex-1 flex-col gap-2 p-2 ${className}`}
+      {...props}
+    />
+  );
+}
+
+export function SidebarGroupLabel({
+  className,
+  asChild,
+  ...props
+}: React.ComponentProps<"div"> & { asChild?: boolean }) {
+  const Component = asChild ? Slot : "div";
+  return (
+    <Component
+      data-sidebar="group-label"
+      className={`flex h-8 items-center rounded-md px-2 font-medium ${className}`}
+      {...props}
+    />
+  );
+}
+
+export function SidebarGroupContent({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-sidebar="group-content"
+      className={`w-full text-sm ${className}`}
+      {...props}
+    />
+  );
+}
+
+export function SidebarMenu({
+  className,
+  ...props
+}: React.ComponentProps<"ul">) {
+  return (
+    <ul
+      data-sidebar="menu"
+      className={twMerge("flex w-full min-w-0 flex-col gap-1", className)}
+      {...props}
+    ></ul>
+  );
+}
+
+export function SidebarMenuItem({
+  className,
+  ...props
+}: React.ComponentProps<"li">) {
+  return (
+    <li
+      data-sidebar="menu-item"
+      className={twMerge("group/menu-item relative w-full", className)}
+      {...props}
+    ></li>
+  );
+}
+
+export function SidebarMenuButton({
+  asChild = false,
+  isActive = false,
+  ...props
+}: React.ComponentProps<"button"> & {
+  asChild?: boolean;
+  isActive?: boolean;
+}) {
+  const Component = asChild ? Slot : "button";
+
+  return (
+    <Component
+      data-sidebar="menu-button"
+      className={twMerge(
+        "flex h-8 w-full items-center rounded-md px-2 transition-all hover:bg-background-primary",
+        isActive && "bg-background-primary",
+      )}
+      {...props}
+    />
+  );
+}
+
+export function SidebarMenuSub({
+  className,
+  ...props
+}: React.ComponentProps<"ul">) {
+  return (
+    <ul
+      data-sidebar="menu-sub"
+      className={twMerge(
+        "mx-3.5 flex w-full min-w-0 translate-x-px flex-col gap-1 border-l border-text-muted px-2.5 py-0.5",
+        className,
+      )}
+      {...props}
+    ></ul>
+  );
+}
+
+export function SidebarMenuSubItem({
+  className,
+  ...props
+}: React.ComponentProps<"li">) {
+  return (
+    <li
+      data-sidebar="menu-sub-item"
+      className={twMerge("flex w-full", className)}
+      {...props}
+    ></li>
+  );
+}
+
+export function SidebarMenuSubButton({
+  asChild = false,
+  isActive = false,
+  ...props
+}: React.ComponentProps<"button"> & {
+  asChild?: boolean;
+  isActive?: boolean;
+}) {
+  const Component = asChild ? Slot : "button";
+
+  return (
+    <Component
+      data-sidebar="menu-button"
+      className={twMerge(
+        "flex h-8 w-full items-center rounded-md px-2 transition-all hover:bg-background-primary",
+        isActive && "bg-background-primary",
+      )}
+      {...props}
+    />
   );
 }

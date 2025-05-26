@@ -63,11 +63,7 @@ export default function Editor() {
         <Resizable className="flex flex-1 overflow-hidden">
           {/* Left Explorer (SideBar) */}
           <Resizable>
-            <SideBar
-              onSelectItem={handleSelectedEntity}
-              selectedItem={selectedEntity}
-              className="h-full overflow-y-scroll"
-            />
+              <EntitySidebar />
           </Resizable>
 
           <div className="flex w-full flex-col gap-2.5">
@@ -87,14 +83,19 @@ export default function Editor() {
             {/* Center Map Viewer */}
             <div className="flex h-full">
               <MapImage />
-              <Inspector item={selectedEntity?.data} />
+                <Resizable defaultSize={{ width: "25%" }} className="w-full">
+                  <InspectorSidebar />
+                </Resizable>
+                {/* <Inspector item={selectedEntity?.data} /> */}
             </div>
           </div>
         </Resizable>
 
         {/* Bottom Project/Asset Container */}
-        <div className="flex h-full flex-1 overflow-hidden border-t-2 border-t-fills-primary">
-          <Project className="overflow-auto" />
+          <div className="flex h-full flex-1 overflow-hidden border-t-text-muted">
+            <Resizable className="h-full">
+              <AssetSidebar />
+            </Resizable>
           <AssetContainer />
         </div>
       </DndContext>
