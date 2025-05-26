@@ -5,6 +5,7 @@ import { Unit } from "@/types/schemas/Unit";
 import { Sprite } from "@/types/schemas/Sprite";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { Entity } from "@/types/schemas/Entity";
 
 function getUnitItems(gameMap: Usemap): SideBarItem<Unit>[] {
   const items = gameMap.placed_unit.map<SideBarItem<Unit>>((unit, index) => ({
@@ -36,25 +37,28 @@ function getSpriteItems(gameMap: Usemap): SideBarItem<Sprite>[] {
   return items;
 }
 
-export function usePlacedEntities(): SideBarItem<any>[] {
+export function usePlacedEntities(): Record<
+  string,
+  { label: string; data: Entity[] }
+> {
   const gameMap = useRawMapStore((state) => state.rawMap);
-  const [entities, setDefaultPlacedEntities] = useState<SideBarItem<any>[]>([]);
+  const [entities, setDefaultPlacedEntities] = useState<
+    Record<string, { label: string; data: Entity[] }>
+  >({});
 
   useEffect(() => {
     if (!gameMap) return;
 
-    setDefaultPlacedEntities([
-      {
-        id: "units-row",
+    setDefaultPlacedEntities({
+      units: {
         label: "Units",
-        items: getUnitItems(gameMap),
+        data: gameMap.placed_unit,
       },
-      {
-        id: "sprite-row",
+      sprites: {
         label: "Sprites",
-        items: getSpriteItems(gameMap),
+        data: gameMap.placed_sprite,
       },
-    ]);
+    });
   }, [gameMap]);
 
   return entities;
