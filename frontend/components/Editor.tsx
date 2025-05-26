@@ -1,21 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { SideBar, SideBarItem } from "./ui/sidebar";
+import { SidebarProvider } from "./ui/sidebar";
 import useFetchRawMap from "@/hooks/useRawMap";
-import { Item } from "@/types/InspectorItem";
-import { PanelLeft } from "lucide-react";
 import { Resizable } from "re-resizable";
-import { AssetContainer } from "./asset_viewer/AssetContainer";
-import { Inspector } from "./Inspector";
-import { LayerBar, LayerBarButton } from "./LayerBar";
-import { MapImage } from "./MapImage";
-import { Project } from "./Project";
-import { TopBar, TopBarButton } from "./topbar/TopBar";
-import api from "@/lib/api";
+import { AssetContainer } from "./layout/asset-explorer";
+import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
+import { MapImage } from "./layout/viewport";
+import { AssetSidebar } from "./layout/asset-sidebar";
 import { DndContext } from "@dnd-kit/core";
 import ModalContainer from "./ModalContainer";
-import { DragHandler } from "./DragHandler";
+import { DragHandler } from "./core/drag-handler";
+import { EntitySidebar } from "./layout/entity-sidebar";
+import { AppMenu } from "./layout/app-menu";
+import { InspectorSidebar } from "./layout/inspector-sidebar";
 
 export default function Editor() {
   const rawMap = useFetchRawMap("test_map");
