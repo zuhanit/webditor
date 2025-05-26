@@ -1,23 +1,21 @@
 "use client";
 
-import { SidebarProvider } from "./ui/sidebar";
-import useFetchRawMap from "@/hooks/useRawMap";
-import { Resizable } from "re-resizable";
-import { AssetContainer } from "./layout/asset-explorer";
-import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
-import { MapImage } from "./layout/viewport";
-import { AssetSidebar } from "./layout/asset-sidebar";
+import { DragHandler } from "@/components/core/drag-handler";
+import { AppMenu } from "@/components/layout/app-menu";
+import { AssetContainer } from "@/components/layout/asset-explorer";
+import { AssetSidebar } from "@/components/layout/asset-sidebar";
+import { EntitySidebar } from "@/components/layout/entity-sidebar";
+import { InspectorSidebar } from "@/components/layout/inspector-sidebar";
+import { MapImage } from "@/components/layout/viewport";
+import ModalContainer from "@/components/ModalContainer";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DndContext } from "@dnd-kit/core";
-import ModalContainer from "./ModalContainer";
-import { DragHandler } from "./core/drag-handler";
-import { EntitySidebar } from "./layout/entity-sidebar";
-import { AppMenu } from "./layout/app-menu";
-import { InspectorSidebar } from "./layout/inspector-sidebar";
+import { Resizable } from "re-resizable";
+import useFetchRawMap from "@/hooks/useRawMap";
 
 export default function Editor() {
-  const rawMap = useFetchRawMap("test_map");
-
-  if (!rawMap) return <div>Loading...</div>;
+  useFetchRawMap("test_map");
 
   return (
     <SidebarProvider>
