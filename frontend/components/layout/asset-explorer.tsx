@@ -2,7 +2,7 @@ import { useRawMapStore } from "@/store/mapStore";
 import { Usemap } from "@/types/schemas/Usemap";
 import React from "react";
 import { AssetResult } from "@/types/Asset";
-import { AssetCard } from "./Asset";
+import { AssetCard } from "../core/asset";
 import { useDroppableContext } from "@/hooks/useDraggableAsset";
 import { Unit } from "@/types/schemas/Unit";
 import { UnitDefinition } from "@/types/schemas/UnitDefinition";
