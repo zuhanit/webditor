@@ -1,3 +1,5 @@
+"use client";
+
 import { AssetType } from "@/types/Asset";
 import { DragOverlay, UniqueIdentifier, useDndMonitor } from "@dnd-kit/core";
 import { ReactElement, useState } from "react";

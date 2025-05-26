@@ -1,3 +1,5 @@
+"use client";
+
 import { Minus, Square, Squirrel, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -35,7 +37,7 @@ export function TopBarButton({
   return (
     <div ref={buttonRef} className="relative">
       <button
-        className="rounded-md transition-all hover:text-labels-primary"
+        className="hover:text-labels-primary rounded-md transition-all"
         onClick={(e) => {
           if (dropdownItems && dropdownItems.length > 0) {
             handleToggle();
@@ -108,7 +110,7 @@ export function TopBar({
   };
   return (
     <div className="flex justify-center px-4 py-3">
-      <div className="flex items-center gap-2 text-grays-gray">
+      <div className="text-grays-gray flex items-center gap-2">
         <Squirrel />
         {children}
       </div>
