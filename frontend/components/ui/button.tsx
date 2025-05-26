@@ -1,5 +1,6 @@
 import { cva, VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
+import { Slot } from "@/components/ui/slot";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors",
@@ -30,11 +31,14 @@ const buttonVariants = cva(
 
 interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+}
 
-export function Button({ size, variant, ...props }: ButtonProps) {
+export function Button({ size, variant, asChild, ...props }: ButtonProps) {
+  const Component = asChild ? Slot : "button";
   return (
-    <button
+    <Component
       className={twMerge(buttonVariants({ size, variant }), props.className)}
       {...props}
     />
