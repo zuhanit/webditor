@@ -20,21 +20,22 @@ export default function Editor() {
   if (!rawMap) return <div>Loading...</div>;
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
-      <DndContext>
-        <DragHandler />
+    <SidebarProvider>
+      <div className="flex h-screen flex-col overflow-hidden">
+        <DndContext>
+          <DragHandler />
           <AppMenu />
 
-        {/* Main Content */}
-        <Resizable className="flex flex-1 overflow-hidden">
-          {/* Left Explorer (SideBar) */}
-          <Resizable>
+          {/* Main Content */}
+          <Resizable className="flex flex-1 overflow-hidden">
+            {/* Left Explorer (SideBar) */}
+            <Resizable>
               <EntitySidebar />
-          </Resizable>
+            </Resizable>
 
-          <div className="flex w-full flex-col gap-2.5">
-            {/* Layer Tab Bar */}
-            <div className="flex w-full justify-center">
+            <div className="flex w-full flex-col gap-2.5">
+              {/* Layer Tab Bar */}
+              <div className="flex w-full justify-center">
                 <div className="bg-fills-primary flex w-[588px] items-center gap-2.5 rounded-[10px] px-2.5 py-1 text-lg font-medium">
                   <ToggleGroup>
                     <ToggleGroupItem label="Terrain" />
@@ -43,29 +44,30 @@ export default function Editor() {
                     <ToggleGroupItem label="Sprite" />
                     <ToggleGroupItem label="Doodads" />
                   </ToggleGroup>
+                </div>
               </div>
-            </div>
 
-            {/* Center Map Viewer */}
-            <div className="flex h-full">
-              <MapImage />
+              {/* Center Map Viewer */}
+              <div className="flex h-full">
+                <MapImage />
                 <Resizable defaultSize={{ width: "25%" }} className="w-full">
                   <InspectorSidebar />
                 </Resizable>
                 {/* <Inspector item={selectedEntity?.data} /> */}
+              </div>
             </div>
-          </div>
-        </Resizable>
+          </Resizable>
 
-        {/* Bottom Project/Asset Container */}
+          {/* Bottom Project/Asset Container */}
           <div className="flex h-full flex-1 overflow-hidden border-t-text-muted">
             <Resizable className="h-full">
               <AssetSidebar />
             </Resizable>
-          <AssetContainer />
-        </div>
-      </DndContext>
-      <ModalContainer />
-    </div>
+            <AssetContainer />
+          </div>
+        </DndContext>
+        <ModalContainer />
+      </div>
+    </SidebarProvider>
   );
 }
