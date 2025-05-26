@@ -1,6 +1,6 @@
 "use client";
 
-import { SCImageRenderer } from "@/components/Renderer";
+import { SCImageRenderer } from "@/components/core/renderer";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ChangeEvent, useState } from "react";
 
