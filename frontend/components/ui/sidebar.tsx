@@ -280,7 +280,7 @@ export function SidebarMenuButton({
       data-sidebar="menu-button"
       className={twMerge(
         "flex h-8 w-full items-center rounded-md px-2 transition-all hover:bg-background-primary",
-        isActive && "bg-background-primary",
+        "data-[active=true]:bg-surface-primary data-[active=true]:text-blue data-[active=true]:font-bold data-[active=true]:shadow-md",
       )}
       {...props}
     />
@@ -328,10 +328,11 @@ export function SidebarMenuSubButton({
 
   return (
     <Component
-      data-sidebar="menu-button"
+      data-sidebar="menu-sub-button"
+      data-active={isActive}
       className={twMerge(
         "flex h-8 w-full items-center rounded-md px-2 transition-all hover:bg-background-primary",
-        isActive && "bg-background-primary",
+        "data-[active=true]:bg-surface-primary data-[active=true]:text-blue data-[active=true]:font-bold data-[active=true]:shadow-md",
       )}
       {...props}
     />
