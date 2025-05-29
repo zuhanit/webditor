@@ -1,6 +1,6 @@
 "use client";
 
-import { useRawMapStore } from "@/store/mapStore";
+import { useUsemapStore } from "@/store/mapStore";
 import { Usemap } from "@/types/schemas/Usemap";
 import React from "react";
 import { AssetResult } from "@/types/Asset";

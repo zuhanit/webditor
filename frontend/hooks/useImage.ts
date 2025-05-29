@@ -133,7 +133,7 @@ interface ViewportImageBundle {
 }
 
 export function useViewportImage(): ViewportImageBundle {
-  const usemap = useRawMapStore((store) => store.rawMap);
+  const usemap = useUsemapStore((store) => store.usemap);
   const tileGroup = useTileGroup();
   const tilesetData = useTilesetData();
 
