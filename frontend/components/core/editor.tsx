@@ -1,26 +1,10 @@
-import {
-  SidebarContent,
-  SidebarHeader,
-  Sidebar,
-  SidebarSeparator,
-  SidebarGroup,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarInput,
-  SidebarMenuSub,
-} from "../ui/sidebar";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "../ui/collapsible";
-import { useEntityStore } from "@/store/entityStore";
-import { Minus, Plus } from "lucide-react";
+import { Item } from "@/types/item";
 import { ChangeEvent } from "react";
-import { Editor } from "../core/editor";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
+import { SidebarInput, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub } from "../ui/sidebar";
+import { Plus, Minus } from "lucide-react";
 
-function InspectorMenu({
+function EditorMenu({
   label,
   value,
   path,
@@ -47,7 +31,7 @@ function InspectorMenu({
           <CollapsibleContent>
             <SidebarMenuSub>
               {Object.entries(value).map(([key, value]) => (
-                <InspectorMenu
+                <EditorMenu
                   key={key}
                   label={key}
                   value={value}
@@ -108,36 +92,12 @@ function InspectorMenu({
   );
 }
 
-export function InspectorSidebar() {
-  const entity = useEntityStore((state) => state.entity);
-
-  if (!entity) return <Sidebar>Loading...</Sidebar>;
-
+export function Editor({ item }: { item: Item}) {
   return (
-    <Sidebar collapsible="icon" side="right">
-      <SidebarHeader>
-        <h1>{entity.name}</h1>
-      </SidebarHeader>
-      <SidebarSeparator />
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarMenu>
-            <Editor item={{
-              label: entity.name,
-              path: [],
-              properties: entity,
-            }} />
-            {/* {Object.entries(entity).map(([key, value]) => (
-              <InspectorMenu
-                key={`inspector-menu-${key}`}
-                label={key}
-                value={value}
-                path={[key]}
-              />
-            ))} */}
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
-  );
+    <SidebarMenu>
+      {Object.entries(item.properties).map(([key, value]) => (
+        <EditorMenu key={key} label={key} value={value} path={[key]} />
+      ))}
+    </SidebarMenu>
+  )
 }
