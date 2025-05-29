@@ -25,7 +25,7 @@ import { useEntityStore } from "@/store/entityStore";
 
 export function EntitySidebar() {
   const placedEntities = usePlacedEntities();
-  const setEntity = useEntityStore((state) => state.setEntity);
+  const { entity: currentEntity, setEntity } = useEntityStore((state) => state);
 
   return (
     <Sidebar className="h-full bg-background-secondary">
@@ -66,6 +66,7 @@ export function EntitySidebar() {
                                 console.log(entity);
                                 setEntity(entity);
                               }}
+                              isActive={entity.id === currentEntity?.id}
                             >
                               {entity.name}
                             </SidebarMenuSubButton>
