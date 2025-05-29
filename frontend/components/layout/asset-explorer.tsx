@@ -3,7 +3,7 @@
 import { useUsemapStore } from "@/store/mapStore";
 import { Usemap } from "@/types/schemas/Usemap";
 import React from "react";
-import { AssetResult } from "@/types/Asset";
+import { AssetResult } from "@/types/asset";
 import { AssetCard } from "../core/asset";
 import { useDroppableContext } from "@/hooks/useDraggableAsset";
 import { Unit } from "@/types/schemas/Unit";
