@@ -90,11 +90,13 @@ export function SidebarProvider({
 export function Sidebar({
   collapsible = "offcanvas",
   side = "left",
+  variant = "sidebar",
   children,
   ...props
 }: React.ComponentProps<"div"> & {
   side?: "left" | "right";
   collapsible?: "offcanvas" | "icon" | "none";
+  variant?: "sidebar" | "floating";
 }) {
   const { state } = useSidebar();
 
@@ -109,6 +111,7 @@ export function Sidebar({
         className={twMerge(
           "hidden h-full min-w-0 border-text-muted bg-background-secondary group-data-[collapsible=offcanvas]:w-0 md:flex",
           "group-data-[side=left]:border-r group-data-[side=right]:border-l",
+          variant === "floating" && "absolute left-0 top-0",
         )}
         {...props}
       >
@@ -171,7 +174,12 @@ export function SidebarSeparator({
   className,
   ...props
 }: React.ComponentProps<"hr">) {
-  return <hr className="-mx-1.5 h-px border-0 bg-text-muted" {...props} />;
+  return (
+    <hr
+      className={twMerge("-mx-1.5 h-px border-0 bg-text-muted", className)}
+      {...props}
+    />
+  );
 }
 
 export function SidebarContent({
