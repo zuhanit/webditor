@@ -1,5 +1,5 @@
 import { SideBarItem } from "@/components/ui/sidebar";
-import { useRawMapStore } from "@/store/mapStore";
+import { useUsemapStore } from "@/store/mapStore";
 import { Usemap } from "@/types/schemas/Usemap";
 import { Unit } from "@/types/schemas/Unit";
 import { Sprite } from "@/types/schemas/Sprite";
@@ -41,7 +41,7 @@ export function usePlacedEntities(): Record<
   string,
   { label: string; data: Entity[] }
 > {
-  const gameMap = useRawMapStore((state) => state.rawMap);
+  const gameMap = useUsemapStore((state) => state.usemap);
   const [entities, setDefaultPlacedEntities] = useState<
     Record<string, { label: string; data: Entity[] }>
   >({});

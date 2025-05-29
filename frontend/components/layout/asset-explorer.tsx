@@ -80,7 +80,7 @@ interface AssetContainerProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function AssetContainer({ children }: AssetContainerProps) {
-  const gameMap = useRawMapStore((state) => state.rawMap);
+  const gameMap = useUsemapStore((state) => state.usemap);
 
   const { isOver, setNodeRef } = useDroppableContext({
     id: "AssetContainer",

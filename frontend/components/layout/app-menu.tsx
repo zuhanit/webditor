@@ -6,7 +6,7 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "../ui/menubar";
-import { useRawMapStore } from "@/store/mapStore";
+import { useUsemapStore } from "@/store/mapStore";
 import api from "@/lib/api";
 import { Usemap } from "@/types/schemas/Usemap";
 
@@ -36,7 +36,7 @@ async function onClickBuild(usemap: Usemap | null) {
 }
 
 export function AppMenu() {
-  const rawMap = useRawMapStore((state) => state.rawMap);
+  const rawMap = useUsemapStore((state) => state.usemap);
 
   return (
     <Menubar>

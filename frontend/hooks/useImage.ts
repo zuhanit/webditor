@@ -8,7 +8,7 @@ import {
   ImageVersion,
 } from "@/types/SCImage";
 import axios from "axios";
-import { useRawMapStore } from "@/store/mapStore";
+import { useUsemapStore } from "@/store/mapStore";
 import useTileGroup from "./useTileGroup";
 import useTilesetData from "./useTilesetData";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -212,7 +212,7 @@ export function useViewportImage(): ViewportImageBundle {
 }
 
 export function useEntireCanvas() {
-  const usemap = useRawMapStore((state) => state.rawMap);
+  const usemap = useUsemapStore((state) => state.usemap);
   const { terrain, unit, sprite, location } = useViewportImage();
 
   const [bitmap, setBitmap] = useState<ImageBitmap>();

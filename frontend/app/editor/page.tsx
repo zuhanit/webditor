@@ -12,10 +12,19 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DndContext } from "@dnd-kit/core";
 import { Resizable } from "re-resizable";
-import useFetchRawMap from "@/hooks/useRawMap";
+import useFetchUsemap from "@/hooks/useRawMap";
+import { useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
+import { AssetEditor } from "@/components/core/asset";
 
 export default function Editor() {
-  useFetchRawMap("test_map");
+  useFetchUsemap("test_map");
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+  );
 
   return (
     <SidebarProvider>

@@ -1,14 +1,14 @@
 import api from "@/lib/api";
-import { useRawMapStore } from "@/store/mapStore";
+import { useUsemapStore } from "@/store/mapStore";
 import { Usemap } from "@/types/schemas/Usemap";
 import { resolveReferences } from "@/utils/resolve";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-export default function useFetchRawMap(mapName: string) {
-  const setRawMap = useRawMapStore((state) => state.setRawMap);
-  const rawMap = useRawMapStore((state) => state.rawMap);
-  const updateRawMap = useRawMapStore((state) => state.updateRawMap);
+export default function useFetchUsemap(mapName: string) {
+  const setRawMap = useUsemapStore((state) => state.setUsemap);
+  const rawMap = useUsemapStore((state) => state.usemap);
+  const updateRawMap = useUsemapStore((state) => state.updateUsemap);
 
   const { data, isLoading, isSuccess } = useQuery({
     queryKey: ["rawMap", mapName],
