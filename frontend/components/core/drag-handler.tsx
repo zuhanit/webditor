@@ -1,7 +1,11 @@
 "use client";
 
-import { AssetType } from "@/types/Asset";
-import { DragOverlay, UniqueIdentifier, useDndMonitor } from "@dnd-kit/core";
+import { AssetType } from "@/types/asset";
+import {
+  DragOverlay,
+  UniqueIdentifier,
+  useDndMonitor,
+} from "@dnd-kit/core";
 import { ReactElement, useState } from "react";
 import { DroppableContextKind } from "@/types/dnd";
 import { useUsemapStore } from "@/store/mapStore";
