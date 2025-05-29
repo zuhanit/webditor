@@ -3,7 +3,7 @@
 import { useCallback, useRef } from "react";
 import { useEntireCanvas } from "@/hooks/useImage";
 import { TILE_SIZE } from "@/lib/scterrain";
-import { Viewport } from "@/types/Viewport";
+import { Viewport } from "@/types/viewport";
 import { useDragViewport } from "@/hooks/useDragViewport";
 import { useElementResize } from "@/hooks/useElementResize";
 import { useDroppableContext } from "@/hooks/useDraggableAsset";
