@@ -7,7 +7,6 @@ import { AssetSidebar } from "@/components/layout/asset-sidebar";
 import { EntitySidebar } from "@/components/layout/entity-sidebar";
 import { InspectorSidebar } from "@/components/layout/inspector-sidebar";
 import { MapImage } from "@/components/layout/viewport";
-import ModalContainer from "@/components/ModalContainer";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DndContext } from "@dnd-kit/core";
@@ -60,7 +59,6 @@ export default function Editor() {
                 <Resizable defaultSize={{ width: "25%" }} className="w-full">
                   <InspectorSidebar />
                 </Resizable>
-                {/* <Inspector item={selectedEntity?.data} /> */}
               </div>
             </div>
           </Resizable>
@@ -73,7 +71,7 @@ export default function Editor() {
             <AssetContainer />
           </div>
         </DndContext>
-        <ModalContainer />
+        <AssetEditor />
       </div>
     </SidebarProvider>
   );
