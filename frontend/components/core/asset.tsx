@@ -5,26 +5,13 @@ import { Card, CardHeader } from "../ui/card";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
-  SidebarInput,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
 } from "../ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { ChangeEvent, ReactNode, useEffect, useState } from "react";
-import { Plus, Minus } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from "../ui/collapsible";
+import { ReactNode, useEffect, useState } from "react";
 import { SCImageRenderer } from "./renderer";
 import { UnitSchema } from "@/types/schemas/Unit";
-import { useRawMapStore } from "@/store/mapStore";
 import { SpriteSchema } from "@/types/schemas/Sprite";
 import { ImageSchema } from "@/types/schemas/Image";
 import { WeaponDefinitionSchema } from "@/types/schemas/WeaponDefinition";
