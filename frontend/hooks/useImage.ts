@@ -18,6 +18,7 @@ import {
   getPlacedSpriteImages,
   getPlacedUnitImage,
 } from "@/lib/scimage";
+import { Unit } from "@/types/schemas/Unit";
 
 const safeGet = async <T>(promise: Promise<{ data: T }>) => {
   try {
@@ -241,4 +242,22 @@ export function useEntireCanvas() {
   ]);
 
   return { image: bitmap };
+}
+
+export function useUnitImage(unit: Unit) {
+  const usemap = useUsemapStore((state) => state.usemap);
+  const [data, setData] = useState<SCImageBundle>();
+
+  useEffect(() => {
+    if (!usemap) return;
+
+    const flingyID = unit.unit_definition.specification.graphics;
+    const spriteID = usemap.flingy[flingyID].sprite;
+    const imageID = usemap.sprite[spriteID].image;
+
+    const { data } = useImage({ version: "sd", imageIndex: imageID });
+    setData(data);
+  }, [usemap?.flingy, usemap?.sprite]);
+
+  return data;
 }
