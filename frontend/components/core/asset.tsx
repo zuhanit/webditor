@@ -17,6 +17,7 @@ import { ImageSchema } from "@/types/schemas/Image";
 import { WeaponDefinitionSchema } from "@/types/schemas/WeaponDefinition";
 import { Button } from "../ui/button";
 import { Editor } from "./editor";
+import { useUsemapStore } from "@/store/mapStore";
 
 interface AssetCardProps {
   item: Item;
@@ -58,7 +59,7 @@ export function AssetCard({ item }: AssetCardProps) {
 
 export function AssetEditorImage({ asset }: { asset: Item }) {
   const [image, setImage] = useState<ReactNode | null>(null);
-  const usemap = useRawMapStore((state) => state.usemap);
+  const usemap = useUsemapStore((state) => state.usemap);
 
   const unitResult = UnitSchema.safeParse(asset.properties);
   const spriteResult = SpriteSchema.safeParse(asset.properties);
@@ -103,7 +104,7 @@ export function AssetEditorImage({ asset }: { asset: Item }) {
 
 export function AssetEditor() {
   const { assets, setAssets, isEditorOpen, closeEditor } = useAssetStore();
-  const { updateRawMap } = useRawMapStore((state) => state);
+  const { updateUsemap } = useUsemapStore((state) => state);
 
   if (!assets.length || !isEditorOpen) return null;
 
@@ -114,7 +115,7 @@ export function AssetEditor() {
   };
   const onClickSave = (asset: Item) => {
     console.log(asset);
-    updateRawMap((draft: any) => {
+    updateUsemap((draft: any) => {
       let target = draft;
       for (let i = 0; i < asset.path.length - 1; i++) {
         target = target[asset.path[i]];
