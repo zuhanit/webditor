@@ -4,8 +4,8 @@ import { AssetType } from "@/types/Asset";
 import { DragOverlay, UniqueIdentifier, useDndMonitor } from "@dnd-kit/core";
 import { ReactElement, useState } from "react";
 import { DroppableContextKind } from "@/types/dnd";
-import { useRawMapStore } from "@/store/mapStore";
-import { Viewport } from "@/types/Viewport";
+import { useUsemapStore } from "@/store/mapStore";
+import { Viewport } from "@/types/viewport";
 import { TILE_SIZE } from "@/lib/scterrain";
 import { Unit, UnitSchema } from "@/types/schemas/Unit";
 import { Entity, EntitySchema } from "@/types/schemas/Entity";
@@ -27,10 +27,10 @@ export function DragHandler() {
   const [draggingAssetKind, setDraggingAssetKind] =
     useState<DraggingAssetKind>("Asset");
 
-  const usemap = useRawMapStore((state) => state.rawMap);
-  const updateRawMap = useRawMapStore((state) => state.updateRawMap); // zustand 또는 context 등
+  const usemap = useUsemapStore((state) => state.usemap);
+  const updateUsemap = useUsemapStore((state) => state.updateUsemap); // zustand 또는 context 등
   const handleChange = (path: (string | number)[], newValue: any) => {
-    updateRawMap((draft: any) => {
+    updateUsemap((draft: any) => {
       let target = draft;
       for (let i = 0; i < path.length - 1; i++) {
         target = target[path[i]];
@@ -46,7 +46,7 @@ export function DragHandler() {
       unit.transform.position.x = x;
       unit.transform.position.y = y;
 
-      updateRawMap((draft) => {
+      updateUsemap((draft) => {
         draft.placed_unit = [...draft.placed_unit, unit];
       });
     }
