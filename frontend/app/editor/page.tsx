@@ -29,7 +29,7 @@ export default function Editor() {
   return (
     <SidebarProvider>
       <div className="flex h-screen flex-col overflow-hidden">
-        <DndContext>
+        <DndContext sensors={sensors}>
           <DragHandler />
           <AppMenu />
 
