@@ -14,6 +14,7 @@ import { Resizable } from "re-resizable";
 import useFetchUsemap from "@/hooks/useRawMap";
 import { useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import { AssetEditor } from "@/components/core/asset";
+import { AppToolbar } from "@/components/layout/app-toolbar";
 
 export default function Editor() {
   useFetchUsemap("test_map");
@@ -30,8 +31,7 @@ export default function Editor() {
       <div className="flex h-screen flex-col overflow-hidden">
         <DndContext sensors={sensors}>
           <DragHandler />
-          <AppMenu />
-
+          <AppToolbar />
           {/* Main Content */}
           <Resizable className="flex flex-1 overflow-hidden">
             {/* Left Explorer (SideBar) */}
