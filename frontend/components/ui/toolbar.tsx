@@ -61,8 +61,8 @@ export function ToolbarToggleItem({
       data-active={activeTool.includes(value)}
       className={twMerge(
         "rounded-md px-3 py-1",
-        "data-[active=true]:bg-surface-primary data-[active=true]:text-white",
-        className
+        "data-[active=true]:text-white data-[active=true]:bg-surface-primary",
+        className,
       )}
       onClick={() => setActive(value)}
       {...props}
