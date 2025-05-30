@@ -92,12 +92,12 @@ function EditorMenu({
   );
 }
 
-export function Editor({ item }: { item: Item}) {
+export function Editor({ item }: { item: Item }) {
   return (
     <SidebarMenu>
       {Object.entries(item.properties).map(([key, value]) => (
         <EditorMenu key={key} label={key} value={value} path={[key]} />
       ))}
     </SidebarMenu>
-  )
+  );
 }

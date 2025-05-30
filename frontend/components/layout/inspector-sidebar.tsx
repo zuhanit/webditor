@@ -122,11 +122,13 @@ export function InspectorSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            <Editor item={{
-              label: entity.name,
-              path: [],
-              properties: entity,
-            }} />
+            <Editor
+              item={{
+                label: entity.name,
+                path: [],
+                properties: entity,
+              }}
+            />
             {/* {Object.entries(entity).map(([key, value]) => (
               <InspectorMenu
                 key={`inspector-menu-${key}`}
