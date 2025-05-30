@@ -1,8 +1,18 @@
 import { Item } from "@/types/item";
 import { ChangeEvent } from "react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
-import { SidebarInput, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub } from "../ui/sidebar";
-import { Plus, Minus } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
+import {
+  SidebarInput,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+} from "../ui/sidebar";
+import { Plus, Minus, ChevronRight } from "lucide-react";
 
 function EditorMenu({
   label,
@@ -16,16 +26,18 @@ function EditorMenu({
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     console.log("onChange", e.target.value);
   };
+  const fixedLabel = label
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 
   if (typeof value === "object" && value !== null) {
     return (
       <Collapsible className="group/collapsible">
         <SidebarMenuItem>
           <CollapsibleTrigger asChild>
-            <SidebarMenuButton>
-              {label}
-              <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
-              <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+            <SidebarMenuButton className="font-bold">
+              {fixedLabel}
+              <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
             </SidebarMenuButton>
           </CollapsibleTrigger>
           <CollapsibleContent>
@@ -81,9 +93,8 @@ function EditorMenu({
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton>
-            {label}
-            <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
-            <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+            <span className="font-bold">{fixedLabel}</span>
+            <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>{input}</CollapsibleContent>
