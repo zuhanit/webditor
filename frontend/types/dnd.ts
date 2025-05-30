@@ -5,4 +5,4 @@ export type DroppableContextKind =
   | "asset-editor"
   | "viewport";
 
-export type DraggableAssetKind = "asset" | "sidebar-item";
+export type DraggableAssetKind = "asset" | "sidebar-item" | "asset-editor";

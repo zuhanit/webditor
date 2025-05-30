@@ -1,6 +1,24 @@
-import { useState } from "react";
-import { LucideChevronDown, LucideChevronRight } from "lucide-react";
-import React from "react";
+"use client";
+
+import { useContext, createContext, useState } from "react";
+import { Slot } from "./slot";
+
+interface CollapsibleContextProps {
+  open: boolean;
+  toggle: () => void;
+  disabled?: boolean;
+}
+
+const CollapsibleContext = createContext<CollapsibleContextProps | null>(null);
+
+export function useCollapsible() {
+  const context = useContext(CollapsibleContext);
+  if (!context) {
+    throw new Error("useCollapsible must be used within a Collapsible.");
+  }
+
+  return context;
+}
 
 interface CollapsibleProps extends React.HTMLAttributes<HTMLDivElement> {
   defaultOpen?: boolean;
@@ -14,33 +32,48 @@ export function Collapsible({
   className,
   ...props
 }: CollapsibleProps) {
-  if (!children) throw new Error("Collapsible must have children");
-
-  const [isCollapsed, setIsCollapsed] = useState(defaultOpen);
-
-  const content = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.type === CollapsibleContent,
-  ) as React.ReactElement<CollapsibleContentProps> | undefined;
-
-  const header = React.Children.toArray(children).filter(
-    (child) =>
-      !React.isValidElement(child) || child.type !== CollapsibleContent,
-  );
-
-  if (!content) throw new Error("Collapsible must have content");
+  const [open, setOpen] = useState(defaultOpen);
+  const toggle = () => {
+    if (!disabled) setOpen((prev) => !prev);
+  };
 
   return (
-    <div className={`${className}`} {...props}>
-      <button
-        className="flex w-full items-center"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        disabled={disabled}
+    <CollapsibleContext.Provider
+      value={{
+        open,
+        toggle,
+        disabled,
+      }}
+    >
+      <div
+        className={className}
+        data-state={open ? "open" : "closed"}
+        {...props}
       >
-        {!isCollapsed ? <LucideChevronRight /> : <LucideChevronDown />}
-        <div className="w-full">{header}</div>
-      </button>
-      {isCollapsed && content}
-    </div>
+        {children}
+      </div>
+    </CollapsibleContext.Provider>
+  );
+}
+
+interface CollapsibleTriggerProps
+  extends React.HTMLAttributes<HTMLButtonElement> {
+  asChild?: boolean;
+  children: React.ReactNode;
+}
+
+export function CollapsibleTrigger({
+  asChild = false,
+  children,
+  ...props
+}: CollapsibleTriggerProps) {
+  const { toggle, disabled } = useCollapsible();
+
+  const Component = asChild ? Slot : "button";
+  return (
+    <Component onClick={toggle} disabled={disabled} {...props}>
+      {children}
+    </Component>
   );
 }
 
@@ -48,6 +81,17 @@ interface CollapsibleContentProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
 
-export function CollapsibleContent(props: CollapsibleContentProps) {
-  return <div {...props} />;
+export function CollapsibleContent({
+  className,
+  children,
+  ...props
+}: CollapsibleContentProps) {
+  const { open } = useCollapsible();
+  if (!open) return null;
+
+  return (
+    <div className={className} {...props}>
+      {children}
+    </div>
+  );
 }

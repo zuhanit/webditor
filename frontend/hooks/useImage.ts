@@ -8,7 +8,7 @@ import {
   ImageVersion,
 } from "@/types/SCImage";
 import axios from "axios";
-import { useRawMapStore } from "@/store/mapStore";
+import { useUsemapStore } from "@/store/mapStore";
 import useTileGroup from "./useTileGroup";
 import useTilesetData from "./useTilesetData";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -18,6 +18,7 @@ import {
   getPlacedSpriteImages,
   getPlacedUnitImage,
 } from "@/lib/scimage";
+import { Unit } from "@/types/schemas/Unit";
 
 const safeGet = async <T>(promise: Promise<{ data: T }>) => {
   try {
@@ -133,7 +134,7 @@ interface ViewportImageBundle {
 }
 
 export function useViewportImage(): ViewportImageBundle {
-  const usemap = useRawMapStore((store) => store.rawMap);
+  const usemap = useUsemapStore((store) => store.usemap);
   const tileGroup = useTileGroup();
   const tilesetData = useTilesetData();
 
@@ -212,7 +213,7 @@ export function useViewportImage(): ViewportImageBundle {
 }
 
 export function useEntireCanvas() {
-  const usemap = useRawMapStore((state) => state.rawMap);
+  const usemap = useUsemapStore((state) => state.usemap);
   const { terrain, unit, sprite, location } = useViewportImage();
 
   const [bitmap, setBitmap] = useState<ImageBitmap>();
@@ -241,4 +242,22 @@ export function useEntireCanvas() {
   ]);
 
   return { image: bitmap };
+}
+
+export function useUnitImage(unit: Unit) {
+  const usemap = useUsemapStore((state) => state.usemap);
+  const [data, setData] = useState<SCImageBundle>();
+
+  useEffect(() => {
+    if (!usemap) return;
+
+    const flingyID = unit.unit_definition.specification.graphics;
+    const spriteID = usemap.flingy[flingyID].sprite;
+    const imageID = usemap.sprite[spriteID].image;
+
+    const { data } = useImage({ version: "sd", imageIndex: imageID });
+    setData(data);
+  }, [usemap?.flingy, usemap?.sprite]);
+
+  return data;
 }

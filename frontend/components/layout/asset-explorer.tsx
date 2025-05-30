@@ -1,8 +1,10 @@
-import { useRawMapStore } from "@/store/mapStore";
+"use client";
+
+import { useUsemapStore } from "@/store/mapStore";
 import { Usemap } from "@/types/schemas/Usemap";
 import React from "react";
-import { AssetResult } from "@/types/Asset";
-import { AssetCard } from "./Asset";
+import { AssetResult } from "@/types/asset";
+import { AssetCard } from "../core/asset";
 import { useDroppableContext } from "@/hooks/useDraggableAsset";
 import { Unit } from "@/types/schemas/Unit";
 import { UnitDefinition } from "@/types/schemas/UnitDefinition";
@@ -78,7 +80,7 @@ interface AssetContainerProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function AssetContainer({ children }: AssetContainerProps) {
-  const gameMap = useRawMapStore((state) => state.rawMap);
+  const gameMap = useUsemapStore((state) => state.usemap);
 
   const { isOver, setNodeRef } = useDroppableContext({
     id: "AssetContainer",

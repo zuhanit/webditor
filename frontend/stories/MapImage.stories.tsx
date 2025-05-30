@@ -1,4 +1,4 @@
-import { MapImage } from "@/components/MapImage";
+import { MapImage } from "@/components/layout/viewport";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

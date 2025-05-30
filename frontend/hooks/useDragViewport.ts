@@ -1,6 +1,6 @@
 import { TILE_SIZE } from "@/lib/scterrain";
 import { useRef } from "react";
-import { Viewport } from "@/types/Viewport";
+import { Viewport } from "@/types/viewport";
 
 /**
  * Hook for handle dragging viewport.

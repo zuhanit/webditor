@@ -1,60 +1,29 @@
-import { SideBarItem } from "@/components/placed_container/SideBar";
-import { useRawMapStore } from "@/store/mapStore";
-import { Usemap } from "@/types/schemas/Usemap";
-import { Unit } from "@/types/schemas/Unit";
-import { Sprite } from "@/types/schemas/Sprite";
+import { useUsemapStore } from "@/store/mapStore";
 import { useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { Entity } from "@/types/schemas/Entity";
 
-function getUnitItems(gameMap: Usemap): SideBarItem<Unit>[] {
-  const items = gameMap.placed_unit.map<SideBarItem<Unit>>((unit, index) => ({
-    label: unit.name as string,
-    id: uuidv4(),
-    data: {
-      label: unit.name,
-      path: ["placed_unit", index],
-      properties: unit,
-    },
-  }));
-
-  return items;
-}
-
-function getSpriteItems(gameMap: Usemap): SideBarItem<Sprite>[] {
-  const items = gameMap.placed_sprite.map<SideBarItem<Sprite>>(
-    (sprite, index) => ({
-      label: sprite.name as string,
-      id: uuidv4(),
-      data: {
-        label: sprite.name,
-        path: ["placed_sprite", index],
-        properties: sprite,
-      },
-    }),
-  );
-
-  return items;
-}
-
-export function usePlacedEntities(): SideBarItem<any>[] {
-  const gameMap = useRawMapStore((state) => state.rawMap);
-  const [entities, setDefaultPlacedEntities] = useState<SideBarItem<any>[]>([]);
+export function usePlacedEntities(): Record<
+  string,
+  { label: string; data: Entity[] }
+> {
+  const gameMap = useUsemapStore((state) => state.usemap);
+  const [entities, setDefaultPlacedEntities] = useState<
+    Record<string, { label: string; data: Entity[] }>
+  >({});
 
   useEffect(() => {
     if (!gameMap) return;
 
-    setDefaultPlacedEntities([
-      {
-        id: "units-row",
+    setDefaultPlacedEntities({
+      units: {
         label: "Units",
-        items: getUnitItems(gameMap),
+        data: gameMap.placed_unit,
       },
-      {
-        id: "sprite-row",
+      sprites: {
         label: "Sprites",
-        items: getSpriteItems(gameMap),
+        data: gameMap.placed_sprite,
       },
-    ]);
+    });
   }, [gameMap]);
 
   return entities;
