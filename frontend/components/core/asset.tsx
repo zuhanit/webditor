@@ -22,6 +22,7 @@ import { useUsemapStore } from "@/store/mapStore";
 import { Toolbar } from "../ui/toolbar";
 import { Save, X } from "lucide-react";
 import { Resizable } from "re-resizable";
+import { useDraggableAsset } from "@/hooks/useDraggableAsset";
 
 interface AssetCardProps {
   item: Item;
@@ -112,8 +113,13 @@ export function AssetEditor() {
     closeEditor,
     activatedAsset,
     setActivatedAsset,
+    editorPosition,
   } = useAssetStore();
   const { updateUsemap } = useUsemapStore((state) => state);
+  const { attributes, listeners, setNodeRef, transform } = useDraggableAsset({
+    id: "main",
+    kind: "asset-editor",
+  });
 
   if (!assets.length || !isEditorOpen || !activatedAsset) return null;
 
@@ -144,7 +150,17 @@ export function AssetEditor() {
   };
 
   return (
-    <div className="absolute left-1/4 top-1/4 flex bg-background-primary shadow-md">
+    <div
+      ref={setNodeRef}
+      className="absolute flex bg-background-primary shadow-md"
+      style={
+        {
+          transform: `translate3d(${transform?.x ?? 0}px, ${transform?.y ?? 0}px, 0)`,
+          top: `${editorPosition.y}px`,
+          left: `${editorPosition.x}px`,
+        } as React.CSSProperties
+      }
+    >
       <Resizable
         defaultSize={{
           width: 800,
@@ -154,7 +170,11 @@ export function AssetEditor() {
         minHeight={800}
       >
         <Sidebar>
-          <Toolbar className="border-b border-text-muted">
+          <Toolbar
+            className="border-b border-text-muted"
+            {...listeners}
+            {...attributes}
+          >
             <span className="absolute left-1/2 -translate-x-1/2 text-center text-lg font-medium">
               Asset Editor
             </span>
