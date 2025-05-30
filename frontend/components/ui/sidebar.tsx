@@ -279,6 +279,7 @@ export function SidebarMenuButton({
   return (
     <Component
       data-sidebar="menu-button"
+      data-active={isActive}
       className={twMerge(
         "flex h-8 w-full items-center rounded-md px-2 transition-all hover:bg-background-primary",
         "data-[active=true]:bg-surface-primary data-[active=true]:font-bold data-[active=true]:text-blue data-[active=true]:shadow-md",
