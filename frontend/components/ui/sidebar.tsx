@@ -280,7 +280,7 @@ export function SidebarMenuButton({
       data-sidebar="menu-button"
       className={twMerge(
         "flex h-8 w-full items-center rounded-md px-2 transition-all hover:bg-background-primary",
-        "data-[active=true]:bg-surface-primary data-[active=true]:text-blue data-[active=true]:font-bold data-[active=true]:shadow-md",
+        "data-[active=true]:bg-surface-primary data-[active=true]:font-bold data-[active=true]:text-blue data-[active=true]:shadow-md",
       )}
       {...props}
     />
@@ -310,7 +310,10 @@ export function SidebarMenuSubItem({
   return (
     <li
       data-sidebar="menu-sub-item"
-      className={twMerge("flex w-full", className)}
+      className={twMerge(
+        "flex w-full items-center justify-center gap-2",
+        className,
+      )}
       {...props}
     ></li>
   );
@@ -332,7 +335,7 @@ export function SidebarMenuSubButton({
       data-active={isActive}
       className={twMerge(
         "flex h-8 w-full items-center rounded-md px-2 transition-all hover:bg-background-primary",
-        "data-[active=true]:bg-surface-primary data-[active=true]:text-blue data-[active=true]:font-bold data-[active=true]:shadow-md",
+        "data-[active=true]:bg-surface-primary data-[active=true]:font-bold data-[active=true]:text-blue data-[active=true]:shadow-md",
       )}
       {...props}
     />
