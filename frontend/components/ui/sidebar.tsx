@@ -268,6 +268,7 @@ export function SidebarMenuItem({
 export function SidebarMenuButton({
   asChild = false,
   isActive = false,
+  className,
   ...props
 }: React.ComponentProps<"button"> & {
   asChild?: boolean;
@@ -281,6 +282,7 @@ export function SidebarMenuButton({
       className={twMerge(
         "flex h-8 w-full items-center rounded-md px-2 transition-all hover:bg-background-primary",
         "data-[active=true]:bg-surface-primary data-[active=true]:font-bold data-[active=true]:text-blue data-[active=true]:shadow-md",
+        className,
       )}
       {...props}
     />
