@@ -40,10 +40,7 @@ export function MenubarProvider({ children }: { children: React.ReactNode }) {
 export function Menubar({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <MenubarProvider>
-      <div
-        className={twMerge("flex gap-2 bg-background-tertiary p-1", className)}
-        {...props}
-      />
+      <div className={twMerge("flex gap-2", className)} {...props} />
     </MenubarProvider>
   );
 }

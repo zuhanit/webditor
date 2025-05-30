@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 
 export function AppToolbar() {
   return (
-    <Toolbar className="items-center">
+    <Toolbar className="items-center bg-background-tertiary">
       <AppMenu />
       <span className="ml-auto text-lg font-medium">any-starcraft-map</span>
       <div className="ml-auto flex items-center gap-2">
