@@ -23,12 +23,15 @@ import { Toolbar } from "../ui/toolbar";
 import { Save, X } from "lucide-react";
 import { Resizable } from "re-resizable";
 import { useDraggableAsset } from "@/hooks/useDraggableAsset";
+import { twMerge } from "tailwind-merge";
 
-interface AssetCardProps {
+export function AssetCard({
+  item,
+  className,
+}: {
   item: Item;
-}
-
-export function AssetCard({ item }: AssetCardProps) {
+  className?: string;
+}) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: item.label,
     data: item.properties,
@@ -53,6 +56,7 @@ export function AssetCard({ item }: AssetCardProps) {
       ref={setNodeRef}
       style={style}
       onDoubleClick={handleDoubleClick}
+      className={twMerge("h-36- w-36", className)}
       {...listeners}
       {...attributes}
     >
