@@ -5,6 +5,7 @@ import { Card, CardHeader } from "../ui/card";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
 } from "../ui/sidebar";
@@ -18,6 +19,9 @@ import { WeaponDefinitionSchema } from "@/types/schemas/WeaponDefinition";
 import { Button } from "../ui/button";
 import { Editor } from "./editor";
 import { useUsemapStore } from "@/store/mapStore";
+import { Toolbar } from "../ui/toolbar";
+import { Save, X } from "lucide-react";
+import { Resizable } from "re-resizable";
 
 interface AssetCardProps {
   item: Item;
@@ -28,13 +32,13 @@ export function AssetCard({ item }: AssetCardProps) {
     id: item.label,
     data: item.properties,
   });
-  const { assets, setAssets, isEditorOpen, openEditor } = useAssetStore(
-    (state) => state
-  );
+  const { assets, setAssets, isEditorOpen, openEditor, setActivatedAsset } =
+    useAssetStore((state) => state);
   const handleDoubleClick = () => {
     if (!isEditorOpen) openEditor();
     if (assets.find((asset) => asset.label === item.label)) return;
     setAssets([...assets, item]);
+    setActivatedAsset(item);
   };
 
   const style = transform
@@ -56,7 +60,6 @@ export function AssetCard({ item }: AssetCardProps) {
   );
 }
 
-
 export function AssetEditorImage({ asset }: { asset: Item }) {
   const [image, setImage] = useState<ReactNode | null>(null);
   const usemap = useUsemapStore((state) => state.usemap);
@@ -67,7 +70,6 @@ export function AssetEditorImage({ asset }: { asset: Item }) {
   const weaponResult = WeaponDefinitionSchema.safeParse(asset.properties);
 
   useEffect(() => {
-    console.log("gogi", unitResult, usemap, asset);
     if (!usemap) return;
 
     if (unitResult.success) {
@@ -96,67 +98,113 @@ export function AssetEditorImage({ asset }: { asset: Item }) {
   }, [unitResult.success, usemap]);
 
   return (
-    <div className="flex h-full w-full items-center justify-center">
+    <div className="flex h-full w-full flex-col items-center justify-center">
       {image}
     </div>
   );
 }
 
 export function AssetEditor() {
-  const { assets, setAssets, isEditorOpen, closeEditor } = useAssetStore();
+  const {
+    assets,
+    setAssets,
+    isEditorOpen,
+    closeEditor,
+    activatedAsset,
+    setActivatedAsset,
+  } = useAssetStore();
   const { updateUsemap } = useUsemapStore((state) => state);
 
-  if (!assets.length || !isEditorOpen) return null;
+  if (!assets.length || !isEditorOpen || !activatedAsset) return null;
 
   // FIXME: Using ID, or something else to identify asset
-  const onClickClose = (label: string) => {
-    const f = assets.filter((asset) => asset.label !== label);
+  const onClickClose = (asset: Item) => {
+    const currentActivatedAssetIndex = assets.findIndex((a) => a === asset);
+    const nextActivatedAssetIndex =
+      currentActivatedAssetIndex === assets.length - 1
+        ? 0
+        : currentActivatedAssetIndex + 1;
+    const nextActivatedAsset = assets[nextActivatedAssetIndex];
+    const f = assets.filter((a) => a !== asset);
     setAssets(f);
+    setActivatedAsset(nextActivatedAsset);
   };
-  const onClickSave = (asset: Item) => {
-    console.log(asset);
+
+  const onClickSave = () => {
+    if (!activatedAsset) return;
+
     updateUsemap((draft: any) => {
       let target = draft;
-      for (let i = 0; i < asset.path.length - 1; i++) {
-        target = target[asset.path[i]];
+      for (let i = 0; i < activatedAsset.path.length - 1; i++) {
+        target = target[activatedAsset.path[i]];
       }
-      target[asset.path[asset.path.length - 1]] = asset.properties;
+      target[activatedAsset.path[activatedAsset.path.length - 1]] =
+        activatedAsset.properties;
     });
   };
-  const defaultValue = assets[0].label;
 
   return (
-    <div className="absolute flex bg-background-primary shadow-md">
-      <Sidebar>
-        <Tabs defaultValue={defaultValue}>
-          <SidebarHeader>
-            <TabsList>
-              {assets.map((asset) => (
-                <div key={asset.label} className="flex items-center gap-2">
-                  <TabsTrigger value={asset.label}>{asset.label}</TabsTrigger>
-                  <button onClick={() => onClickClose(asset.label)}>X</button>
-                </div>
-              ))}
-            </TabsList>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarGroup>
-              {assets.map((asset) => (
-                <TabsContent
-                  className="flex"
-                  key={asset.label}
-                  value={asset.label}
-                >
-                  <Editor item={asset} />
-                  <AssetEditorImage asset={asset} />
-                  <Button onClick={() => onClickSave(asset)}>Save</Button>
-                  <Button onClick={closeEditor}>Close</Button>
-                </TabsContent>
-              ))}
-            </SidebarGroup>
-          </SidebarContent>
-        </Tabs>
-      </Sidebar>
+    <div className="absolute left-1/4 top-1/4 flex bg-background-primary shadow-md">
+      <Resizable
+        defaultSize={{
+          width: 800,
+          height: 800,
+        }}
+        minWidth={800}
+        minHeight={800}
+      >
+        <Sidebar>
+          <Toolbar className="border-b border-text-muted">
+            <span className="absolute left-1/2 -translate-x-1/2 text-center text-lg font-medium">
+              Asset Editor
+            </span>
+            <div className="ml-auto flex items-center">
+              <Button variant="ghost" onClick={closeEditor}>
+                <X />
+              </Button>
+            </div>
+          </Toolbar>
+          <Tabs defaultValue={activatedAsset.label}>
+            <SidebarHeader>
+              <TabsList>
+                {assets.map((asset) => (
+                  <div key={asset.label} className="flex items-center gap-2">
+                    <TabsTrigger
+                      value={asset.label}
+                      onClick={() => setActivatedAsset(asset)}
+                    >
+                      {asset.label}
+                    </TabsTrigger>
+                    <button onClick={() => onClickClose(asset)}>
+                      <X />
+                    </button>
+                  </div>
+                ))}
+              </TabsList>
+            </SidebarHeader>
+            <SidebarContent>
+              <SidebarGroup>
+                {assets.map((asset) => (
+                  <TabsContent
+                    className="flex"
+                    key={asset.label}
+                    value={asset.label}
+                  >
+                    <Editor item={asset} />
+                    <AssetEditorImage asset={asset} />
+                  </TabsContent>
+                ))}
+              </SidebarGroup>
+            </SidebarContent>
+          </Tabs>
+          <SidebarFooter>
+            <Button variant="ghost" onClick={onClickSave}>
+              <Save />
+              Save
+            </Button>
+          </SidebarFooter>
+        </Sidebar>
+      </Resizable>
     </div>
   );
 }

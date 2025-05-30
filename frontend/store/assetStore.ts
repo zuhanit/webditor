@@ -3,7 +3,9 @@ import { create } from "zustand";
 
 interface AssetStore {
   assets: Item[];
+  activatedAsset: Item | null;
   setAssets: (assets: Item[]) => void;
+  setActivatedAsset: (asset: Item) => void;
   isEditorOpen: boolean;
   openEditor: () => void;
   closeEditor: () => void;
@@ -12,8 +14,12 @@ interface AssetStore {
 
 export const useAssetStore = create<AssetStore>((set) => ({
   assets: [],
+  activatedAsset: null,
   setAssets: (assets) => {
     set({ assets });
+  },
+  setActivatedAsset: (asset) => {
+    set({ activatedAsset: asset });
   },
   isEditorOpen: false,
   openEditor: () => set({ isEditorOpen: true }),
