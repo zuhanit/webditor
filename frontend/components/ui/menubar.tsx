@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useId, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import { twMerge } from "tailwind-merge";
 import { Button } from "./button";
 
@@ -68,9 +75,26 @@ export function MenubarMenu({
   const { openMenu } = useMenubar();
   const id = useId();
 
+  const menubarRef = useRef<HTMLUListElement>(null);
+  const { toggle } = useMenubar();
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        menubarRef.current &&
+        !menubarRef.current.contains(event.target as Node)
+      ) {
+        toggle("");
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [toggle]);
+
   return (
     <MenubarMenuContext.Provider value={{ open: openMenu === id, id }}>
       <ul
+        ref={menubarRef}
         className={twMerge("group relative flex", className)}
         data-state={openMenu === id ? "open" : "closed"}
         {...props}
@@ -84,9 +108,14 @@ export function MenubarTrigger({
   children,
   ...props
 }: React.ComponentProps<"button">) {
-  //TODO: Add keyword navigation, hover-toggle menu while focused on Menubar.
-  const { toggle } = useMenubar();
+  const { toggle, openMenu } = useMenubar();
   const { id } = useMenubarMenu();
+
+  const handleMouseEnter = () => {
+    if (openMenu) {
+      toggle(id);
+    }
+  };
 
   return (
     <li
@@ -99,6 +128,7 @@ export function MenubarTrigger({
       <button
         className="rounded-md px-3 py-1"
         onClick={() => toggle(id)}
+        onMouseEnter={handleMouseEnter}
         {...props}
       >
         {children}
