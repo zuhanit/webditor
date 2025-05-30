@@ -41,6 +41,9 @@ importers:
       firebase-admin:
         specifier: ^13.2.0
         version: 13.2.0(encoding@0.1.13)
+      fuzzysort:
+        specifier: ^3.1.0
+        version: 3.1.0
       lucide-react:
         specifier: ^0.456.0
         version: 0.456.0(react@19.0.0-rc-66855b96-20241106)
@@ -2273,6 +2276,9 @@ packages:
 
   functional-red-black-tree@1.0.1:
     resolution: {integrity: sha512-dsKNQNdj6xA3T+QlADDA7mOSlX0qiMINjn0cgr+eGHGsbSHzTabcIogz2+p/iqP1Xs6EP/sS2SbqH+brGTbq0g==}
+
+  fuzzysort@3.1.0:
+    resolution: {integrity: sha512-sR9BNCjBg6LNgwvxlBd0sBABvQitkLzoVY9MYYROQVX/FvfJ4Mai9LsGhDgd8qYdds0bY77VzYd5iuB+v5rwQQ==}
 
   gauge@4.0.4:
     resolution: {integrity: sha512-f9m+BEN5jkg6a0fZjleidjN51VE1X+mPFQ2DJ0uv1V39oCLCbsGe6yjbBnp7eK7z/+GAon99a3nHuqbuuthyPg==}
@@ -6576,6 +6582,8 @@ snapshots:
 
   functional-red-black-tree@1.0.1:
     optional: true
+
+  fuzzysort@3.1.0: {}
 
   gauge@4.0.4:
     dependencies:
