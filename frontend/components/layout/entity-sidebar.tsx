@@ -28,10 +28,48 @@ import {
 } from "../ui/collapsible";
 import { SearchForm } from "../form/search-form";
 import { useEntityStore } from "@/store/entityStore";
+import { Entity } from "@/types/schemas/Entity";
+import fuzzysort from "fuzzysort";
+import { useState } from "react";
 
 export function EntitySidebar() {
   const placedEntities = usePlacedEntities();
-  const { entity: currentEntity, setEntity } = useEntityStore((state) => state);
+  const {
+    entity: currentEntity,
+    setEntity,
+    checkedEntities,
+    setCheckedEntities,
+  } = useEntityStore((state) => state);
+
+  const toggleCheckedEntity = (entity: Entity) => {
+    console.log(entity);
+    if (checkedEntities.includes(entity)) {
+      setCheckedEntities(checkedEntities.filter((e) => e !== entity));
+    } else {
+      setCheckedEntities([...checkedEntities, entity]);
+    }
+  };
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const filteredEntities = searchTerm
+    ? Object.entries(placedEntities)
+        .map(([key, entities]) => {
+          const results = fuzzysort.go(searchTerm, entities.data, {
+            key: "name",
+          });
+          return [
+            key,
+            {
+              ...entities,
+              data: results.map((result) => result.obj) as Entity[],
+            },
+          ] as [string, { data: Entity[]; label: string }];
+        })
+        .filter(([key, entities]) => entities.data.length > 0)
+    : (Object.entries(placedEntities) as [
+        string,
+        { data: Entity[]; label: string },
+      ][]);
 
   return (
     <Sidebar className="h-full bg-background-secondary">
@@ -47,12 +85,12 @@ export function EntitySidebar() {
             </div>
           </SidebarMenuItem>
         </SidebarMenu>
-        <SearchForm />
+        <SearchForm onSearch={setSearchTerm} />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {Object.entries(placedEntities).map(([key, entities]) => (
+            {filteredEntities.map(([key, entities]) => (
               <Collapsible key={key}>
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
@@ -82,7 +120,7 @@ export function EntitySidebar() {
                                 console.log(entity);
                                 setEntity(entity);
                               }}
-                              isActive={entity.id === currentEntity?.id}
+                              isActive={entity === currentEntity}
                             >
                               {entity.name}
                             </SidebarMenuSubButton>
