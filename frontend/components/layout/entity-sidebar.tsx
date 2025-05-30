@@ -91,7 +91,7 @@ export function EntitySidebar() {
         <SidebarGroup>
           <SidebarMenu>
             {filteredEntities.map(([key, entities]) => (
-              <Collapsible key={key}>
+              <Collapsible key={key} className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton>

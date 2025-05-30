@@ -19,7 +19,7 @@ function EditorMenu({
 
   if (typeof value === "object" && value !== null) {
     return (
-      <Collapsible>
+      <Collapsible className="group/collapsible">
         <SidebarMenuItem>
           <CollapsibleTrigger asChild>
             <SidebarMenuButton>
@@ -77,7 +77,7 @@ function EditorMenu({
   }
 
   return (
-    <Collapsible>
+    <Collapsible className="group/collapsible">
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton>

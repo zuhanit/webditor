@@ -47,7 +47,7 @@ export function Collapsible({
       }}
     >
       <div
-        className={twMerge("group/collapsible", className)}
+        className={className}
         data-state={open ? "open" : "closed"}
         {...props}
       >
