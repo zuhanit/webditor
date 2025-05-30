@@ -30,14 +30,6 @@ export function InspectorSidebar() {
                 properties: entity,
               }}
             />
-            {/* {Object.entries(entity).map(([key, value]) => (
-              <InspectorMenu
-                key={`inspector-menu-${key}`}
-                label={key}
-                value={value}
-                path={[key]}
-              />
-            ))} */}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
