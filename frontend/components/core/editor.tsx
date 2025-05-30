@@ -12,7 +12,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
 } from "../ui/sidebar";
-import { Plus, Minus, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 function EditorMenu({
   label,

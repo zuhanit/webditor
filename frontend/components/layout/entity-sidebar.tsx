@@ -65,7 +65,7 @@ export function EntitySidebar() {
             },
           ] as [string, { data: Entity[]; label: string }];
         })
-        .filter(([key, entities]) => entities.data.length > 0)
+        .filter(([, entities]) => entities.data.length > 0)
     : (Object.entries(placedEntities) as [
         string,
         { data: Entity[]; label: string },

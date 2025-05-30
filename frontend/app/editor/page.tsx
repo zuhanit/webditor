@@ -1,7 +1,6 @@
 "use client";
 
 import { DragHandler } from "@/components/core/drag-handler";
-import { AppMenu } from "@/components/layout/app-menu";
 import { AssetContainer } from "@/components/layout/asset-explorer";
 import { AssetSidebar } from "@/components/layout/asset-sidebar";
 import { EntitySidebar } from "@/components/layout/entity-sidebar";

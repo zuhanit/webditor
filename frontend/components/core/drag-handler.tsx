@@ -27,7 +27,7 @@ export function DragHandler() {
   const [draggingAsset, setDraggingAsset] = useState<AssetType | null>(null);
   const [draggingAssetKind, setDraggingAssetKind] =
     useState<DraggingAssetKind>("Asset");
-  const { setEditorPosition, editorPosition } = useAssetStore((state) => state);
+  const { setEditorPosition } = useAssetStore((state) => state);
 
   const usemap = useUsemapStore((state) => state.usemap);
   const updateUsemap = useUsemapStore((state) => state.updateUsemap); // zustand 또는 context 등
