@@ -70,8 +70,8 @@ export default function Editor() {
             </Resizable>
             <AssetContainer />
           </div>
+          <AssetEditor />
         </DndContext>
-        <AssetEditor />
       </div>
     </SidebarProvider>
   );
