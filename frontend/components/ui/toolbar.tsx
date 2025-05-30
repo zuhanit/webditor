@@ -41,7 +41,10 @@ export function Toolbar({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <ToolbarProvider>
       <div
-        className={twMerge("flex gap-2 bg-background-secondary p-2", className)}
+        className={twMerge(
+          "flex w-full items-center justify-center gap-2",
+          className,
+        )}
         {...props}
       />
     </ToolbarProvider>
