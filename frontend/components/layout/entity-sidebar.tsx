@@ -14,7 +14,13 @@ import {
   Sidebar,
 } from "@/components/ui/sidebar";
 import { usePlacedEntities } from "@/hooks/usePlacedEntities";
-import { GalleryVerticalEnd, Minus, Plus } from "lucide-react";
+import {
+  CheckSquare,
+  GalleryVerticalEnd,
+  Minus,
+  Plus,
+  SquareDashed,
+} from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
