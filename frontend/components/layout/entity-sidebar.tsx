@@ -62,6 +62,16 @@ export function EntitySidebar() {
                         {entities.data.map((entity, index) => (
                           <SidebarMenuSubItem key={`${key}-${index}`}>
                             <SidebarMenuSubButton
+                              onClick={() => toggleCheckedEntity(entity)}
+                              className="justify-start"
+                            >
+                              {checkedEntities.includes(entity) ? (
+                                <CheckSquare className="text-blue" />
+                              ) : (
+                                <SquareDashed className="text-blue" />
+                              )}
+                            </SidebarMenuSubButton>
+                            <SidebarMenuSubButton
                               onClick={() => {
                                 console.log(entity);
                                 setEntity(entity);
