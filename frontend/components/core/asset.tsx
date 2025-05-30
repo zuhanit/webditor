@@ -56,7 +56,7 @@ export function AssetCard({
       ref={setNodeRef}
       style={style}
       onDoubleClick={handleDoubleClick}
-      className={twMerge("h-36- w-36", className)}
+      className={twMerge("h-36 w-36", className)}
       {...listeners}
       {...attributes}
     >
