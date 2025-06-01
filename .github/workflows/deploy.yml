@@ -193,7 +193,6 @@ jobs:
           name: frontend-build
           path: |
             frontend/.next
-            frontend/public
           include-hidden-files: true
 
       - name: Set frontend flag
