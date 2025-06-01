@@ -92,7 +92,7 @@ jobs:
         id: build-rawdata
         if: steps.cache-rawdata.outputs.cache-hit != 'true' && steps.cache-compressed-rawdata.outputs.cache-hit != 'true'
         run: |
-          pnpm run build-preprocess
+          pnpm run build-rawdata
 
       - name: Upload rawdata
         if: steps.build-rawdata.outcome == 'success'
