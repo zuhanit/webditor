@@ -1,43 +1,17 @@
 from app.core.w_logging import get_logger
-from eudplib.core.mapdata.chktok import CHK as EPCHK
-from typing import Literal, TypedDict, cast
-from app.models.unit import Cost, Stat, CHKUnit, UnitProperty, UnitRestriction
-from app.models.terrain import (
-  EraTilesetReverseDict,
-  RawTerrain,
-  Size,
-  Tile,
-  EraTilesetDict,
-)
-from app.models.player import (
-  Force,
-  OwnrPlayerTypeReverseDict,
-  Player,
+from app.models.project import Usemap
+from app.services.utils.player import (
   OwnrPlayerTypeDict,
   SidePlayerRaceDict,
+  OwnrPlayerTypeReverseDict,
   SidePlayerRaceReverseDict,
 )
-from app.models.location import Location
-from app.models.structs.spatial import Position2D, RectPosition
-from app.models.sprite import CHKSprite
-from app.models.string import String
-from app.models.components.transform import TransformComponent
-from app.models.definitions.weapon_definition import CHKWeapon, Damage
-from app.models.validation import Validation
-from app.models.mask import Mask
-from app.models.tech import (
-  TechRestriction,
-  UpgradeRestriction,
-  TechCost,
-  CHKTechnology,
-  UpgradeSetting,
-)
-from app.models.rawtrigger import RawTriggerSection
-from app.models.project import Usemap, ScenarioProperty
+from app.services.utils.tileset import EraTilesetDict, EraTilesetReverseDict
+from eudplib.core.mapdata.chktok import CHK as EPCHK
+from typing import Literal, TypedDict, cast
 from ..utils.reverse import reverse_tbl_dict
+from app.types import chk_types, spatial
 import struct
-import copy
-
 
 CHK_FORMATDICT: dict[str, str] = {
   "UNIx": "".join(
@@ -98,132 +72,112 @@ class CHK:
   Base class for unpacking raw chk contents, transforming Model.
   """
 
-  units: list[CHKUnit]
+  units: list[chk_types.UnitSetting]
   chkt: EPCHK
-  string_table: list[String] = []
-  player_table: list[Player] = []
-  unitdata_table: list[CHKUnit] = []
-  size: Size
-  unit_serial_number: int = 0
-  """Not placed unit table."""
 
   def __init__(self, chkt: EPCHK):
     self.logger = get_logger("CHK")
-    self.logger.debug("Initializing CHK with raw data.")
     self.chkt = chkt
-    self.string_table = self.get_strings()
-    self.player_table = self.get_players()
-    self.unitdata_table = self.get_unit_definitions()
-    self.size = self.get_terrain().size
 
   """
   Unit section processings 
   """
 
-  def get_unit_definitions(self) -> list[CHKUnit]:
+  @property
+  def unit_definitions(self) -> list[chk_types.UnitSetting]:
     from eudplib.core.rawtrigger.strdict.stattxt import DefStatTextDict
 
-    if len(self.string_table) == 0:
-      raise ValueError("Must initialize string table before call `get units`")
-
-    result: list[CHKUnit] = []
+    result: list[chk_types.UnitSetting] = []
 
     unpacked = struct.unpack(CHK_FORMATDICT["UNIx"], self.chkt.getsection("UNIx"))
     for id in range(228):
       unitname_id: int = unpacked[id + (228 * 7)]
       unit_name = (
-        self.string_table[unitname_id].content
+        self.strings[unitname_id].content
         if unitname_id != 0
         else reverse_tbl_dict(DefStatTextDict)[id + 1]
       )
-      hit_points = Stat(current=unpacked[id + 228], max=unpacked[id + 228])
-      shield_points = Stat(
-        current=unpacked[id + (228 * 2)], max=unpacked[id + (228 * 2)]
+      stat = chk_types.Stat(
+        hit_points=unpacked[id + 228],
+        shield_points=unpacked[id + (228 * 2)],
+        armor_points=unpacked[id + (228 * 3)],
+      )
+      cost = chk_types.Cost(
+        mineral=unpacked[id + (228 * 6)],
+        gas=unpacked[id + (228 * 5)],
+        time=unpacked[id + (228 * 4)],
       )
       result.append(
-        CHKUnit(
+        chk_types.UnitSetting(
           id=id,
-          cost=Cost(
-            mineral=unpacked[id + (228 * 6)],
-            gas=unpacked[id + (228 * 5)],
-            time=unpacked[id + (228 * 4)],
-          ),
           name=unit_name,
-          hit_points=hit_points,
-          shield_points=shield_points,
-          armor_points=unpacked[id + (228 * 3)],
-          resource_amount=0,
-          hangar=0,
-          unit_state=0,
-          related_unit=0,
-          transform=TransformComponent(position=Position2D(x=0, y=0)),
+          use_default=unpacked[0],
+          stat=stat,
+          cost=cost,
+          string=self.strings[unitname_id],
         )
       )
 
     self.logger.debug(f"get_units complete: {len(result)} units parsed.")
     return result
 
-  def get_placed_units(self) -> list[CHKUnit]:
-    if len(self.unitdata_table) == 0:
-      raise ValueError("Must initialize unitdata table before call `get_placed_units`")
-
+  @property
+  def placed_units(self) -> list[chk_types.Unit]:
     unit_bytes = self.chkt.getsection("UNIT")
     format_size = struct.calcsize(CHK_FORMATDICT["UNIT"])
     unit_count = len(unit_bytes) // format_size
 
-    result: list[CHKUnit] = []
+    result: list[chk_types.Unit] = []
     for i in range(0, unit_count):
       unit = struct.unpack(
         CHK_FORMATDICT["UNIT"], unit_bytes[i * format_size : (i + 1) * format_size]
       )
-      unit_id: int = unit[3]
-      unitdata = copy.deepcopy(self.unitdata_table[unit_id])
 
-      unitdata.transform.position.x = unit[1]
-      unitdata.transform.position.y = unit[2]
-      unitdata.serial_number = (
-        self.unit_serial_number if unit_id != 214 else None
-      )  # Start Location will be ignored.
-      self.unit_serial_number += 1 if unit_id != 214 else 0
-      unitdata.relation_type = unit[4]
-      unitdata.special_properties = unit[5]
-      unitdata.valid_properties = unit[6]
-      unitdata.owner = self.player_table[unit[7]]
-      unitdata.hit_points.current = unitdata.hit_points.max * unit[8] // 100
-      unitdata.shield_points.current = unitdata.shield_points.max * unit[9] // 100
-      unitdata.resource_amount = unit[10]
-      unitdata.hangar = unit[11]
-      unitdata.unit_state = unit[12]
-      unitdata.related_unit = unit[13]
-
-      result.append(unitdata)
+      result.append(
+        chk_types.Unit(
+          serial_number=unit[0],
+          position=spatial.Position(x=unit[1], y=unit[2]),
+          unit_id=unit[3],
+          relation_type=chk_types.RelationFlag(unit[4]),
+          special_properties=chk_types.SpecialPropertiesFlag(unit[5]),
+          valid_properties=chk_types.ValidPropertiesFlag(unit[6]),
+          owner=self.players[unit[7]],
+          stat=chk_types.Stat(
+            hit_points=unit[8], shield_points=unit[9], armor_points=unit[10]
+          ),
+          resource_amount=unit[11],
+          hangar=unit[12],
+          unit_state=chk_types.UnitStateFlag(unit[13]),
+          related_unit=unit[14],
+        )
+      )
 
     self.logger.debug(f"get_placed_units complete: {len(result)} units parsed.")
     return result
 
-  def get_unit_properties(self) -> list[UnitProperty]:
+  @property
+  def unit_properties(self) -> list[chk_types.UnitProperty]:
     uprp_bytes = self.chkt.getsection("UPRP")
     format_size = struct.calcsize(CHK_FORMATDICT["UPRP"])
     section_count = len(uprp_bytes) // format_size
 
-    result: list[UnitProperty] = []
+    result: list[chk_types.UnitProperty] = []
     for i in range(section_count):
       index = format_size * i
       uprp = struct.unpack(
         CHK_FORMATDICT["UPRP"], uprp_bytes[index : index + format_size]
       )
       result.append(
-        UnitProperty(
-          id=i,
-          special_properties=uprp[0],
-          unit_data=uprp[1],
+        chk_types.UnitProperty(
+          special_properties=chk_types.SpecialPropertiesFlag(uprp[0]),
+          valid_properties=chk_types.ValidPropertiesFlag(uprp[1]),
           owner=0,  # Always be NULL in UPRP section,
-          hit_point_percent=uprp[3],
-          shield_point_percent=uprp[4],
-          energy_point_percent=uprp[5],
-          resource_amount=uprp[6],
-          units_in_hangar=uprp[7],
-          flags=uprp[8],
+          stats=chk_types.Stat(
+            hit_points=uprp[2], shield_points=uprp[3], armor_points=uprp[4]
+          ),
+          resource_amount=uprp[5],
+          hangar=uprp[6],
+          flags=chk_types.SpecialPropertiesFlag(uprp[7]),
         )
       )
 
@@ -232,7 +186,8 @@ class CHK:
     )
     return result
 
-  def get_unit_restrictions(self) -> list[UnitRestriction]:
+  @property
+  def unit_restrictions(self) -> list[chk_types.UnitRestriction]:
     puni_bytes = self.chkt.getsection("PUNI")
 
     UNIT_COUNT = 228
@@ -242,7 +197,7 @@ class CHK:
     GLOBAL_AVAILABILITY_OFFSET = PLAYER_AVAILABILITY_OFFSET + UNIT_COUNT * PLAYER_COUNT
     USES_DEFAULTS_OFFSET = GLOBAL_AVAILABILITY_OFFSET + UNIT_COUNT
 
-    result: list[UnitRestriction] = []
+    result: list[chk_types.UnitRestriction] = []
     for i in range(UNIT_COUNT):
       player_availability = cast(
         list[bool],
@@ -265,7 +220,7 @@ class CHK:
       )
 
       result.append(
-        UnitRestriction(
+        chk_types.UnitRestriction(
           id=i,
           availability=player_availability,
           global_availability=global_availability,
@@ -282,16 +237,17 @@ class CHK:
   Weapon section processing.
   """
 
-  def get_weapons(self) -> list[CHKWeapon]:
-    result: list[CHKWeapon] = []
+  @property
+  def weapons(self) -> list[chk_types.CHKWeapon]:
+    result: list[chk_types.CHKWeapon] = []
 
     unpacked = struct.unpack(CHK_FORMATDICT["UNIx"], self.chkt.getsection("UNIx"))[
       228 * 8 :
     ]
     for id in range(130):
       result.append(
-        CHKWeapon(
-          damage=Damage(amount=unpacked[id], bonus=unpacked[130 + id], factor=0)
+        chk_types.CHKWeapon(
+          damage=chk_types.Damage(amount=unpacked[id], bonus=unpacked[130 + id])
         )
       )
 
@@ -302,51 +258,59 @@ class CHK:
   Terrain section processing 
   """
 
-  def get_terrain(self) -> RawTerrain:
+  @property
+  def terrain(self) -> chk_types.Terrain:
     dim = struct.unpack(CHK_FORMATDICT["DIM "], self.chkt.getsection("DIM "))
     era = struct.unpack(CHK_FORMATDICT["ERA "], self.chkt.getsection("ERA "))
 
-    dimension: Size = Size(width=dim[0], height=dim[1])
+    dimension: spatial.Size = spatial.Size(width=dim[0], height=dim[1])
     tileset = era[0]
-
-    tile_id: list[list[Tile]] = [
-      [Tile(group=0, id=0) for _ in range(dimension.width)]
-      for _ in range(dimension.height)
-    ]
-    mtxm = struct.unpack(
-      f"{dimension.height * dimension.width}H", self.chkt.getsection("MTXM")
-    )
-
-    for y in range(dimension.height):
-      for x in range(dimension.width):
-        tile = Tile(
-          group=mtxm[y * dimension.width + x] >> 4,
-          id=mtxm[y * dimension.width + x] & 0xF,
-        )
-        tile_id[y][x] = tile
 
     self.logger.debug(
       f"get_trains complete. Width: {dimension.width}, Height: {dimension.height}"
     )
-    return RawTerrain(size=dimension, tileset=EraTilesetDict[tileset], tile_id=tile_id)
+    return chk_types.Terrain(size=dimension, tileset=EraTilesetDict[tileset])
+
+  @property
+  def tiles(self) -> list[chk_types.Tile]:
+    terrain = self.terrain
+    mtxm = struct.unpack(
+      f"{terrain.size.width * terrain.size.height}H", self.chkt.getsection("MTXM")
+    )
+
+    result: list[chk_types.Tile] = []
+    for y in range(terrain.size.height):
+      for x in range(terrain.size.width):
+        tile = chk_types.Tile(
+          group=mtxm[y * terrain.size.width + x] >> 4,
+          id=mtxm[y * terrain.size.width + x] & 0xF,
+          position=spatial.Position(x=x, y=y),
+        )
+        result.append(tile)
+
+    self.logger.debug(f"get_tile complete. {len(result)} tiles parsed.")
+    return result
 
   """
   Player section processings
   """
 
-  def get_players(self) -> list[Player]:
+  @property
+  def players(self) -> list[chk_types.Player]:
     ownr = struct.unpack(CHK_FORMATDICT["OWNR"], self.chkt.getsection("OWNR"))
     side = struct.unpack(CHK_FORMATDICT["SIDE"], self.chkt.getsection("SIDE"))
     colr = struct.unpack(CHK_FORMATDICT["COLR"], self.chkt.getsection("COLR"))
 
-    result: list[Player] = [
-      Player(
+    result: list[chk_types.Player] = [
+      chk_types.Player(
         id=i,
-        name=f"Player {i + 1}",
         color=0,
         rgb_color=(0, 0, 0),
         player_type="Computer",
         race="Inactive",
+        force=chk_types.Force(
+          id=0, name=self.strings[0], properties=chk_types.ForceProperties(0)
+        ),
       )
       for i in range(12)
     ]
@@ -368,16 +332,17 @@ class CHK:
     self.logger.debug(f"get_players complete. {len(result)} players parsed.")
     return result
 
-  def get_forces(self) -> list[Force]:
+  @property
+  def forces(self) -> list[chk_types.Force]:
     FORC = struct.unpack("8B 4H 4B", self.chkt.getsection("FORC"))
 
-    result: list[Force] = []
+    result: list[chk_types.Force] = []
     for i in range(4):
       name_index: int = FORC[8 + i] - 1
       result.append(
-        Force(
+        chk_types.Force(
           id=i,
-          name=self.string_table[name_index].content,
+          name=self.strings[name_index],
           properties=FORC[12 + i],
         )
       )
@@ -389,26 +354,25 @@ class CHK:
   Location section processing
   """
 
-  def get_locations(self) -> list[Location]:
+  @property
+  def locations(self) -> list[chk_types.Location]:
     mrgn_bytes = self.chkt.getsection("MRGN")
     format_size = struct.calcsize(CHK_FORMATDICT["MRGN"])
     location_count = len(mrgn_bytes) // format_size
 
-    result: list[Location] = []
+    result: list[chk_types.Location] = []
     for i in range(0, location_count):
       MRGN = struct.unpack(
         CHK_FORMATDICT["MRGN"], mrgn_bytes[i * format_size : (i + 1) * format_size]
       )
       if (MRGN[0], MRGN[1], MRGN[2], MRGN[3]) != (0, 0, 0, 0):
         result.append(
-          Location(
+          chk_types.Location(
             id=i,
-            position=RectPosition(
-              left=MRGN[0], top=MRGN[1], right=MRGN[2], bottom=MRGN[3]
-            ),
-            name_id=MRGN[4],
-            elevation_flags=MRGN[5],
-            name=self.string_table[MRGN[4] - 1].content,
+            string=self.strings[MRGN[4]],
+            position=spatial.Position(x=MRGN[0], y=MRGN[1]),
+            size=spatial.Size(width=MRGN[2] - MRGN[0], height=MRGN[3] - MRGN[1]),
+            elevation_flag=chk_types.ElevationFlag(MRGN[5]),
           )
         )
 
@@ -419,22 +383,23 @@ class CHK:
   Sprite section processing
   """
 
-  def get_placed_sprites(self) -> list[CHKSprite]:
+  @property
+  def sprites(self) -> list[chk_types.Sprite]:
     thg2_bytes = self.chkt.getsection("THG2")
     format_size = struct.calcsize(CHK_FORMATDICT["THG2"])
     sprite_count = len(thg2_bytes) // format_size
 
-    result: list[CHKSprite] = []
+    result: list[chk_types.Sprite] = []
     for i in range(0, sprite_count):
       sprite = struct.unpack(
         CHK_FORMATDICT["THG2"], thg2_bytes[i * format_size : (i + 1) * format_size]
       )
       result.append(
-        CHKSprite(
+        chk_types.Sprite(
           id=sprite[0],
-          transform=TransformComponent(position=Position2D(x=sprite[1], y=sprite[2])),
-          owner=sprite[3],
-          flags=sprite[5],
+          position=spatial.Position(x=sprite[1], y=sprite[2]),
+          owner=self.players[sprite[3]],
+          flags=chk_types.SpriteFlag(sprite[5]),
         )
       )
 
@@ -445,7 +410,8 @@ class CHK:
   String section processing
   """
 
-  def get_strings(self) -> list[String]:
+  @property
+  def strings(self) -> list[chk_types.String]:
     str_bytes = self.chkt.getsection("STRx")
     string_count = struct.unpack("I", str_bytes[0:4])[0]
     offsets = [
@@ -453,56 +419,60 @@ class CHK:
       for i in range(4, 4 + 4 * string_count, 4)
     ]
 
-    result: list[String] = []
+    result: list[chk_types.String] = []
     for i in range(string_count):
       start = offsets[i]
       end = offsets[i + 1] if i + 1 < len(offsets) else len(str_bytes)
       string_content = str_bytes[start:end].split(b"\x00")[0].decode("utf-8")
-      result.append(String(id=i, content=string_content))
+      result.append(chk_types.String(id=i, content=string_content))
 
+    self.logger.debug(f"get_strings complete. {len(result)} strings parsed.")
     return result
 
-  def get_scenario_properties(self) -> ScenarioProperty:
-    if len(self.string_table) == 0:
-      raise ValueError(
-        "Must initialize string table before call `get_scenario_properties()`"
-      )
-
+  @property
+  def scenario_properties(self) -> chk_types.ScenarioProperty:
     SPRP = struct.unpack("2H", self.chkt.getsection("SPRP"))
-    name = self.string_table[SPRP[0] - 1]
-    description = self.string_table[SPRP[1] - 1]
+    name = self.strings[SPRP[0] - 1]
+    description = self.strings[SPRP[1] - 1]
 
     self.logger.debug(
       f"get_scenario_properties complete. name: {name}, description: {description}"
     )
 
-    return ScenarioProperty(name=name, description=description)
+    return chk_types.ScenarioProperty(name=name, description=description)
 
   """
   Validation section processing 
   """
 
-  def get_validation(self) -> Validation:
+  @property
+  def validation(self) -> chk_types.Validation:
     ver_bytes = self.chkt.getsection("VER ")
 
     # FIXME: VCOD validation need
     vcod_bytes = self.chkt.getsection("VCOD")
 
     self.logger.debug("get_validation complete.")
-    return Validation(
+    return chk_types.Validation(
       ver=ver_bytes,
       vcod=vcod_bytes,
     )
 
-  def get_mask(self) -> list[Mask]:
+  @property
+  def mask(self) -> list[chk_types.Mask]:
     mask_bytes = self.chkt.getsection("MASK")
 
-    result: list[Mask] = []
-    for x in range(self.size.height):
-      for y in range(self.size.width):
-        position = y * self.size.width + x
+    result: list[chk_types.Mask] = []
+    for x in range(self.terrain.size.height):
+      for y in range(self.terrain.size.width):
+        position = y * self.terrain.size.width + x
         flag = struct.unpack("B", mask_bytes[position : position + 1])[0]
-        result.append(Mask(id=position, flags=flag))
+        result.append(
+          chk_types.Mask(
+            position=spatial.Position(x=x, y=y),
+            flags=chk_types.MaskFlag(flag),
+          )
+        )
 
     self.logger.debug("get_mask complete.")
     return result
@@ -511,7 +481,8 @@ class CHK:
   Tech section processings
   """
 
-  def get_upgrade_restrictions(self) -> list[UpgradeRestriction]:
+  @property
+  def upgrade_restrictions(self) -> list[chk_types.UpgradeRestriction]:
     pupx_bytes = self.chkt.getsection("PUPx")
 
     UPGRADE_COUNT = 61
@@ -522,7 +493,7 @@ class CHK:
     DEFAULT_START_OFFSET = DEFAULT_MAX_OFFSET + UPGRADE_COUNT
     USES_DEFAULT_OFFSET = DEFAULT_START_OFFSET + UPGRADE_COUNT
 
-    result: list[UpgradeRestriction] = []
+    result: list[chk_types.UpgradeRestriction] = []
 
     for i in range(UPGRADE_COUNT):
       player_max = list(
@@ -547,7 +518,7 @@ class CHK:
       )
 
       result.append(
-        UpgradeRestriction(
+        chk_types.UpgradeRestriction(
           id=i,
           player_maximum_level=player_max,
           player_minimum_level=player_min,
@@ -562,7 +533,8 @@ class CHK:
     )
     return result
 
-  def get_tech_restrictions(self) -> list[TechRestriction]:
+  @property
+  def tech_restrictions(self) -> list[chk_types.TechRestriction]:
     ptex_bytes = self.chkt.getsection("PTEx")
 
     TECH_COUNT = 44
@@ -573,7 +545,7 @@ class CHK:
     DEFAULT_RESEARCHED_OFFSET = DEFAULT_AVAILABILITY_OFFSET + TECH_COUNT
     USES_DEFAULT_OFFSET = DEFAULT_RESEARCHED_OFFSET + TECH_COUNT
 
-    result: list[TechRestriction] = []
+    result: list[chk_types.TechRestriction] = []
     for i in range(TECH_COUNT):
       player_availability: list[bool] = cast(
         list[bool],
@@ -606,7 +578,7 @@ class CHK:
       )
 
       result.append(
-        TechRestriction(
+        chk_types.TechRestriction(
           id=i,
           player_availability=player_availability,
           player_already_researched=player_researched,
@@ -621,7 +593,8 @@ class CHK:
     )
     return result
 
-  def get_upgrade_settings(self) -> list[UpgradeSetting]:
+  @property
+  def upgrade_settings(self) -> list[chk_types.Upgrade]:
     upgx_bytes = self.chkt.getsection("UPGx")
     UPGx = struct.unpack(f"61B B {61 * 6}H", upgx_bytes)
 
@@ -635,18 +608,18 @@ class CHK:
     BASE_TIME_OFFSET = FACTOR_GAS_OFFSET + UPGRADE_COUNT
     FACTOR_TIME_OFFSET = BASE_TIME_OFFSET + UPGRADE_COUNT
 
-    result: list[UpgradeSetting] = []
+    result: list[chk_types.Upgrade] = []
     for i in range(UPGRADE_COUNT):
       result.append(
-        UpgradeSetting(
+        chk_types.Upgrade(
           id=i,
           uses_default=UPGx[USES_DEFAULT_OFFSET + i],
-          base_cost=Cost(
+          base_cost=chk_types.Cost(
             mineral=UPGx[BASE_MINERAL_OFFSET + i],
             gas=UPGx[BASE_GAS_OFFSET + i],
             time=UPGx[BASE_TIME_OFFSET + i],
           ),
-          factor_cost=Cost(
+          factor_cost=chk_types.Cost(
             mineral=UPGx[FACTOR_MINERAL_OFFSET + i],
             gas=UPGx[FACTOR_GAS_OFFSET + i],
             time=UPGx[FACTOR_TIME_OFFSET + i],
@@ -657,7 +630,8 @@ class CHK:
     self.logger.debug(f"get_upgrade_settings complete. {len(result)} settings parsed.")
     return result
 
-  def get_technologies(self) -> list[CHKTechnology]:
+  @property
+  def technologies(self) -> list[chk_types.Technology]:
     tecx_bytes = self.chkt.getsection("TECx")
     TECx = struct.unpack("44B 44H 44H 44H 44H", tecx_bytes)
 
@@ -668,13 +642,13 @@ class CHK:
     TIME_COST_OFFSET = GAS_COST_OFFSET + TECH_COUNT
     ENERGY_COST_OFFSET = TIME_COST_OFFSET + TECH_COUNT
 
-    result: list[CHKTechnology] = []
+    result: list[chk_types.Technology] = []
     for i in range(TECH_COUNT):
       result.append(
-        CHKTechnology(
+        chk_types.Technology(
           id=i,
           use_default=TECx[USE_DEFAULT_OFFSET + i : USE_DEFAULT_OFFSET + i + 1][0],
-          cost=TechCost(
+          cost=chk_types.CostWithEnergy(
             mineral=TECx[MINERAL_COST_OFFSET + i : MINERAL_COST_OFFSET + i + 1][0],
             gas=TECx[GAS_COST_OFFSET + i : GAS_COST_OFFSET + i + 1][0],
             time=TECx[TIME_COST_OFFSET + i : TIME_COST_OFFSET + i + 1][0],
@@ -688,17 +662,19 @@ class CHK:
     )
     return result
 
-  def get_triggers(self) -> RawTriggerSection:
+  @property
+  def triggers(self) -> chk_types.Trigger:
     trig_bytes = self.chkt.getsection("TRIG")
 
     self.logger.debug("get_triggers complete.")
-    return RawTriggerSection(raw_data=trig_bytes)
+    return chk_types.Trigger(raw_data=trig_bytes)
 
-  def get_mbrf_triggers(self) -> RawTriggerSection:
+  @property
+  def mbrf_triggers(self) -> chk_types.Trigger:
     mbrf_bytes = self.chkt.getsection("MBRF")
 
     self.logger.debug("get_mbrf_triggers complete.")
-    return RawTriggerSection(raw_data=mbrf_bytes)
+    return chk_types.Trigger(raw_data=mbrf_bytes)
 
 
 def section(name: str, data: bytes) -> bytes:
@@ -707,6 +683,10 @@ def section(name: str, data: bytes) -> bytes:
 
 
 class CHKBuilder:
+  """
+  CHKBuilder is a class that builds a CHK file from a Usemap.
+  """
+
   def __init__(self, map: Usemap):
     self.map = map
     self.logger = get_logger("CHK")
@@ -795,9 +775,11 @@ class CHKBuilder:
   def MTXM(self) -> bytes:
     b = bytearray()
 
+    tiles = [t for t in self.map.entities if isinstance(t, chk_types.Tile)]
+
     for y in range(self.map.terrain.size.height):
       for x in range(self.map.terrain.size.width):
-        tile = self.map.terrain.tile_id[y][x]
+        tile = tiles[y * self.map.terrain.size.width + x]
         value = (tile.group << 4) | (tile.id & 0xF)
         b += struct.pack("<H", value)
 
@@ -870,9 +852,13 @@ class CHKBuilder:
 
   @property
   def UNIT(self) -> bytes:
+    from app.models.unit import Unit
+
     b = bytearray()
 
-    for unit in self.map.placed_unit:
+    units = [u for u in self.map.entities if isinstance(u, Unit)]
+
+    for unit in units:
       unit_ref = unit.unit_definition
       b += struct.pack(
         "<I 6H 4B I 2H 2I",
@@ -902,9 +888,13 @@ class CHKBuilder:
 
   @property
   def THG2(self) -> bytes:
+    from app.models.sprite import Sprite
+
     b = bytearray()
 
-    for sprite in self.map.placed_sprite:
+    sprites = [s for s in self.map.entities if isinstance(s, Sprite)]
+
+    for sprite in sprites:
       b += struct.pack(
         "<3H2BH",
         sprite.id,
@@ -980,16 +970,22 @@ class CHKBuilder:
 
   @property
   def MRGN(self) -> bytes:
+    from app.models.location import Location
+
     b = bytearray()
 
-    for location in self.map.location:
+    locations = [
+      location for location in self.map.entities if isinstance(location, Location)
+    ]
+
+    for location in locations:
       b += struct.pack(
         "<4I2H",
-        location.position.left,
-        location.position.top,
-        location.position.right,
-        location.position.bottom,
-        location.name_id,
+        location.transform.position.x,
+        location.transform.position.y,
+        location.transform.position.x + location.transform.size.width,
+        location.transform.position.y + location.transform.size.height,
+        self.find_string_by_content(location.name).id,
         location.elevation_flags,
       )
 
