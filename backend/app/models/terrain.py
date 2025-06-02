@@ -1,36 +1,11 @@
+from app.types.tileset import Tileset
 from pydantic import BaseModel
-from typing import TypeAlias, Literal
 from .structs.spatial import Size
+from .entity import Entity
 
 
 class Tile(BaseModel):
   group: int
-  id: int
-
-
-Tileset: TypeAlias = Literal[
-  "Ashworld",
-  "Badlands",
-  "Desert",
-  "Ice",
-  "Installation",
-  "Jungle",
-  "Platform",
-  "Twilight",
-]
-
-EraTilesetDict: dict[int, Tileset] = {
-  0: "Ashworld",
-  1: "Badlands",
-  2: "Desert",
-  3: "Ice",
-  4: "Installation",
-  5: "Jungle",
-  6: "Platform",
-  7: "Twilight",
-}
-
-EraTilesetReverseDict: dict[Tileset, int] = {v: k for k, v in EraTilesetDict.items()}
 
 
 class RawTerrain(BaseModel):
