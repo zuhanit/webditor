@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import IntFlag
+from typing import Optional
 from app.types.spatial import Position, Size
 from app.types.race import PlayerType, Race
 from app.types.tileset import Tileset
@@ -16,7 +17,8 @@ class Cost:
 class Stat:
   hit_points: int
   shield_points: int
-  armor_points: int
+  armor_points: Optional[int] = None
+  energy_points: Optional[int] = None
 
 
 @dataclass
