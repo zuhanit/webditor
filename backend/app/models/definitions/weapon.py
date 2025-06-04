@@ -43,7 +43,3 @@ class WeaponDefinition(Definition):
   error_message: int
   icon: int
   graphics: int
-
-
-class CHKWeapon(BaseModel):
-  damage: Damage
