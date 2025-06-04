@@ -848,7 +848,7 @@ class CHKBuilder:
 
   @property
   def UNIT(self) -> bytes:
-    from app.models.unit import Unit
+    from app.models.entities.unit import Unit
 
     b = bytearray()
 
@@ -949,7 +949,7 @@ class CHKBuilder:
 
   @property
   def UPRP(self) -> bytes:
-    from app.models.unit import UnitProperty
+    from app.models.entities.unit import UnitProperty
 
     b = bytearray()
 
