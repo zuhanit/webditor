@@ -9,7 +9,6 @@ from app.services.utils.reverse import reverse_tbl_dict
 from .dat import DAT
 from .chk import CHK
 from functools import cached_property
-from app.core.w_logging import time_logger
 
 
 class MapConverter:
@@ -30,8 +29,6 @@ class MapConverter:
   def tiles(self):
     from app.models.entities.tile import Tile
 
-    print("start")
-
     return [
       Tile(
         id=id,
@@ -49,8 +46,6 @@ class MapConverter:
   @cached_property
   def locations(self):
     from app.models.entities.location import Location
-
-    print("start loc")
 
     return [
       Location(
@@ -189,8 +184,6 @@ class MapConverter:
   def placed_units(self):
     from app.models.entities.unit import Unit
 
-    print("Placed Units")
-
     return [
       Unit(
         id=id,
@@ -216,8 +209,6 @@ class MapConverter:
   @cached_property
   def placed_sprites(self):
     from app.models.entities.sprite import Sprite
-
-    print("Placed Sprites")
 
     return [
       Sprite(
