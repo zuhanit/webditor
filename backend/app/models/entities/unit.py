@@ -1,37 +1,10 @@
 from typing import Optional
-from app.models.definitions.unit_definition import UnitDefinition
-from app.models.structs.stat import Stat
+from app.models.definitions.unit import UnitDefinition
 from pydantic import Field
 from .player import Player
-from .entity import Entity, EntityKind
-from .structs.cost import Cost
+from .entities.entity import Entity, EntityKind
 from .wobject import WObject
 from enum import Flag
-
-
-class CHKUnit(Entity):
-  """CHK compatible Unit."""
-
-  kind: EntityKind = "Unit"
-  serial_number: Optional[int] = None
-  """Identical number when unit placed on map. -1 When non-placed unit."""
-  cost: Cost
-  hit_points: Stat = Stat()
-  shield_points: Stat = Stat()
-  energy_points: Stat = Stat()
-  armor_points: int = Field(default=0, lt=256)
-  owner: Player = Player(
-    player_type="Inactive", race="Inactive", color=0, rgb_color=(0, 0, 0)
-  )
-  resource_amount: int = 0
-  hangar: int = 0
-  unit_state: int = 0
-  relation_type: int = 0
-  related_unit: int = 0
-  special_properties: int = 0
-  valid_properties: int = 0
-  use_default: bool = True
-  # transform = TransformComponent(position=Position2D(x=0, y=0))
 
 
 class Unit(Entity):
@@ -93,7 +66,7 @@ class UnitProperty(WObject):
   """Create units with properties trigger used."""
 
   special_properties: int
-  unit_data: int
+  valid_properties: int
   owner: int = Field(default=0, le=1)
   hit_point_percent: int = Field(default=1, le=100, ge=0)
   shield_point_percent: int = Field(default=1, le=100, ge=0)
@@ -101,9 +74,3 @@ class UnitProperty(WObject):
   resource_amount: int
   units_in_hangar: int
   flags: int
-
-
-class UnitRestriction(WObject):
-  availability: list[bool]
-  global_availability: bool
-  uses_defaults: list[bool]
