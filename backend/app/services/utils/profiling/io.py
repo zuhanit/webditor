@@ -1,6 +1,6 @@
 from app.services.rawdata.chk import CHK
 from app.services.rawdata.dat import DAT
-from app.services.mapdata.io import get_chkt, get_map
+from app.services.io import get_chkt, get_map
 from cProfile import Profile
 from io import BytesIO
 import pstats
