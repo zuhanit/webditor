@@ -23,3 +23,9 @@ class UnitDefinition(Definition):
   sound: UnitSound
   size: UnitSize
   cost: UnitCost
+
+
+class UnitRestriction(Definition):
+  availability: list[bool]
+  global_availability: bool
+  uses_defaults: list[bool]
