@@ -1,3 +1,4 @@
+from functools import cached_property
 import struct
 from typing import Callable, Literal, Optional, TypeVar, Generic, TypedDict, cast
 from pathlib import Path
@@ -45,7 +46,7 @@ class DAT(Generic[T]):
     except Exception as e:
       raise RuntimeError(f"Cannot read raw dat file {self.fname}.dat. Detail: {str(e)}")
 
-  @property
+  @cached_property
   def result(self) -> tuple[T, ...]:
     offset = 0
     fields = []
@@ -261,7 +262,7 @@ class SpritesDatFile(DAT[Sprite]):
       for i in range(index_offset, index_offset + count)
     ]
 
-  @property
+  @cached_property
   def result(self) -> tuple[Sprite, ...]:
     s = [{} for _ in range(self.entry_count)]
 
@@ -428,7 +429,7 @@ class UnitsDatFile(DAT[Unit]):
       for i in range(index_offset, index_offset + count)
     ]
 
-  @property
+  @cached_property
   def result(self) -> tuple[Unit, ...]:
     u = [{} for _ in range(self.entry_count)]
 
