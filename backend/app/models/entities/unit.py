@@ -1,9 +1,9 @@
 from typing import Optional
 from app.models.definitions.unit import UnitDefinition
 from pydantic import Field
-from .player import Player
-from .entities.entity import Entity, EntityKind
-from .wobject import WObject
+from ..player import Player
+from .entity import Entity, EntityKind
+from ..wobject import WObject
 from enum import Flag
 
 
