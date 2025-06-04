@@ -1,7 +1,7 @@
-from .wobject import WObject
+from .definition import Definition
 
 
-class Order(WObject):
+class OrderDefinition(Definition):
   label: int
   use_weapon_targeting: bool
   can_be_interrupted: bool

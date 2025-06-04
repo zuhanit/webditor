@@ -1,9 +1,9 @@
 from pydantic import Field
-from .wobject import WObject
-from .structs.cost import Cost
+from .definition import Definition
+from ..structs.cost import Cost
 
 
-class UpgradeRestriction(WObject):
+class UpgradeRestriction(Definition):
   player_maximum_level: list[int] = Field(min_length=12, max_length=12)
   player_minimum_level: list[int] = Field(min_length=12, max_length=12)
   default_maximum_level: int
@@ -11,7 +11,7 @@ class UpgradeRestriction(WObject):
   uses_default: list[bool] = Field(min_length=12, max_length=12)
 
 
-class TechRestriction(WObject):
+class TechRestriction(Definition):
   player_availability: list[bool] = Field(min_length=12, max_length=12)
   player_already_researched: list[bool] = Field(min_length=12, max_length=12)
   default_availability: bool
@@ -23,12 +23,7 @@ class TechCost(Cost):
   energy: int = Field(default=0, ge=0)
 
 
-class CHKTechnology(WObject):
-  use_default: bool
-  cost: TechCost
-
-
-class Technology(WObject):
+class Technology(Definition):
   use_default: bool
   cost: TechCost
   energy_required: bool
@@ -37,13 +32,13 @@ class Technology(WObject):
   race: int
 
 
-class UpgradeSetting(WObject):
+class UpgradeSetting(Definition):
   uses_default: bool
   base_cost: Cost
   factor_cost: Cost
 
 
-class Upgrade(WObject):
+class Upgrade(Definition):
   use_default: bool
   base_cost: Cost
   factor_cost: Cost
