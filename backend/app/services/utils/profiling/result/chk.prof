@@ -1,78 +1,18 @@
-         91322 function calls (91319 primitive calls) in 0.069 seconds
+         35128 function calls (35125 primitive calls) in 0.067 seconds
 
    Ordered by: cumulative time
+   List reduced from 46 to 10 due to restriction <10>
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-       23    0.000    0.000    0.075    0.003 /Volumes/External/Programming/webditor/backend/app/services/utils/profiling/chk.py:18(<lambda>)
-       23    0.000    0.000    0.075    0.003 {built-in method builtins.getattr}
-    21/18    0.000    0.000    0.075    0.004 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/functools.py:981(__get__)
-        1    0.018    0.018    0.037    0.037 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:462(mask)
+       23    0.000    0.000    0.072    0.003 /Volumes/External/Programming/webditor/backend/app/services/utils/profiling/chk.py:18(<lambda>)
+    21/18    0.000    0.000    0.072    0.004 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/functools.py:981(__get__)
+        1    0.017    0.017    0.035    0.035 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:462(mask)
         1    0.001    0.001    0.019    0.019 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:87(unit_definitions)
       228    0.000    0.000    0.018    0.000 /Volumes/External/Programming/webditor/backend/app/services/utils/reverse.py:1(reverse_tbl_dict)
       228    0.018    0.000    0.018    0.000 /Volumes/External/Programming/webditor/backend/app/services/utils/reverse.py:2(<dictcomp>)
         1    0.013    0.013    0.016    0.016 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:275(tiles)
-    16705    0.004    0.000    0.016    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/enum.py:688(__call__)
+    16705    0.004    0.000    0.015    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/enum.py:688(__call__)
     16705    0.011    0.000    0.011    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/enum.py:1095(__new__)
         1    0.000    0.000    0.001    0.001 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:336(forces)
-        1    0.001    0.001    0.001    0.001 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:414(strings)
-    34730    0.001    0.000    0.001    0.000 {method 'append' of 'list' objects}
-    17774    0.001    0.000    0.001    0.000 {built-in method _struct.unpack}
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:190(unit_restrictions)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:125(placed_units)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:159(unit_properties)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:418(<listcomp>)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:241(weapons)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:485(upgrade_restrictions)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:358(locations)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:537(tech_restrictions)
-       16    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/enum.py:1377(_missing_)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:597(upgrade_settings)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:634(technologies)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:299(players)
-       26    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/.venv/lib/python3.11/site-packages/eudplib/core/mapdata/chktok.py:93(getsection)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:433(scenario_properties)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:387(sprites)
-       49    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/enum.py:1357(_iter_member_by_value_)
-     1024    0.000    0.000    0.000    0.000 {method 'split' of 'bytes' objects}
-      965    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/typing.py:2287(cast)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:305(<listcomp>)
-     1096    0.000    0.000    0.000    0.000 {built-in method builtins.len}
-       21    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/logging/__init__.py:1467(debug)
-     1024    0.000    0.000    0.000    0.000 {method 'decode' of 'bytes' objects}
-       26    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/.venv/lib/python3.11/site-packages/eudplib/core/mapdata/chktok.py:17(sectionname_format)
-        2    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/dataclasses.py:233(wrapper)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:673(mbrf_triggers)
-       21    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/logging/__init__.py:1734(isEnabledFor)
-        2    0.000    0.000    0.000    0.000 <string>:2(__repr__)
-       49    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/enum.py:117(_iter_bits_lsb)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:262(terrain)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:449(validation)
-      229    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
-        1    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/cProfile.py:107(runcall)
-        1    0.000    0.000    0.000    0.000 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:666(triggers)
-       80    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
-       69    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
-       11    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/enum.py:1453(<listcomp>)
-       16    0.000    0.000    0.000    0.000 {method 'setdefault' of 'dict' objects}
-       21    0.000    0.000    0.000    0.000 {method '__exit__' of '_thread.RLock' objects}
-       26    0.000    0.000    0.000    0.000 {method 'encode' of 'str' objects}
-        4    0.000    0.000    0.000    0.000 {built-in method _struct.calcsize}
-       16    0.000    0.000    0.000    0.000 {built-in method __new__ of type object at 0x10269fcf0}
-       16    0.000    0.000    0.000    0.000 {built-in method builtins.hasattr}
-       23    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
-       11    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
-        1    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/logging/__init__.py:228(_acquireLock)
-        1    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/logging/__init__.py:237(_releaseLock)
-        1    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/logging/__init__.py:1720(getEffectiveLevel)
-        2    0.000    0.000    0.000    0.000 <string>:2(__init__)
-        2    0.000    0.000    0.000    0.000 {built-in method builtins.id}
-        2    0.000    0.000    0.000    0.000 {built-in method _thread.get_ident}
-        2    0.000    0.000    0.000    0.000 {method 'discard' of 'set' objects}
-        1    0.000    0.000    0.000    0.000 {method 'enable' of '_lsprof.Profiler' objects}
-        2    0.000    0.000    0.000    0.000 {method 'add' of 'set' objects}
-        1    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/logging/__init__.py:1319(disable)
-        1    0.000    0.000    0.000    0.000 {built-in method builtins.repr}
-        1    0.000    0.000    0.000    0.000 {method 'release' of '_thread.RLock' objects}
-        1    0.000    0.000    0.000    0.000 {method 'acquire' of '_thread.RLock' objects}
 
 

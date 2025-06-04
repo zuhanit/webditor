@@ -13,11 +13,11 @@ properties = [
   name for name in dir(chk) if not name.startswith("__") and not name.endswith("__")
 ]
 
-with Profile() as profiler:
+with Profile(builtins=False) as profiler:
   for property in properties:
     profiler.runcall(lambda: getattr(chk, property))
 
   with open("app/services/utils/profiling/result/chk.prof", "w") as f:
     stats = pstats.Stats(profiler, stream=f)
     stats.sort_stats("cumulative")
-    stats.print_stats()
+    stats.print_stats(10)

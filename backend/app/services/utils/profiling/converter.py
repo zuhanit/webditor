@@ -26,4 +26,4 @@ with Profile(builtins=False) as profiler:
   with open("app/services/utils/profiling/result/converter.prof", "w") as f:
     stats = pstats.Stats(profiler, stream=f)
     stats.sort_stats("cumulative")
-    stats.print_stats()
+    stats.print_stats(10)
