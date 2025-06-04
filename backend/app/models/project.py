@@ -1,4 +1,4 @@
-from app.models.definitions.definition import Definition
+from app.models.asset import Asset
 from pydantic import BaseModel
 from .player import Force, Player
 from .string import String
@@ -26,7 +26,7 @@ class Usemap(BaseModel):
   force: list[Force]
   scenario_property: ScenarioProperty
   entities: list[Entity]
-  assets: list[Definition]
+  assets: Asset
 
 
 class Project(BaseModel):
