@@ -1,5 +1,6 @@
 import os
-from app.services.merger import Merger
+from app.models.entities.entity import Entity
+from app.services.rawdata.converter import MapConverter
 from eudplib import CompressPayload
 from eudplib.core.mapdata import chktok, mapdata
 from eudplib.maprw.savemap import SaveMap
@@ -48,7 +49,32 @@ def get_chkt(file: BytesIO) -> chktok.CHK:
 
 def get_map(chk: CHK, dat: DAT):
   """ """
-  merger = Merger(chk, dat)
+  converter = MapConverter(dat, chk)
+  entities: list[Entity] = [
+    *converter.tiles,
+    *converter.locations,
+    *converter.placed_sprites,
+    *converter.placed_units,
+    *converter.mask,
+  ]
+
+  print("Collected Entities")
+
+  assets = [
+    *converter.upgrades,
+    *converter.tech,
+    *converter.upgrade_restrictions,
+    *converter.tech_restrictions,
+    *converter.unit_restrictions,
+    *converter.flingy_definitions,
+    *converter.sprite_definitions,
+    *converter.image_definitions,
+    *converter.weapon_definitions,
+    *converter.unit_definitions,
+    *converter.orders,
+    *converter.portraits,
+  ]
+
   map: Usemap = Usemap(
     terrain=chk.get_terrain(),
     player=chk.get_players(),
