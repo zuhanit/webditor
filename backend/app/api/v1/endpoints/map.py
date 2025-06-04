@@ -7,7 +7,7 @@ from fastapi.responses import StreamingResponse
 from firebase_admin import storage, firestore
 from app.core.firebase.auth import get_current_user
 from app.models.project import Usemap, Project
-from app.services.mapdata.io import build_map, get_chkt, get_map
+from app.services.io import build_map, get_chkt, get_map
 from app.services.rawdata.chk import CHK
 from io import BytesIO
 import uuid

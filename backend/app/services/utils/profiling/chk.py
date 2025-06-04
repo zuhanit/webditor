@@ -1,5 +1,5 @@
 from app.services.rawdata.chk import CHK
-from app.services.mapdata.io import get_chkt
+from app.services.io import get_chkt
 from io import BytesIO
 from cProfile import Profile
 import pstats

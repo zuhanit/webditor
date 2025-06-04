@@ -2,7 +2,7 @@ from io import BytesIO
 from app.services.rawdata.dat import DAT
 from eudplib import GetChkTokenized
 from app.services.rawdata.chk import CHK, CHKBuilder
-from app.services.mapdata.io import build_map, get_chkt, get_map
+from app.services.io import build_map, get_chkt, get_map
 from eudplib.core.mapdata.chktok import CHK as EPCHK
 from eudplib.maprw.loadmap import LoadMap
 from rich.console import Console
