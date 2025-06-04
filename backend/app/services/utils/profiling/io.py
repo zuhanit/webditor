@@ -13,7 +13,7 @@ with Profile(builtins=False) as profiler:
   with open("app/services/utils/profiling/result/io/get_chkt.prof", "w") as f:
     stats = pstats.Stats(profiler, stream=f)
     stats.sort_stats("cumulative")
-    stats.print_stats()
+    stats.print_stats(10)
 
 with open("example/various_units.scx", "rb") as f:
   chkt = get_chkt(BytesIO(f.read()))
@@ -27,4 +27,4 @@ with Profile(builtins=False) as profiler:
   with open("app/services/utils/profiling/result/io/get_map.prof", "w") as f:
     stats = pstats.Stats(profiler, stream=f)
     stats.sort_stats("cumulative")
-    stats.print_stats()
+    stats.print_stats(10)
