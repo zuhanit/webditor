@@ -1,9 +1,9 @@
 from typing import Literal, TypeAlias
 from pydantic import Field
-from .wobject import WObject
-from .components.transform import TransformComponent
+from ..wobject import WObject
+from ..components.transform import TransformComponent
 
-EntityKind: TypeAlias = Literal["Unit", "Sprite", "Location", "Terrain"]
+EntityKind: TypeAlias = Literal["Unit", "Sprite", "Location", "Tile", "Mask"]
 
 
 class Entity(WObject):

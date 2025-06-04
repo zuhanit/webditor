@@ -1,5 +1,6 @@
 import os
-from app.services.merger import Merger
+from app.models.entities.entity import Entity
+from app.services.rawdata.converter import MapConverter
 from eudplib import CompressPayload
 from eudplib.core.mapdata import chktok, mapdata
 from eudplib.maprw.savemap import SaveMap
@@ -7,7 +8,7 @@ from eudplib.maprw.loadmap import LoadMap
 from eudplib.bindings._rust import mpqapi
 from tempfile import NamedTemporaryFile
 from io import BytesIO
-from app.services.mapdata.chk import CHK, CHKBuilder
+from app.services.rawdata.chk import CHK, CHKBuilder
 from app.services.rawdata.dat import DAT
 from app.models.project import Usemap
 from app.services.bridge.transformer import Transformer
@@ -48,33 +49,44 @@ def get_chkt(file: BytesIO) -> chktok.CHK:
 
 def get_map(chk: CHK, dat: DAT):
   """ """
-  merger = Merger(chk, dat)
+  converter = MapConverter(dat, chk)
+  entities: list[Entity] = [
+    *converter.tiles,
+    *converter.locations,
+    *converter.placed_sprites,
+    *converter.placed_units,
+    *converter.mask,
+  ]
+
+  print("Collected Entities")
+
+  assets = [
+    *converter.upgrades,
+    *converter.tech,
+    *converter.upgrade_restrictions,
+    *converter.tech_restrictions,
+    *converter.unit_restrictions,
+    *converter.flingy_definitions,
+    *converter.sprite_definitions,
+    *converter.image_definitions,
+    *converter.weapon_definitions,
+    *converter.unit_definitions,
+    *converter.orders,
+    *converter.portraits,
+  ]
+
   map: Usemap = Usemap(
-    terrain=chk.get_terrain(),
-    player=chk.get_players(),
-    location=chk.get_locations(),
-    unit_definitions=merger.merge_unit_definitions(),
-    placed_unit=merger.merge_placed_unit(),
-    sprite=dat.get_sprites(),
-    placed_sprite=merger.merge_placed_sprite(),
-    string=chk.get_strings(),
-    validation=chk.get_validation(),
-    mask=chk.get_mask(),
-    unit_properties=chk.get_unit_properties(),
-    upgrade_restrictions=chk.get_upgrade_restrictions(),
-    tech_restrictions=chk.get_tech_restrictions(),
-    upgrades=merger.merge_upgrade(),
-    technologies=merger.merge_tech(),
-    unit_restrictions=chk.get_unit_restrictions(),
-    raw_triggers=chk.get_triggers(),
-    raw_mbrf_triggers=chk.get_mbrf_triggers(),
-    force=chk.get_forces(),
-    scenario_property=chk.get_scenario_properties(),
-    weapons=merger.merge_weapon(),
-    images=dat.get_images(),
-    flingy=dat.get_flingy(),
-    orders=dat.get_orders(),
-    portrait=dat.get_portraits(),
+    terrain=converter.terrain,
+    player=converter.players,
+    string=converter.strings,
+    validation=converter.validation,
+    unit_properties=converter.unit_properties,
+    raw_triggers=converter.triggers,
+    raw_mbrf_triggers=converter.mbrf_triggers,
+    force=converter.forces,
+    scenario_property=converter.scenario_property,
+    entities=entities,
+    assets=assets,
   )
 
   return map

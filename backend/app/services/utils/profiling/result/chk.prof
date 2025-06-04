@@ -1,0 +1,18 @@
+         35128 function calls (35125 primitive calls) in 0.067 seconds
+
+   Ordered by: cumulative time
+   List reduced from 46 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       23    0.000    0.000    0.072    0.003 /Volumes/External/Programming/webditor/backend/app/services/utils/profiling/chk.py:18(<lambda>)
+    21/18    0.000    0.000    0.072    0.004 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/functools.py:981(__get__)
+        1    0.017    0.017    0.035    0.035 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:462(mask)
+        1    0.001    0.001    0.019    0.019 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:87(unit_definitions)
+      228    0.000    0.000    0.018    0.000 /Volumes/External/Programming/webditor/backend/app/services/utils/reverse.py:1(reverse_tbl_dict)
+      228    0.018    0.000    0.018    0.000 /Volumes/External/Programming/webditor/backend/app/services/utils/reverse.py:2(<dictcomp>)
+        1    0.013    0.013    0.016    0.016 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:275(tiles)
+    16705    0.004    0.000    0.015    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/enum.py:688(__call__)
+    16705    0.011    0.000    0.011    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/enum.py:1095(__new__)
+        1    0.000    0.000    0.001    0.001 /Volumes/External/Programming/webditor/backend/app/services/rawdata/chk.py:336(forces)
+
+

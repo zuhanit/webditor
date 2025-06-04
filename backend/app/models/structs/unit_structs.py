@@ -5,7 +5,7 @@ from .required_and_provided import RequiredAndProvided
 from .spatial import Position2D, RectPosition, Size
 from .stat import Stat
 from .cost import Cost
-from ..definitions.weapon_definition import WeaponDefinition
+from ..definitions.weapon import WeaponDefinition
 
 
 class UnitSpecification(Struct):

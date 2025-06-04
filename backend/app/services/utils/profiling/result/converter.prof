@@ -1,0 +1,18 @@
+         223499 function calls (223172 primitive calls) in 0.506 seconds
+
+   Ordered by: cumulative time
+   List reduced from 387 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       28    0.000    0.000    0.512    0.018 /Volumes/External/Programming/webditor/backend/app/services/utils/profiling/converter.py:24(<lambda>)
+    71/21    0.001    0.000    0.512    0.024 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/functools.py:981(__get__)
+     5690    0.002    0.000    0.162    0.000 /Volumes/External/Programming/webditor/backend/app/services/utils/reverse.py:1(reverse_tbl_dict)
+   139321    0.160    0.000    0.160    0.000 /Volumes/External/Programming/webditor/backend/.venv/lib/python3.11/site-packages/pydantic/main.py:243(__init__)
+     5690    0.160    0.000    0.160    0.000 /Volumes/External/Programming/webditor/backend/app/services/utils/reverse.py:2(<dictcomp>)
+        1    0.000    0.000    0.149    0.149 /Volumes/External/Programming/webditor/backend/app/services/rawdata/converter.py:28(tiles)
+        1    0.000    0.000    0.135    0.135 /Volumes/External/Programming/webditor/backend/app/services/rawdata/converter.py:73(mask)
+        1    0.022    0.022    0.100    0.100 /Volumes/External/Programming/webditor/backend/app/services/rawdata/converter.py:32(<listcomp>)
+        1    0.022    0.022    0.098    0.098 /Volumes/External/Programming/webditor/backend/app/services/rawdata/converter.py:77(<listcomp>)
+        7    0.006    0.001    0.097    0.014 /Volumes/External/Programming/webditor/backend/app/services/rawdata/dat.py:104(sprites)
+
+
