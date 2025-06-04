@@ -111,7 +111,7 @@ class UnitRestriction:
 
 
 @dataclass
-class CHKWeapon:
+class Weapon:
   damage: Damage
 
 
@@ -176,7 +176,7 @@ class SpriteFlag(IntFlag):
 
 @dataclass
 class Sprite:
-  id: int
+  sprite_id: int
   position: Position
   owner: Player
   flags: SpriteFlag
