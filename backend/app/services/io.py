@@ -226,13 +226,7 @@ def get_chkt(file: BytesIO) -> chktok.CHK:
 def get_map(chk: CHK, dat: DAT):
   """ """
   converter = MapConverter(dat, chk)
-  entities: list[Entity] = [
-    *converter.tiles,
-    *converter.locations,
-    *converter.placed_sprites,
-    *converter.placed_units,
-    *converter.mask,
-  ]
+  entities: list[EntityNode] = get_entity_node(converter)
 
   map: Usemap = Usemap(
     terrain=converter.terrain,
