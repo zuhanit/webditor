@@ -149,6 +149,7 @@ export function useViewportImage(): ViewportImageBundle {
 
     terrainImage.current = getTerrainImage(
       usemap.terrain,
+      usemap.entities.find((entity) => entity.name === "Tile")!.children!.map((tile) => tile.data),
       tileGroup,
       tilesetData,
     );
@@ -157,18 +158,19 @@ export function useViewportImage(): ViewportImageBundle {
   const requiredImageIDs = useMemo(() => {
     const result = new Set<number>();
     if (usemap) {
-      usemap.placed_unit.forEach((unit) => {
-        const flingyID = unit.unit_definition.specification.graphics;
-        const spriteID = usemap.flingy[flingyID].sprite;
-        const imageID = usemap.sprite[spriteID].image;
+      const unitEntities = usemap.entities.find((entity) => entity.name === "Unit")!.children!;
+      const spriteEntities = usemap.entities.find((entity) => entity.name === "Sprite")!.children!;
 
-        result.add(imageID);
+      unitEntities.forEach((unit) => {
+        result.add(unit.data.unit_definition.specification.graphics.sprite.image.id);
       });
 
-      usemap.placed_sprite.forEach((sprite) => result.add(sprite.image));
+      spriteEntities.forEach((sprite) => {
+        result.add(sprite.data.definition.image.id);
+      });
     }
     return result;
-  }, [usemap?.placed_unit]);
+  }, [usemap?.entities]);
   const { data: imagesData, loading } = useImages(requiredImageIDs, "sd");
 
   /** Create placed unit image */
@@ -177,14 +179,12 @@ export function useViewportImage(): ViewportImageBundle {
     (async () => {
       const bmp = await getPlacedUnitImage(
         usemap.terrain,
-        usemap.placed_unit,
-        usemap.flingy,
-        usemap.sprite,
+        usemap.entities.find((entity) => entity.name === "Unit")!.children!.map((unit) => unit.data),
         imagesData,
       );
       setUnitImage(bmp);
     })();
-  }, [usemap?.placed_unit, usemap?.flingy, usemap?.sprite, loading]);
+  }, [usemap?.entities, loading]);
 
   /** Create sprite image */
   useEffect(() => {
@@ -192,17 +192,20 @@ export function useViewportImage(): ViewportImageBundle {
     (async () => {
       const bmp = await getPlacedSpriteImages(
         usemap.terrain,
-        usemap.placed_sprite,
+        usemap.entities.find((entity) => entity.name === "Sprite")!.children!.map((sprite) => sprite.data),
         imagesData,
       );
       setSpriteImage(bmp);
     })();
-  }, [usemap?.placed_sprite, loading]);
+  }, [usemap?.entities, loading]);
 
   useEffect(() => {
     if (!usemap) return;
-    locationImage.current = getLocationImage(usemap.terrain, usemap.location);
-  }, [usemap?.location]);
+    locationImage.current = getLocationImage(
+      usemap.terrain,
+      usemap.entities.find((entity) => entity.name === "Location")!.children!.map((location) => location.data),
+    );
+  }, [usemap?.entities]);
 
   return {
     terrain: terrainImage.current,
@@ -251,13 +254,11 @@ export function useUnitImage(unit: Unit) {
   useEffect(() => {
     if (!usemap) return;
 
-    const flingyID = unit.unit_definition.specification.graphics;
-    const spriteID = usemap.flingy[flingyID].sprite;
-    const imageID = usemap.sprite[spriteID].image;
+    const imageID = unit.unit_definition.specification.graphics.sprite.image.id;
 
     const { data } = useImage({ version: "sd", imageIndex: imageID });
     setData(data);
-  }, [usemap?.flingy, usemap?.sprite]);
+  }, [usemap?.entities]);
 
   return data;
 }

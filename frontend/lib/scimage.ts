@@ -60,10 +60,8 @@ export function createTeamColorUnitImage(
 }
 
 export async function getPlacedUnitImage(
-  terrain: Terrain,
+  terrain: RawTerrain,
   placedUnit: Unit[],
-  flingy: Flingy[],
-  sprite: Sprite[],
   SCImages: Map<number, SCImageBundle>,
 ): Promise<ImageBitmap> {
   const canvas = new OffscreenCanvas(
@@ -73,9 +71,7 @@ export async function getPlacedUnitImage(
   const ctx = canvas.getContext("2d")!;
 
   const tasks = placedUnit.map(async (unit) => {
-    const flingyID = unit.unit_definition.specification.graphics;
-    const spriteID = flingy[flingyID].sprite;
-    const imageID = sprite[spriteID].image;
+    const imageID = unit.unit_definition.specification.graphics.sprite.image.id;
     const image = SCImages.get(imageID);
 
     if (!image || !image.diffuse) return;
@@ -122,7 +118,7 @@ export async function getPlacedUnitImage(
 }
 
 export async function getPlacedSpriteImages(
-  terrain: Terrain,
+  terrain: RawTerrain,
   placedSprite: Sprite[],
   SCImages: Map<number, SCImageBundle>,
 ) {
@@ -133,7 +129,7 @@ export async function getPlacedSpriteImages(
   const ctx = canvas.getContext("2d")!;
 
   const tasks = placedSprite.map(async (sprite) => {
-    const imageID = sprite.image;
+    const imageID = sprite.definition.image.id;
     const image = SCImages.get(imageID);
 
     if (!image) return;
@@ -153,7 +149,7 @@ export async function getPlacedSpriteImages(
   return canvas.transferToImageBitmap();
 }
 
-export function getLocationImage(terrain: Terrain, locations: Location[]) {
+export function getLocationImage(terrain: RawTerrain, locations: Location[]) {
   const thickness = 3;
   const canvas = new OffscreenCanvas(
     terrain.size.width * TILE_SIZE,
@@ -163,19 +159,19 @@ export function getLocationImage(terrain: Terrain, locations: Location[]) {
 
   locations.forEach((location) => {
     if (location.id != 63) {
-      const width = location.position.right - location.position.left;
-      const height = location.position.bottom - location.position.top;
+      const width = location.transform.size.width;
+      const height = location.transform.size.height;
       ctx.fillStyle = "rgba(0, 0, 255, 0.15)";
       ctx.fillRect(
-        location.position.left,
-        location.position.top,
+        location.transform.position.x,
+        location.transform.position.y,
         width,
         height,
       );
       ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
       ctx.strokeRect(
-        location.position.left,
-        location.position.top,
+        location.transform.position.x,
+        location.transform.position.y,
         width + thickness,
         height + thickness,
       );
@@ -183,8 +179,8 @@ export function getLocationImage(terrain: Terrain, locations: Location[]) {
       ctx.fillStyle = "rgb(255, 255, 255)";
       ctx.fillText(
         location.name,
-        location.position.left,
-        location.position.top,
+        location.transform.position.x,
+        location.transform.position.y,
       );
     }
   });
