@@ -12,10 +12,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ReactNode, useEffect, useState } from "react";
 import { SCImageRenderer } from "./renderer";
-import { UnitSchema } from "@/types/schemas/Unit";
-import { SpriteSchema } from "@/types/schemas/Sprite";
-import { ImageSchema } from "@/types/schemas/Image";
-import { WeaponDefinitionSchema } from "@/types/schemas/WeaponDefinition";
+import { AssetSchema, AssetType } from "@/types/asset";
 import { Button } from "../ui/button";
 import { Editor } from "./editor";
 import { useUsemapStore } from "@/store/mapStore";
@@ -25,82 +22,27 @@ import { Resizable } from "re-resizable";
 import { useDraggableAsset } from "@/hooks/useDraggableAsset";
 import { twMerge } from "tailwind-merge";
 
-export function AssetCard({
-  item,
-  className,
-}: {
-  item: Item;
-  className?: string;
-}) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: item.label,
-    data: item.properties,
-  });
-  const { assets, setAssets, isEditorOpen, openEditor, setActivatedAsset } =
-    useAssetStore((state) => state);
-  const handleDoubleClick = () => {
-    if (!isEditorOpen) openEditor();
-    if (assets.find((asset) => asset.label === item.label)) return;
-    setAssets([...assets, item]);
-    setActivatedAsset(item);
-  };
-
-  const style = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      }
-    : undefined;
-
-  return (
-    <Card
-      ref={setNodeRef}
-      style={style}
-      onDoubleClick={handleDoubleClick}
-      className={twMerge("h-36 w-36", className)}
-      {...listeners}
-      {...attributes}
-    >
-      <CardHeader>{item.label}</CardHeader>
-    </Card>
-  );
-}
-
-export function AssetEditorImage({ asset }: { asset: Item }) {
+export function AssetEditorImage({ asset }: { asset: AssetType }) {
   const [image, setImage] = useState<ReactNode | null>(null);
   const usemap = useUsemapStore((state) => state.usemap);
 
-  const unitResult = UnitSchema.safeParse(asset.properties);
-  const spriteResult = SpriteSchema.safeParse(asset.properties);
-  const imageResult = ImageSchema.safeParse(asset.properties);
-  const weaponResult = WeaponDefinitionSchema.safeParse(asset.properties);
-
+  const result = AssetSchema.safeParse(asset);
   useEffect(() => {
     if (!usemap) return;
 
-    if (unitResult.success) {
-      const flingyID = unitResult.data.unit_definition.specification.graphics;
-      const spriteID = usemap.flingy[flingyID].sprite;
-      const imageID = usemap.sprite[spriteID].image;
-      setImage(<SCImageRenderer frame={0} version="sd" imageIndex={imageID} />);
+    console.log(result.data);
+    if (result.data?.type === "file") {
+      if (result.data.preview) {
+        setImage(
+          <SCImageRenderer
+            frame={0}
+            version="sd"
+            imageIndex={result.data.preview}
+          />,
+        );
+      }
     }
-
-    if (imageResult.success) {
-      const i = imageResult.data.graphic;
-      setImage(<SCImageRenderer frame={0} version="sd" imageIndex={i} />);
-    }
-
-    if (spriteResult.success) {
-      const imageID = spriteResult.data.image;
-      setImage(<SCImageRenderer frame={0} version="sd" imageIndex={imageID} />);
-    }
-
-    if (weaponResult.success) {
-      const flingyID = weaponResult.data.graphics;
-      const spriteID = usemap.flingy[flingyID].sprite;
-      const imageID = usemap.sprite[spriteID].image;
-      setImage(<SCImageRenderer frame={0} version="sd" imageIndex={imageID} />);
-    }
-  }, [unitResult.success, usemap]);
+  }, [result.success, usemap]);
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center">
@@ -128,7 +70,7 @@ export function AssetEditor() {
   if (!assets.length || !isEditorOpen || !activatedAsset) return null;
 
   // FIXME: Using ID, or something else to identify asset
-  const onClickClose = (asset: Item) => {
+  const onClickClose = (asset: AssetType) => {
     const currentActivatedAssetIndex = assets.findIndex((a) => a === asset);
     const nextActivatedAssetIndex =
       currentActivatedAssetIndex === assets.length - 1
@@ -143,14 +85,14 @@ export function AssetEditor() {
   const onClickSave = () => {
     if (!activatedAsset) return;
 
-    updateUsemap((draft: any) => {
-      let target = draft;
-      for (let i = 0; i < activatedAsset.path.length - 1; i++) {
-        target = target[activatedAsset.path[i]];
-      }
-      target[activatedAsset.path[activatedAsset.path.length - 1]] =
-        activatedAsset.properties;
-    });
+    // updateUsemap((draft: any) => {
+    //   let target = draft;
+    //   for (let i = 0; i < activatedAsset.path.length - 1; i++) {
+    //     target = target[activatedAsset.path[i]];
+    //   }
+    //   target[activatedAsset.path[activatedAsset.path.length - 1]] =
+    //     activatedAsset.properties;
+    // });
   };
 
   return (
@@ -188,16 +130,16 @@ export function AssetEditor() {
               </Button>
             </div>
           </Toolbar>
-          <Tabs defaultValue={activatedAsset.label}>
+          <Tabs defaultValue={activatedAsset.name} className="w-full">
             <SidebarHeader>
               <TabsList>
                 {assets.map((asset) => (
-                  <div key={asset.label} className="flex items-center gap-2">
+                  <div key={asset.name} className="flex items-center gap-2">
                     <TabsTrigger
-                      value={asset.label}
+                      value={asset.name}
                       onClick={() => setActivatedAsset(asset)}
                     >
-                      {asset.label}
+                      {asset.name}
                     </TabsTrigger>
                     <button onClick={() => onClickClose(asset)}>
                       <X />
@@ -211,10 +153,16 @@ export function AssetEditor() {
                 {assets.map((asset) => (
                   <TabsContent
                     className="flex"
-                    key={asset.label}
-                    value={asset.label}
+                    key={asset.name}
+                    value={asset.name}
                   >
-                    <Editor item={asset} />
+                    <Editor
+                      item={{
+                        label: asset.name,
+                        path: [],
+                        properties: asset.data,
+                      }}
+                    />
                     <AssetEditorImage asset={asset} />
                   </TabsContent>
                 ))}
