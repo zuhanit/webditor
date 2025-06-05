@@ -1,6 +1,6 @@
 import os
 from app.models.asset import Asset
-from app.models.entities.entity import Entity
+from app.models.entity_node import EntityNode
 from app.services.rawdata.converter import MapConverter
 from eudplib import CompressPayload
 from eudplib.core.mapdata import chktok, mapdata
@@ -22,7 +22,7 @@ def get_assets(converter: MapConverter) -> Asset:
     type="folder",
     children=[
       Asset(
-        name="upgrades",
+        name="Upgrades",
         type="folder",
         children=[
           Asset(name=upgrade.name, type="file", data=upgrade.model_dump())
@@ -30,7 +30,7 @@ def get_assets(converter: MapConverter) -> Asset:
         ],
       ),
       Asset(
-        name="tech",
+        name="Tech",
         type="folder",
         children=[
           Asset(name=tech.name, type="file", data=tech.model_dump())
@@ -38,7 +38,7 @@ def get_assets(converter: MapConverter) -> Asset:
         ],
       ),
       Asset(
-        name="upgrade_restrictions",
+        name="Upgrade Restrictions",
         type="folder",
         children=[
           Asset(
@@ -50,7 +50,7 @@ def get_assets(converter: MapConverter) -> Asset:
         ],
       ),
       Asset(
-        name="tech_restrictions",
+        name="Tech Restrictions",
         type="folder",
         children=[
           Asset(
@@ -60,7 +60,7 @@ def get_assets(converter: MapConverter) -> Asset:
         ],
       ),
       Asset(
-        name="unit_restrictions",
+        name="Unit Restrictions",
         type="folder",
         children=[
           Asset(
@@ -70,7 +70,7 @@ def get_assets(converter: MapConverter) -> Asset:
         ],
       ),
       Asset(
-        name="flingy_definitions",
+        name="Flingy Definitions",
         type="folder",
         children=[
           Asset(
@@ -82,29 +82,33 @@ def get_assets(converter: MapConverter) -> Asset:
         ],
       ),
       Asset(
-        name="sprite_definitions",
+        name="Sprite Definitions",
         type="folder",
         children=[
           Asset(
             name=sprite_definition.name,
             type="file",
             data=sprite_definition.model_dump(),
+            preview=sprite_definition.image.id,
           )
           for sprite_definition in converter.sprite_definitions
         ],
       ),
       Asset(
-        name="image_definitions",
+        name="Image Definitions",
         type="folder",
         children=[
           Asset(
-            name=image_definition.name, type="file", data=image_definition.model_dump()
+            name=image_definition.name,
+            type="file",
+            data=image_definition.model_dump(),
+            preview=image_definition.id,
           )
           for image_definition in converter.image_definitions
         ],
       ),
       Asset(
-        name="weapon_definitions",
+        name="Weapon Definitions",
         type="folder",
         children=[
           Asset(
@@ -116,17 +120,20 @@ def get_assets(converter: MapConverter) -> Asset:
         ],
       ),
       Asset(
-        name="unit_definitions",
+        name="Unit Definitions",
         type="folder",
         children=[
           Asset(
-            name=unit_definition.name, type="file", data=unit_definition.model_dump()
+            name=unit_definition.name,
+            type="file",
+            data=unit_definition.model_dump(),
+            preview=unit_definition.specification.graphics.sprite.image.id,
           )
           for unit_definition in converter.unit_definitions
         ],
       ),
       Asset(
-        name="orders",
+        name="Orders",
         type="folder",
         children=[
           Asset(name=order.name, type="file", data=order.model_dump())
@@ -134,7 +141,7 @@ def get_assets(converter: MapConverter) -> Asset:
         ],
       ),
       Asset(
-        name="portraits",
+        name="Portraits",
         type="folder",
         children=[
           Asset(name=portrait.name, type="file", data=portrait.model_dump())
@@ -143,7 +150,6 @@ def get_assets(converter: MapConverter) -> Asset:
       ),
     ],
   )
-
   return root
 
 
