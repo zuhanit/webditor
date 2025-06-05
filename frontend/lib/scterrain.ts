@@ -1,4 +1,5 @@
-import { Terrain } from "@/types/schemas/Terrain";
+import { Tile } from "@/types/schemas/entities/Tile";
+import { RawTerrain } from "@/types/schemas/terrain/RawTerrain";
 
 export const TILE_SIZE = 32;
 
@@ -25,7 +26,8 @@ export function drawMegatile(
 }
 
 export function getTerrainImage(
-  terrain: Terrain,
+  terrain: RawTerrain,
+  tiles: Tile[],
   tileGroup: number[][],
   tilesetData: Uint8Array,
 ) {
@@ -34,16 +36,13 @@ export function getTerrainImage(
     terrain.size.height * TILE_SIZE,
   );
   const terrainCtx = terrainCanvas.getContext("2d")!;
-
-  for (let y = 0; y < terrain.size.height; y++) {
-    for (let x = 0; x < terrain.size.width; x++) {
-      const tile = terrain.tile_id[y][x];
-      const megatileID = tileGroup[tile.group][tile.id];
-      const offset = megatileID * 3072;
-      const rgbData = tilesetData.slice(offset, offset + 3072);
-      drawMegatile(terrainCtx, x, y, rgbData);
-    }
-  }
+  
+  tiles.forEach(tile => {
+    const megatileID = tileGroup[tile.group][tile.tile_id];
+    const offset = megatileID * 3072;
+    const rgbData = tilesetData.slice(offset, offset + 3072);
+    drawMegatile(terrainCtx, tile.transform.position.x, tile.transform.position.y, rgbData);
+  })
 
   return terrainCanvas.transferToImageBitmap();
 }
