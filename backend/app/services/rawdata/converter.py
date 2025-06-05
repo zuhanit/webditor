@@ -286,10 +286,12 @@ class MapConverter:
   @cached_property
   def upgrade_restrictions(self):
     from app.models.definitions.tech import UpgradeRestriction
+    from eudplib.core.rawtrigger.strdict.upgrade import DefUpgradeDict
 
     return [
       UpgradeRestriction(
         id=id,
+        name=reverse_tbl_dict(DefUpgradeDict)[id],
         player_maximum_level=upgrade_restriction.player_maximum_level,
         player_minimum_level=upgrade_restriction.player_minimum_level,
         default_maximum_level=upgrade_restriction.default_maximum_level,
@@ -302,10 +304,12 @@ class MapConverter:
   @cached_property
   def tech_restrictions(self):
     from app.models.definitions.tech import TechRestriction
+    from eudplib.core.rawtrigger.strdict.tech import DefTechDict
 
     return [
       TechRestriction(
         id=id,
+        name=reverse_tbl_dict(DefTechDict)[id],
         player_availability=tech_restriction.player_availability,
         player_already_researched=tech_restriction.player_already_researched,
         default_availability=tech_restriction.default_availability,
@@ -318,10 +322,12 @@ class MapConverter:
   @cached_property
   def unit_restrictions(self):
     from app.models.definitions.unit import UnitRestriction
+    from eudplib.core.rawtrigger.strdict import DefUnitDict
 
     return [
       UnitRestriction(
         id=id,
+        name=reverse_tbl_dict(DefUnitDict)[id],
         availability=unit_restriction.availability,
         global_availability=unit_restriction.global_availability,
         uses_defaults=unit_restriction.uses_defaults,
@@ -559,10 +565,12 @@ class MapConverter:
   @cached_property
   def orders(self):
     from app.models.definitions.order import OrderDefinition
+    from eudplib.core.rawtrigger.strdict.unitorder import DefUnitOrderDict
 
     return [
       OrderDefinition(
         id=id,
+        name=reverse_tbl_dict(DefUnitOrderDict)[id],
         label=order.label,
         use_weapon_targeting=order.use_weapon_targeting,
         can_be_interrupted=order.can_be_interrupted,
@@ -579,10 +587,12 @@ class MapConverter:
   @cached_property
   def portraits(self):
     from app.models.definitions.portrait import PortraitDefinition
+    from eudplib.core.rawtrigger.strdict.portrait import DefPortraitDict
 
     return [
       PortraitDefinition(
         id=id,
+        name=reverse_tbl_dict(DefPortraitDict)[id],
         portrait_file=portrait.portrait_file,
         smk_change=portrait.smk_change,
         unknown1=portrait.unknown1,
