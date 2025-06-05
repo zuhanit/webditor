@@ -1,4 +1,4 @@
-import { Usemap } from "@/types/schemas/Usemap";
+import { Usemap } from "@/types/schemas/project/Usemap";
 
 export function resolveReferences(rawUsemap: Usemap) {
   console.log("Resolving References...");

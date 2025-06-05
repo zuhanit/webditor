@@ -1,4 +1,4 @@
-import { Entity } from "@/types/schemas/Entity";
+import { Entity } from "@/types/schemas/entities/Entity";
 import { create } from "zustand";
 
 interface EntityStore {
