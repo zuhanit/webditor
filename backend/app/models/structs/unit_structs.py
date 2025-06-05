@@ -1,4 +1,5 @@
 from typing import Optional
+from ..definitions.flingy import FlingyDefinition
 from pydantic import Field
 from .struct import Struct
 from .required_and_provided import RequiredAndProvided
@@ -10,7 +11,7 @@ from ..definitions.weapon import WeaponDefinition
 
 class UnitSpecification(Struct):
   name: str = "Unit Specification"
-  graphics: int
+  graphics: FlingyDefinition
   subunit1: int
   subunit2: int
   infestation: Optional[int]

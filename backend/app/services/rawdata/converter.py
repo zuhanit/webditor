@@ -456,7 +456,7 @@ class MapConverter:
         use_default=unit_definition.use_default,
         specification=UnitSpecification(
           name="Unit Specification",
-          graphics=UnitsDat.result[id]["graphics"],
+          graphics=self.flingy_definitions[UnitsDat.result[id]["graphics"]],
           subunit1=UnitsDat.result[id]["subunit1"],
           subunit2=UnitsDat.result[id]["subunit2"],
           infestation=UnitsDat.result[id]["infestation"] if 106 <= id <= 201 else None,
