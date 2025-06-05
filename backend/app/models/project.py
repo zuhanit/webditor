@@ -5,8 +5,8 @@ from .string import String
 from .entities.unit import UnitProperty
 from .validation import Validation
 from .rawtrigger import RawTriggerSection
-from .entities.entity import Entity
 from .terrain import RawTerrain
+from .entity_node import EntityNode
 import datetime
 
 
@@ -25,7 +25,7 @@ class Usemap(BaseModel):
   raw_mbrf_triggers: RawTriggerSection
   force: list[Force]
   scenario_property: ScenarioProperty
-  entities: list[Entity]
+  entities: list[EntityNode]
   assets: Asset
 
 

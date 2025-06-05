@@ -147,6 +147,44 @@ def get_assets(converter: MapConverter) -> Asset:
   return root
 
 
+def get_entity_node(converter: MapConverter) -> list[EntityNode]:
+  return [
+    EntityNode(
+      name="Tile",
+      children=[
+        EntityNode(
+          name=tile.name,
+          data=tile,
+        )
+        for tile in converter.tiles
+      ],
+    ),
+    EntityNode(
+      name="Location",
+      children=[
+        EntityNode(name=location.name, data=location)
+        for location in converter.locations
+      ],
+    ),
+    EntityNode(
+      name="Sprite",
+      children=[
+        EntityNode(name=sprite.name, data=sprite) for sprite in converter.placed_sprites
+      ],
+    ),
+    EntityNode(
+      name="Unit",
+      children=[
+        EntityNode(name=unit.name, data=unit) for unit in converter.placed_units
+      ],
+    ),
+    EntityNode(
+      name="Mask",
+      children=[EntityNode(name=mask.name, data=mask) for mask in converter.mask],
+    ),
+  ]
+
+
 def get_chkt(file: BytesIO) -> chktok.CHK:
   """
   Get chkt class.
