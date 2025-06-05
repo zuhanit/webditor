@@ -1,9 +1,8 @@
-import { Flingy } from "@/types/schemas/Flingy";
-import { Sprite } from "@/types/schemas/Sprite";
-import { Terrain } from "@/types/schemas/Terrain";
-import { Unit } from "@/types/schemas/Unit";
+import { RawTerrain } from "@/types/schemas/terrain/RawTerrain";
+import { Unit } from "@/types/schemas/entities/Unit";
+import { Sprite } from "@/types/schemas/entities/Sprite";
 import { FrameMeta, SCImageBundle } from "@/types/SCImage";
-import { Location } from "@/types/schemas/Location";
+import { Location } from "@/types/schemas/entities/Location";
 import { TILE_SIZE } from "./scterrain";
 
 type props = { image: Blob; frame: number; meta: FrameMeta };

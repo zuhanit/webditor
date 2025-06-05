@@ -1,6 +1,6 @@
 "use client";
 
-import { Usemap } from "@/types/schemas/Usemap";
+import { Usemap } from "@/types/schemas/project/Usemap";
 import { resolveReferences } from "@/utils/resolve";
 import { create } from "zustand";
 

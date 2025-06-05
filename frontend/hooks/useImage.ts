@@ -18,7 +18,7 @@ import {
   getPlacedSpriteImages,
   getPlacedUnitImage,
 } from "@/lib/scimage";
-import { Unit } from "@/types/schemas/Unit";
+import { Unit } from "@/types/schemas/entities/Unit";
 
 const safeGet = async <T>(promise: Promise<{ data: T }>) => {
   try {

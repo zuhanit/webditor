@@ -1,6 +1,6 @@
 import api from "@/lib/api";
 import { useUsemapStore } from "@/store/mapStore";
-import { Usemap } from "@/types/schemas/Usemap";
+import { Usemap } from "@/types/schemas/project/Usemap";
 import { resolveReferences } from "@/utils/resolve";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
