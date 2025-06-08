@@ -45,10 +45,7 @@ export function AssetSidebarItem({ asset }: { asset: AssetType }) {
         <Collapsible key={asset.name} className="group/collapsible">
           <SidebarMenuItem>
             <CollapsibleTrigger asChild>
-              <SidebarMenuButton
-                className="flex items-center gap-2"
-                onClick={() => setCurrentAsset(asset)}
-              >
+              <SidebarMenuButton className="flex items-center gap-2">
                 <Folder className="size-4 text-blue" strokeWidth={3} />
                 {asset.name}
                 <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
