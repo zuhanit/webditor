@@ -1,0 +1,18 @@
+         127473 function calls (125230 primitive calls) in 0.194 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1165 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        5    0.000    0.000    0.195    0.039 /Volumes/External/Programming/webditor/backend/app/services/utils/profiling/dat.py:16(<lambda>)
+        1    0.000    0.000    0.101    0.101 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/cProfile.py:107(runcall)
+        1    0.000    0.000    0.101    0.101 /Volumes/External/Programming/webditor/backend/app/services/rawdata/dat.py:40(flingy)
+    218/1    0.001    0.000    0.096    0.096 <frozen importlib._bootstrap>:1165(_find_and_load)
+    218/1    0.001    0.000    0.096    0.096 <frozen importlib._bootstrap>:1120(_find_and_load_unlocked)
+    450/1    0.011    0.000    0.096    0.096 <frozen importlib._bootstrap>:233(_call_with_frames_removed)
+    206/1    0.000    0.000    0.096    0.096 <frozen importlib._bootstrap>:666(_load_unlocked)
+    203/1    0.000    0.000    0.096    0.096 <frozen importlib._bootstrap_external>:934(exec_module)
+        1    0.000    0.000    0.096    0.096 /Volumes/External/Programming/webditor/backend/.venv/lib/python3.11/site-packages/eudplib/__init__.py:1(<module>)
+        1    0.000    0.000    0.090    0.090 /Volumes/External/Programming/webditor/backend/.venv/lib/python3.11/site-packages/eudplib/prelude/__init__.py:1(<module>)
+
+

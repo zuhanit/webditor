@@ -1,22 +1,21 @@
-from app.models.components.transform import TransformComponent
-from app.models.flingy import Flingy
-from app.models.images import Image
-from app.models.order import Order
-from app.models.portrait import Portrait
-from app.models.structs.spatial import Position2D
-from app.models.sprite import Sprite
 from ..utils.reverse import reverse_tbl_dict
 from .datdata import ImagesDat, FlingyDat, OrdersDat, PortdataDat, SpritesDat
+from app.types import dat_types
 
 
 class DAT:
-  def get_images(self) -> list[Image]:
+  """
+  DAT is a class that contains necessary data from the DAT file.
+  """
+
+  @property
+  def images(self) -> list[dat_types.Image]:
     from eudplib.core.rawtrigger.strdict.image import DefImageDict
 
-    result: list[Image] = []
+    result: list[dat_types.Image] = []
     for id, image in enumerate(ImagesDat.result):
       result.append(
-        Image(
+        dat_types.Image(
           id=id,
           name=reverse_tbl_dict(DefImageDict)[id],
           graphic=image["grp_id"],
@@ -38,34 +37,36 @@ class DAT:
 
     return result
 
-  def get_flingy(self) -> list[Flingy]:
+  @property
+  def flingy(self) -> list[dat_types.Flingy]:
     from eudplib.core.rawtrigger.strdict.flingy import DefFlingyDict
 
-    result: list[Flingy] = []
+    result: list[dat_types.Flingy] = []
     for id, flingy in enumerate(FlingyDat.result):
       result.append(
-        Flingy(
+        dat_types.Flingy(
           id=id,
           name=reverse_tbl_dict(DefFlingyDict)[id],
           sprite=flingy["sprite"],
-          topSpeed=flingy["topSpeed"],
+          top_speed=flingy["topSpeed"],
           acceleration=flingy["acceleration"],
-          haltDistance=flingy["haltDistance"],
-          turnRadius=flingy["turnRadius"],
+          halt_distance=flingy["haltDistance"],
+          turn_radius=flingy["turnRadius"],
           unused=flingy["unused"],
-          moveControl=flingy["moveControl"],
+          move_control=flingy["moveControl"],
         )
       )
 
     return result
 
-  def get_orders(self) -> list[Order]:
+  @property
+  def orders(self) -> list[dat_types.Order]:
     from eudplib.core.rawtrigger.strdict.unitorder import DefUnitOrderDict
 
-    result: list[Order] = []
+    result: list[dat_types.Order] = []
     for id, order in enumerate(OrdersDat.result):
       result.append(
-        Order(
+        dat_types.Order(
           id=id,
           name=reverse_tbl_dict(DefUnitOrderDict)[id],
           label=order["label"],
@@ -82,13 +83,14 @@ class DAT:
 
     return result
 
-  def get_portraits(self) -> list[Portrait]:
+  @property
+  def portraits(self) -> list[dat_types.Portrait]:
     from eudplib.core.rawtrigger.strdict.portrait import DefPortraitDict
 
-    result: list[Portrait] = []
+    result: list[dat_types.Portrait] = []
     for id, portrait in enumerate(PortdataDat.result):
       result.append(
-        Portrait(
+        dat_types.Portrait(
           id=id,
           name=reverse_tbl_dict(DefPortraitDict)[id],
           portrait_file=portrait["portrait_file"],
@@ -99,16 +101,16 @@ class DAT:
 
     return result
 
-  def get_sprites(self) -> list[Sprite]:
+  @property
+  def sprites(self) -> list[dat_types.Sprite]:
     from eudplib.core.rawtrigger.strdict.sprite import DefSpriteDict
 
-    result: list[Sprite] = []
+    result: list[dat_types.Sprite] = []
     for id, sprite in enumerate(SpritesDat.result):
       result.append(
-        Sprite(
+        dat_types.Sprite(
           id=id,
           name=reverse_tbl_dict(DefSpriteDict)[id],
-          transform=TransformComponent(position=Position2D()),
           owner=0,
           flags=0,
           image=sprite["image_file"],

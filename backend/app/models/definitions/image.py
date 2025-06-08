@@ -1,7 +1,7 @@
-from .wobject import WObject
+from .definition import Definition
 
 
-class Image(WObject):
+class ImageDefinition(Definition):
   graphic: int
   turnable: bool
   clickable: bool

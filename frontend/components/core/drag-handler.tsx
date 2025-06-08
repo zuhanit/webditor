@@ -1,19 +1,26 @@
 "use client";
 
-import { AssetType } from "@/types/asset";
+import { Asset } from "@/types/asset";
 import { DragOverlay, UniqueIdentifier, useDndMonitor } from "@dnd-kit/core";
 import { ReactElement, useState } from "react";
 import { DroppableContextKind } from "@/types/dnd";
 import { useUsemapStore } from "@/store/mapStore";
 import { Viewport } from "@/types/viewport";
 import { TILE_SIZE } from "@/lib/scterrain";
-import { Unit, UnitSchema } from "@/types/schemas/Unit";
-import { Entity, EntitySchema } from "@/types/schemas/Entity";
+import { Unit, UnitSchema } from "@/types/schemas/entities/Unit";
+import { Entity, EntitySchema } from "@/types/schemas/entities/Entity";
 import { SCImageRenderer } from "./renderer";
-import { Sprite } from "@/types/schemas/Sprite";
-import { useAssetStore } from "@/store/assetStore";
+import { Sprite } from "@/types/schemas/entities/Sprite";
+import { useAsseEditortStore } from "@/store/assetEditorStore";
 
-type DraggingAssetKind = "Asset" | "Unit" | "Sprite" | "Terrain" | "Location";
+type DraggingAssetKind =
+  | "Asset"
+  | "Unit"
+  | "Sprite"
+  | "Terrain"
+  | "Location"
+  | "Tile"
+  | "Mask";
 
 /**
  * Component for handling every drag/drop event at one component.
@@ -24,10 +31,10 @@ type DraggingAssetKind = "Asset" | "Unit" | "Sprite" | "Terrain" | "Location";
  * @returns DragOverlay Component
  */
 export function DragHandler() {
-  const [draggingAsset, setDraggingAsset] = useState<AssetType | null>(null);
+  const [draggingAsset, setDraggingAsset] = useState<Asset | null>(null);
   const [draggingAssetKind, setDraggingAssetKind] =
     useState<DraggingAssetKind>("Asset");
-  const { setEditorPosition } = useAssetStore((state) => state);
+  const { setEditorPosition } = useAsseEditortStore((state) => state);
 
   const usemap = useUsemapStore((state) => state.usemap);
   const updateUsemap = useUsemapStore((state) => state.updateUsemap); // zustand 또는 context 등
@@ -47,22 +54,15 @@ export function DragHandler() {
       const unit = Object.assign({}, item) as Unit;
       unit.transform.position.x = x;
       unit.transform.position.y = y;
-
-      updateUsemap((draft) => {
-        draft.placed_unit = [...draft.placed_unit, unit];
-      });
     }
   };
 
   useDndMonitor({
     onDragStart(event) {
       setDraggingAsset({
-        id: event.active.id as number,
-        item: {
-          label: event.active.id as string,
-          path: [],
-          properties: event.active.data.current!,
-        },
+        name: event.active.id as string,
+        type: "file",
+        data: event.active.data.current!,
       });
 
       const isEntity = EntitySchema.safeParse(
@@ -137,20 +137,26 @@ export function DragHandler() {
   if (draggingAsset && usemap) {
     switch (draggingAssetKind) {
       case "Unit": {
-        const unit = draggingAsset.item.properties as Unit;
-        const flingyID = unit.unit_definition.specification.graphics;
-        const spriteID = usemap.flingy[flingyID].sprite;
-        const imageID = usemap.sprite[spriteID].image;
+        const unit = draggingAsset.data as Unit;
         overlay = (
-          <SCImageRenderer version="sd" imageIndex={imageID} frame={0} />
+          <SCImageRenderer
+            version="sd"
+            imageIndex={
+              unit.unit_definition.specification.graphics.sprite.image.id
+            }
+            frame={0}
+          />
         );
         break;
       }
       case "Sprite": {
-        const sprite = draggingAsset.item.properties as Sprite;
-        const imageID = usemap.sprite[sprite.image].image;
+        const sprite = draggingAsset.data as Sprite;
         overlay = (
-          <SCImageRenderer version="sd" imageIndex={imageID} frame={0} />
+          <SCImageRenderer
+            version="sd"
+            imageIndex={sprite.definition.image.id}
+            frame={0}
+          />
         );
       }
     }

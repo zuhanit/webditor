@@ -8,7 +8,7 @@ import {
 } from "../ui/menubar";
 import { useUsemapStore } from "@/store/mapStore";
 import api from "@/lib/api";
-import { Usemap } from "@/types/schemas/Usemap";
+import { Usemap } from "@/types/schemas/project/Usemap";
 
 async function onClickBuild(usemap: Usemap | null) {
   if (!usemap) return;

@@ -1,6 +1,5 @@
-from pydantic import BaseModel
 from enum import Flag
-from .structs.spatial import RectPosition
+from .entity import Entity
 
 
 class ElevationFlag(Flag):
@@ -22,9 +21,5 @@ class ElevationFlag(Flag):
   unused9 = 0b1000000000000000
 
 
-class Location(BaseModel):
-  id: int
-  position: RectPosition
-  name_id: int
+class Location(Entity):
   elevation_flags: int
-  name: str

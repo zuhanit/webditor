@@ -1,11 +1,11 @@
-import { Item } from "@/types/item";
+import { AssetType } from "@/types/asset";
 import { create } from "zustand";
 
-interface AssetStore {
-  assets: Item[];
-  activatedAsset: Item | null;
-  setAssets: (assets: Item[]) => void;
-  setActivatedAsset: (asset: Item) => void;
+interface AssetEditorStore {
+  assets: AssetType[];
+  activatedAsset: AssetType | null;
+  setAssets: (assets: AssetType[]) => void;
+  setActivatedAsset: (asset: AssetType) => void;
   isEditorOpen: boolean;
   openEditor: () => void;
   closeEditor: () => void;
@@ -16,7 +16,7 @@ interface AssetStore {
   ) => void;
 }
 
-export const useAssetStore = create<AssetStore>((set) => ({
+export const useAsseEditortStore = create<AssetEditorStore>((set) => ({
   assets: [],
   activatedAsset: null,
   setAssets: (assets) => {

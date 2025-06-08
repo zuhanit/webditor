@@ -4,7 +4,7 @@ export function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={twMerge(
-        "rounded-xl border-text-muted bg-background-secondary shadow",
+        "flex flex-col gap-6 rounded-xl border-text-muted bg-background-secondary py-6 shadow-sm",
         className,
       )}
       {...props}
@@ -16,7 +16,7 @@ export function CardContent({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  return <div className={twMerge("p-6 pt-0", className)} {...props} />;
+  return <div className={twMerge("px-6", className)} {...props} />;
 }
 
 export function CardHeader({
@@ -25,7 +25,10 @@ export function CardHeader({
 }: React.ComponentProps<"div">) {
   return (
     <div
-      className={twMerge("flex flex-col space-y-1.5 p-6", className)}
+      className={twMerge(
+        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6",
+        className,
+      )}
       {...props}
     />
   );

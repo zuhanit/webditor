@@ -26,11 +26,17 @@ def generate_schemas():
 
     (BASE_DIR / "frontend/types/schemas").mkdir(parents=True, exist_ok=True)
 
-    for schema in (BASE_DIR / "preprocess/preprocess/schemas").glob("*.schema.json"):
-        name = schema.name.replace(".schema.json", "")
+    for schema in (BASE_DIR / "preprocess/preprocess/schemas").rglob("*.schema.json"):
+        # 상대 경로 추출 (schemas/ 하위)
+        rel_path = schema.relative_to(BASE_DIR / "preprocess/preprocess/schemas")
+        name = schema.stem.replace(".schema", "")
+        # 출력 경로: frontend/types/schemas/ + 상대 경로 (확장자만 .ts로)
+        output_file = (
+            BASE_DIR / "frontend/types/schemas" / rel_path.parent / f"{name}.ts"
+        )
+        output_file.parent.mkdir(parents=True, exist_ok=True)
         try:
             command = f'json-refs resolve "{schema}" | json-schema-to-zod --module esm --name {name}Schema --type {name} | prettier --parser typescript'
-            output_file = BASE_DIR / f"frontend/types/schemas/{name}.ts"
             with output_file.open("w") as f:
                 subprocess.run(command, shell=True, stdout=f, check=True)
             print(f"Saved zod schema for {schema} to {output_file}")

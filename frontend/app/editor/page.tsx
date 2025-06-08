@@ -1,7 +1,7 @@
 "use client";
 
 import { DragHandler } from "@/components/core/drag-handler";
-import { AssetContainer } from "@/components/layout/asset-explorer";
+import { AssetExplorer } from "@/components/layout/asset-explorer";
 import { AssetSidebar } from "@/components/layout/asset-sidebar";
 import { EntitySidebar } from "@/components/layout/entity-sidebar";
 import { InspectorSidebar } from "@/components/layout/inspector-sidebar";
@@ -67,7 +67,7 @@ export default function Editor() {
             <Resizable className="h-full">
               <AssetSidebar />
             </Resizable>
-            <AssetContainer />
+            <AssetExplorer />
           </div>
           <AssetEditor />
         </DndContext>

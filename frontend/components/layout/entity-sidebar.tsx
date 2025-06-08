@@ -28,7 +28,7 @@ import {
 } from "../ui/collapsible";
 import { SearchForm } from "../form/search-form";
 import { useEntityStore } from "@/store/entityStore";
-import { Entity } from "@/types/schemas/Entity";
+import { Entity } from "@/types/schemas/entities/Entity";
 import fuzzysort from "fuzzysort";
 import { useState } from "react";
 

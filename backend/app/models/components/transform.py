@@ -1,5 +1,5 @@
 from .component import EntityComponent
-from ..structs.spatial import Position2D
+from ..structs.spatial import Position2D, Size
 
 
 class TransformComponent(EntityComponent):
@@ -8,3 +8,4 @@ class TransformComponent(EntityComponent):
   """
 
   position: Position2D
+  size: Size

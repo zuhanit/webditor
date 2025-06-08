@@ -1,16 +1,17 @@
 from typing import Optional
+from ..definitions.flingy import FlingyDefinition
 from pydantic import Field
 from .struct import Struct
 from .required_and_provided import RequiredAndProvided
 from .spatial import Position2D, RectPosition, Size
 from .stat import Stat
 from .cost import Cost
-from ..definitions.weapon_definition import WeaponDefinition
+from ..definitions.weapon import WeaponDefinition
 
 
 class UnitSpecification(Struct):
   name: str = "Unit Specification"
-  graphics: int
+  graphics: FlingyDefinition
   subunit1: int
   subunit2: int
   infestation: Optional[int]

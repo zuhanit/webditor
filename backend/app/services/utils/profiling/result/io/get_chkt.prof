@@ -1,0 +1,18 @@
+         99 function calls in 0.003 seconds
+
+   Ordered by: cumulative time
+   List reduced from 45 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.003    0.003 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/cProfile.py:107(runcall)
+        1    0.000    0.000    0.003    0.003 /Volumes/External/Programming/webditor/backend/app/services/utils/profiling/io.py:11(<lambda>)
+        1    0.002    0.002    0.003    0.003 /Volumes/External/Programming/webditor/backend/app/services/mapdata/io.py:18(get_chkt)
+        1    0.000    0.000    0.001    0.001 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/tempfile.py:539(NamedTemporaryFile)
+        1    0.000    0.000    0.001    0.001 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/tempfile.py:115(_sanitize_params)
+        1    0.000    0.000    0.001    0.001 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/tempfile.py:314(gettempdir)
+        1    0.000    0.000    0.001    0.001 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/tempfile.py:302(_gettempdir)
+        1    0.001    0.001    0.001    0.001 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/tempfile.py:184(_get_default_tempdir)
+        1    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/tempfile.py:575(opener)
+        1    0.000    0.000    0.000    0.000 /Users/hamjoohan/.local/share/uv/python/cpython-3.11.10-macos-aarch64-none/lib/python3.11/tempfile.py:244(_mkstemp_inner)
+
+
