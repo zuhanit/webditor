@@ -8,6 +8,7 @@ T = TypeVar("T")
 
 class Node(BaseModel, Generic[T]):
   name: str
+  id: int
   children: list["Node[T]"] = Field(default_factory=list)
   data: Optional[T] = None
 
