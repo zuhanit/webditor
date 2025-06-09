@@ -29,17 +29,10 @@ import {
 import { SearchForm } from "../form/search-form";
 import { useEntityStore } from "@/store/entityStore";
 import fuzzysort from "fuzzysort";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import { useUsemapStore } from "@/store/mapStore";
-import { AssetType } from "@/types/asset";
-
-const filterEntity = (searchTerm: string, entity: AssetType) => {
-  const result = fuzzysort.go(searchTerm, [
-    entity.name,
-    ...(entity.children?.map((child) => child.name) || []),
-  ]);
-  return result.length > 0;
-};
+import { Asset } from "@/types/schemas/asset/Asset";
+import { useEntityAssetTree } from "@/hooks/useAssetTree";
 
 interface EntitySidebarContextProps {
   searchTerm: string;
@@ -60,13 +53,13 @@ function useEntitySidebar() {
   return context;
 }
 
-export function EntitySidebarItem({ asset }: { asset: AssetType }) {
-  const { setEntity, checkedEntities, setCheckedEntities } = useEntityStore();
-  const { searchTerm } = useEntitySidebar();
-
-  const filteredResult = searchTerm
-    ? asset.children!.filter((entity) => filterEntity(searchTerm, entity))
-    : asset.children;
+export function EntitySidebarItem({
+  asset,
+}: {
+  asset: Asset & { children?: Asset[] };
+}) {
+  const { setEntity, entity, checkedEntities, setCheckedEntities } =
+    useEntityStore();
 
   const handleCheck = (e: React.MouseEvent<SVGSVGElement>) => {
     e.stopPropagation();
@@ -96,8 +89,8 @@ export function EntitySidebarItem({ asset }: { asset: AssetType }) {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <SidebarMenuSub>
-                {filteredResult && filteredResult.length > 0 ? (
-                  filteredResult.map((child) => (
+                {asset.children && asset.children.length > 0 ? (
+                  asset.children.map((child) => (
                     <SidebarMenuSubItem key={`${asset.id}-${child.id}`}>
                       <EntitySidebarItem asset={child} />
                     </SidebarMenuSubItem>
@@ -116,17 +109,20 @@ export function EntitySidebarItem({ asset }: { asset: AssetType }) {
   }
 
   if (asset.type === "file") {
-    if (filteredResult && filteredResult.length > 0) {
+    if (asset.children && asset.children.length > 0) {
       return (
         <Collapsible key={asset.name}>
           <CollapsibleTrigger>
-            <SidebarMenuButton onClick={() => setEntity(asset)}>
+            <SidebarMenuButton
+              onClick={() => setEntity(asset)}
+              isActive={entity?.id === asset.id}
+            >
               {asset.name}
             </SidebarMenuButton>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            {filteredResult
-              ? filteredResult.map((child) => (
+            {asset.children
+              ? asset.children.map((child) => (
                   <EntitySidebarItem key={child.name} asset={child} />
                 ))
               : null}
@@ -139,6 +135,7 @@ export function EntitySidebarItem({ asset }: { asset: AssetType }) {
           <SidebarMenuButton
             className="flex items-center gap-2"
             onClick={() => setEntity(asset)}
+            isActive={entity?.id === asset.id}
           >
             {checkedEntities.includes(asset) ? (
               <CheckSquare className="text-blue" onClick={handleCheck} />
@@ -171,14 +168,14 @@ export function EntitySidebar() {
   const usemap = useUsemapStore((state) => state.usemap);
   const { searchTerm, setSearchTerm } = useEntitySidebar();
 
-  if (!usemap) return null;
+  const filteredResult = useMemo(() => {
+    return searchTerm
+      ? usemap?.entities.filter((entity) => entity.name.includes(searchTerm))
+      : usemap?.entities;
+  }, [usemap?.entities, searchTerm]);
 
-  const filteredResult = searchTerm
-    ? usemap.entities.children!.filter((entity) =>
-        filterEntity(searchTerm, entity),
-      )
-    : usemap.entities.children;
-  console.log(filteredResult);
+  const tree = useEntityAssetTree(filteredResult || []);
+  console.log(tree, "tree");
 
   return (
     <Sidebar className="h-full bg-background-secondary">
@@ -198,8 +195,8 @@ export function EntitySidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          {filteredResult!.map((result) => (
-            <EntitySidebarItem key={result.id} asset={result as AssetType} />
+          {tree?.map((entity) => (
+            <EntitySidebarItem key={entity.id} asset={entity} />
           ))}
         </SidebarGroup>
       </SidebarContent>

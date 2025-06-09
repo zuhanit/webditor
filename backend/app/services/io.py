@@ -1,8 +1,6 @@
 import os
+from pydantic import BaseModel
 from app.models.asset import Asset
-from app.models.components.transform import TransformComponent
-from app.models.entities.unit import Unit
-from app.models.structs.spatial import Position2D, Size
 from app.services.rawdata.converter import MapConverter
 from eudplib import CompressPayload
 from eudplib.core.mapdata import chktok, mapdata
@@ -15,351 +13,80 @@ from app.services.rawdata.chk import CHK, CHKBuilder
 from app.services.rawdata.dat import DAT
 from app.models.project import Usemap
 from app.services.bridge.transformer import Transformer
+from itertools import count
 import uuid
 
 
-def get_assets(converter: MapConverter) -> Asset:
-  root = Asset(
-    name="root",
-    type="folder",
-    id=0,
-    children=[
-      get_default_entities(converter),
-      Asset(
-        name="Upgrades",
-        type="folder",
-        id=1,
-        children=[
-          Asset(
-            name=upgrade.name,
-            type="file",
-            data=upgrade.model_dump(),
-            id=upgrade.id,
-          )
-          for upgrade in converter.upgrades
-        ],
-      ),
-      Asset(
-        name="Tech",
-        type="folder",
-        id=2,
-        children=[
-          Asset(
-            name=tech.name,
-            type="file",
-            data=tech.model_dump(),
-            id=tech.id,
-          )
-          for tech in converter.tech
-        ],
-      ),
-      Asset(
-        name="Upgrade Restrictions",
-        type="folder",
-        id=3,
-        children=[
-          Asset(
-            name=upgrade_restriction.name,
-            type="file",
-            data=upgrade_restriction.model_dump(),
-            id=upgrade_restriction.id,
-          )
-          for upgrade_restriction in converter.upgrade_restrictions
-        ],
-      ),
-      Asset(
-        name="Tech Restrictions",
-        type="folder",
-        id=4,
-        children=[
-          Asset(
-            name=tech_restriction.name,
-            type="file",
-            data=tech_restriction.model_dump(),
-            id=tech_restriction.id,
-          )
-          for tech_restriction in converter.tech_restrictions
-        ],
-      ),
-      Asset(
-        name="Unit Restrictions",
-        type="folder",
-        id=5,
-        children=[
-          Asset(
-            name=unit_restriction.name,
-            type="file",
-            data=unit_restriction.model_dump(),
-            id=unit_restriction.id,
-          )
-          for unit_restriction in converter.unit_restrictions
-        ],
-      ),
-      Asset(
-        name="Flingy Definitions",
-        type="folder",
-        id=6,
-        children=[
-          Asset(
-            name=flingy_definition.name,
-            type="file",
-            data=flingy_definition.model_dump(),
-            id=flingy_definition.id,
-          )
-          for flingy_definition in converter.flingy_definitions
-        ],
-      ),
-      Asset(
-        name="Sprite Definitions",
-        type="folder",
-        id=7,
-        children=[
-          Asset(
-            name=sprite_definition.name,
-            type="file",
-            data=sprite_definition.model_dump(),
-            preview=sprite_definition.image.id,
-            id=sprite_definition.id,
-          )
-          for sprite_definition in converter.sprite_definitions
-        ],
-      ),
-      Asset(
-        name="Image Definitions",
-        type="folder",
-        id=8,
-        children=[
-          Asset(
-            name=image_definition.name,
-            type="file",
-            data=image_definition.model_dump(),
-            preview=image_definition.id,
-            id=image_definition.id,
-          )
-          for image_definition in converter.image_definitions
-        ],
-      ),
-      Asset(
-        name="Weapon Definitions",
-        type="folder",
-        id=9,
-        children=[
-          Asset(
-            name=weapon_definition.name,
-            type="file",
-            data=weapon_definition.model_dump(),
-            id=weapon_definition.id,
-          )
-          for weapon_definition in converter.weapon_definitions
-        ],
-      ),
-      Asset(
-        name="Unit Definitions",
-        type="folder",
-        id=10,
-        children=[
-          Asset(
-            name=unit_definition.name,
-            type="file",
-            data=unit_definition.model_dump(),
-            preview=unit_definition.specification.graphics.sprite.image.id,
-            id=unit_definition.id,
-          )
-          for unit_definition in converter.unit_definitions
-        ],
-      ),
-      Asset(
-        name="Orders",
-        type="folder",
-        id=11,
-        children=[
-          Asset(
-            name=order.name,
-            type="file",
-            data=order.model_dump(),
-            id=order.id,
-          )
-          for order in converter.orders
-        ],
-      ),
-      Asset(
-        name="Portraits",
-        type="folder",
-        id=12,
-        children=[
-          Asset(
-            name=portrait.name,
-            type="file",
-            data=portrait.model_dump(),
-            id=portrait.id,
-          )
-          for portrait in converter.portraits
-        ],
-      ),
-    ],
-  )
-  return root
+def create_items(items: list | dict) -> list[Asset]:
+  id_gen = count(0)
+
+  def create_folder(name: str, parent_id: int) -> Asset:
+    return Asset(
+      name=name,
+      type="folder",
+      id=next(id_gen),
+      parent_id=parent_id,
+    )
+
+  def create_file(name: str, parent_id: int, data: BaseModel) -> Asset:
+    return Asset(
+      name=name,
+      type="file",
+      id=next(id_gen),
+      parent_id=parent_id,
+      data=data,
+    )
+
+  def traverse(items: list | dict, parent_id: int) -> list[Asset]:
+    result: list[Asset] = []
+    if isinstance(items, list):
+      for item in items:
+        result.append(create_file(item.name, parent_id, item))
+    elif isinstance(items, dict):
+      for name, items in items.items():
+        result.append(create_folder(name, parent_id))
+        result.extend(traverse(items, result[-1].id))
+    return result
+
+  return traverse(items, next(id_gen))
 
 
-def get_default_entities(converter: MapConverter) -> Asset:
-  return Asset(
-    name="Entities",
-    type="folder",
-    id=0,
-    children=[
-      Asset(
-        name="Tile",
-        type="folder",
-        id=0,
-        children=[
-          Asset(
-            name=tile.name,
-            type="file",
-            data=tile.model_dump(),
-            id=tile.id,
-          )
-          for tile in converter.tiles
-        ],
-      ),
-      Asset(
-        name="Location",
-        type="folder",
-        id=1,
-        children=[
-          Asset(
-            name=location.name,
-            type="file",
-            data=location.model_dump(),
-            id=location.id,
-          )
-          for location in converter.locations
-        ],
-      ),
-      Asset(
-        name="Sprite",
-        type="folder",
-        id=2,
-        children=[
-          Asset(
-            name=sprite.name,
-            type="file",
-            data=sprite.model_dump(),
-            preview=sprite.definition.image.id,
-            id=sprite.id,
-          )
-          for sprite in converter.default_sprite_entities
-        ],
-      ),
-      Asset(
-        name="Unit",
-        type="folder",
-        id=3,
-        children=[
-          Asset(
-            name=unit.name,
-            type="file",
-            data=unit.model_dump(),
-            id=unit.id,
-            preview=unit.unit_definition.specification.graphics.sprite.image.id,
-          )
-          for unit in converter.default_unit_entities
-        ],
-      ),
-      Asset(
-        name="Mask",
-        type="folder",
-        id=4,
-        children=[
-          Asset(
-            name=mask.name,
-            type="file",
-            data=mask.model_dump(),
-            id=mask.id,
-          )
-          for mask in converter.mask
-        ],
-      ),
-    ],
+def get_assets(converter: MapConverter) -> list[Asset]:
+  return create_items(
+    {
+      "Tech": converter.tech,
+      "Upgrade": converter.upgrades,
+      "Restrictions": {
+        "Upgrade": converter.upgrade_restrictions,
+        "Tech": converter.tech_restrictions,
+        "Unit": converter.unit_restrictions,
+      },
+      "Definitions": {
+        "Flingy": converter.flingy_definitions,
+        "Sprite": converter.sprite_definitions,
+        "Image": converter.image_definitions,
+        "Weapon": converter.weapon_definitions,
+        "Unit": converter.unit_definitions,
+        "Order": converter.orders,
+        "Portrait": converter.portraits,
+      },
+      "Entities": {
+        "Unit": converter.default_unit_entities,
+        "Sprite": converter.default_sprite_entities,
+      },
+    },
   )
 
 
-def get_entity_node(converter: MapConverter) -> Asset:
-  return Asset(
-    name="Entities",
-    type="folder",
-    id=0,
-    children=[
-      Asset(
-        name="Tile",
-        type="folder",
-        id=0,
-        children=[
-          Asset(
-            name=tile.name,
-            type="file",
-            data=tile.model_dump(),
-            id=tile.id,
-          )
-          for tile in converter.tiles
-        ],
-      ),
-      Asset(
-        name="Location",
-        type="folder",
-        id=1,
-        children=[
-          Asset(
-            name=location.name,
-            type="file",
-            data=location.model_dump(),
-            id=location.id,
-          )
-          for location in converter.locations
-        ],
-      ),
-      Asset(
-        name="Sprite",
-        type="folder",
-        id=2,
-        children=[
-          Asset(
-            name=sprite.name,
-            type="file",
-            data=sprite.model_dump(),
-            id=sprite.id,
-          )
-          for sprite in converter.placed_sprites
-        ],
-      ),
-      Asset(
-        name="Unit",
-        type="folder",
-        id=3,
-        children=[
-          Asset(
-            name=unit.name,
-            type="file",
-            data=unit.model_dump(),
-            id=unit.id,
-          )
-          for unit in converter.placed_units
-        ],
-      ),
-      Asset(
-        name="Mask",
-        type="folder",
-        id=4,
-        children=[
-          Asset(
-            name=mask.name,
-            type="file",
-            data=mask.model_dump(),
-            id=mask.id,
-          )
-          for mask in converter.mask
-        ],
-      ),
-    ],
+def get_entities(converter: MapConverter) -> list[Asset]:
+  return create_items(
+    {
+      "Tile": converter.tiles,
+      "Location": converter.locations,
+      "Sprite": converter.placed_sprites,
+      "Unit": converter.placed_units,
+      "Mask": converter.mask,
+    },
   )
 
 
@@ -409,7 +136,7 @@ def get_map(chk: CHK, dat: DAT):
     raw_mbrf_triggers=converter.mbrf_triggers,
     force=converter.forces,
     scenario_property=converter.scenario_property,
-    entities=get_entity_node(converter),
+    entities=get_entities(converter),
     assets=get_assets(converter),
   )
 

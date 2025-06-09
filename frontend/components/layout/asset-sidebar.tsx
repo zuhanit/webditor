@@ -2,7 +2,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   Sidebar,
   SidebarMenu,
@@ -11,7 +10,6 @@ import {
   SidebarMenuSub,
 } from "../ui/sidebar";
 import { useUsemapStore } from "@/store/mapStore";
-import { AssetType } from "@/types/asset";
 import { Folder, Minus, Plus } from "lucide-react";
 import {
   Collapsible,
@@ -19,8 +17,15 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 import { useAssetExplorerStore } from "@/store/assetExplorerStore";
+import { useMemo } from "react";
+import { Asset } from "@/types/schemas/asset/Asset";
+import { useAssetTree } from "@/hooks/useAssetTree";
 
-export function AssetSidebarItem({ asset }: { asset: AssetType }) {
+export function AssetSidebarItem({
+  asset,
+}: {
+  asset: Asset & { children?: Asset[] };
+}) {
   const { setCurrentAsset } = useAssetExplorerStore();
 
   if (asset.type === "folder") {
@@ -85,8 +90,7 @@ export function AssetSidebarItem({ asset }: { asset: AssetType }) {
  */
 export function AssetSidebar() {
   const usemap = useUsemapStore((state) => state.usemap);
-
-  if (usemap === null) return <div>Loading...</div>;
+  const tree = useAssetTree(usemap?.assets || []);
 
   return (
     <Sidebar collapsible="offcanvas">
@@ -94,8 +98,8 @@ export function AssetSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {usemap.assets.children!.map((asset: AssetType) => (
-              <AssetSidebarItem key={asset.name} asset={asset} />
+            {tree?.map((asset) => (
+              <AssetSidebarItem key={asset.id} asset={asset} />
             ))}
           </SidebarMenu>
         </SidebarGroup>

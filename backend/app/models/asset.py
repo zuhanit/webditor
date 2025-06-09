@@ -1,13 +1,15 @@
 from __future__ import annotations
-from typing import Literal, Optional
-from pydantic import Field
-from .tree import Node
+from pydantic import BaseModel
+from pydantic.generics import GenericModel
+from typing import Generic, Literal, Optional, TypeVar
+
+T = TypeVar("T", bound=BaseModel)
 
 
-class Asset(Node[dict]):
+class Asset(GenericModel, Generic[T]):
+  name: str
+  id: int
   type: Literal["folder", "file"]
   preview: Optional[int] = None
-  children: list["Asset"] = Field(default_factory=list)
-
-
-Asset.model_rebuild()
+  parent_id: int = 0
+  data: Optional[T] = None

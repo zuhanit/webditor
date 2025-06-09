@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import { AssetType } from "@/types/asset";
+import { Asset } from "@/types/schemas/asset/Asset";
 
 interface AssetExplorerStore {
-  currentAsset: AssetType | null;
-  setCurrentAsset: (asset: AssetType) => void;
+  currentAsset: Asset | null;
+  setCurrentAsset: (asset: Asset) => void;
 }
 
 export const useAssetExplorerStore = create<AssetExplorerStore>((set) => ({

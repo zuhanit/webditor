@@ -1,3 +1,4 @@
+from typing import Union
 from app.models.asset import Asset
 from pydantic import BaseModel
 from .player import Force, Player
@@ -6,6 +7,11 @@ from .entities.unit import UnitProperty
 from .validation import Validation
 from .rawtrigger import RawTriggerSection
 from .terrain import RawTerrain
+from .entities.unit import Unit
+from .entities.sprite import Sprite
+from .entities.tile import Tile
+from .entities.location import Location
+from .entities.mask import Mask
 import datetime
 
 
@@ -24,8 +30,8 @@ class Usemap(BaseModel):
   raw_mbrf_triggers: RawTriggerSection
   force: list[Force]
   scenario_property: ScenarioProperty
-  entities: Asset
-  assets: Asset
+  entities: list[Asset[Union[Unit, Sprite, Tile, Location, Mask]]]
+  assets: list[Asset]
 
 
 class Project(BaseModel):
