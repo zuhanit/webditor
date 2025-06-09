@@ -27,7 +27,7 @@ export function InspectorSidebar() {
               item={{
                 label: entity.name,
                 path: [],
-                properties: entity,
+                properties: entity.data,
               }}
             />
           </SidebarMenu>
