@@ -1,11 +1,11 @@
-import { Entity } from "@/types/schemas/entities/Entity";
+import { AssetType } from "@/types/asset";
 import { create } from "zustand";
 
 interface EntityStore {
-  entity: Entity | null;
-  setEntity: (entity: Entity) => void;
-  checkedEntities: Entity[]
-  setCheckedEntities: (entities: Entity[]) => void;
+  entity: AssetType | null;
+  setEntity: (entity: AssetType) => void;
+  checkedEntities: AssetType[]
+  setCheckedEntities: (entities: AssetType[]) => void;
 }
 
 export const useEntityStore = create<EntityStore>((set) => ({

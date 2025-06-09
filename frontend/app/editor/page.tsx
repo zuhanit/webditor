@@ -3,7 +3,10 @@
 import { DragHandler } from "@/components/core/drag-handler";
 import { AssetExplorer } from "@/components/layout/asset-explorer";
 import { AssetSidebar } from "@/components/layout/asset-sidebar";
-import { EntitySidebar } from "@/components/layout/entity-sidebar";
+import {
+  EntitySidebar,
+  EntitySidebarProvider,
+} from "@/components/layout/entity-sidebar";
 import { InspectorSidebar } from "@/components/layout/inspector-sidebar";
 import { MapImage } from "@/components/layout/viewport";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -35,7 +38,9 @@ export default function Editor() {
           <Resizable className="flex flex-1 overflow-hidden">
             {/* Left Explorer (SideBar) */}
             <Resizable>
-              <EntitySidebar />
+              <EntitySidebarProvider>
+                <EntitySidebar />
+              </EntitySidebarProvider>
             </Resizable>
 
             <div className="flex w-full flex-col gap-2.5">

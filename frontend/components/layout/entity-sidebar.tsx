@@ -13,13 +13,13 @@ import {
   SidebarMenuSubItem,
   Sidebar,
 } from "@/components/ui/sidebar";
-import { usePlacedEntities } from "@/hooks/usePlacedEntities";
 import {
   CheckSquare,
   GalleryVerticalEnd,
   Minus,
   Plus,
   SquareDashed,
+  Folder,
 } from "lucide-react";
 import {
   Collapsible,
@@ -28,48 +28,157 @@ import {
 } from "../ui/collapsible";
 import { SearchForm } from "../form/search-form";
 import { useEntityStore } from "@/store/entityStore";
-import { Entity } from "@/types/schemas/entities/Entity";
 import fuzzysort from "fuzzysort";
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
+import { useUsemapStore } from "@/store/mapStore";
+import { AssetType } from "@/types/asset";
 
-export function EntitySidebar() {
-  const placedEntities = usePlacedEntities();
-  const {
-    entity: currentEntity,
-    setEntity,
-    checkedEntities,
-    setCheckedEntities,
-  } = useEntityStore((state) => state);
+const filterEntity = (searchTerm: string, entity: AssetType) => {
+  const result = fuzzysort.go(searchTerm, [
+    entity.name,
+    ...(entity.children?.map((child) => child.name) || []),
+  ]);
+  return result.length > 0;
+};
 
-  const toggleCheckedEntity = (entity: Entity) => {
-    console.log(entity);
-    if (checkedEntities.includes(entity)) {
-      setCheckedEntities(checkedEntities.filter((e) => e !== entity));
+interface EntitySidebarContextProps {
+  searchTerm: string;
+  setSearchTerm: (searchTerm: string) => void;
+}
+
+const EntitySidebarContext = createContext<EntitySidebarContextProps | null>(
+  null,
+);
+
+function useEntitySidebar() {
+  const context = useContext(EntitySidebarContext);
+  if (!context) {
+    throw new Error(
+      "useEntitySidebar must be used within an EntitySidebarProvider",
+    );
+  }
+  return context;
+}
+
+export function EntitySidebarItem({ asset }: { asset: AssetType }) {
+  const { setEntity, checkedEntities, setCheckedEntities } = useEntityStore();
+  const { searchTerm } = useEntitySidebar();
+
+  const filteredResult = searchTerm
+    ? asset.children!.filter((entity) => filterEntity(searchTerm, entity))
+    : asset.children;
+
+  const handleCheck = (e: React.MouseEvent<SVGSVGElement>) => {
+    e.stopPropagation();
+    if (checkedEntities.includes(asset)) {
+      setCheckedEntities(checkedEntities.filter((a) => a !== asset));
     } else {
-      setCheckedEntities([...checkedEntities, entity]);
+      setCheckedEntities([...checkedEntities, asset]);
     }
   };
 
+  if (asset.type === "folder") {
+    return (
+      <SidebarMenu>
+        <Collapsible key={asset.name} className="group/collapsible">
+          <SidebarMenuItem>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuButton className="flex items-center gap-2">
+                {checkedEntities.includes(asset) ? (
+                  <CheckSquare className="text-blue" onClick={handleCheck} />
+                ) : (
+                  <SquareDashed className="text-blue" onClick={handleCheck} />
+                )}
+                {asset.name}
+                <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+              </SidebarMenuButton>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarMenuSub>
+                {filteredResult && filteredResult.length > 0 ? (
+                  filteredResult.map((child) => (
+                    <SidebarMenuSubItem key={`${asset.id}-${child.id}`}>
+                      <EntitySidebarItem asset={child} />
+                    </SidebarMenuSubItem>
+                  ))
+                ) : (
+                  <SidebarMenuSubItem>
+                    <span className="px-2 text-text-muted">Empty</span>
+                  </SidebarMenuSubItem>
+                )}
+              </SidebarMenuSub>
+            </CollapsibleContent>
+          </SidebarMenuItem>
+        </Collapsible>
+      </SidebarMenu>
+    );
+  }
+
+  if (asset.type === "file") {
+    if (filteredResult && filteredResult.length > 0) {
+      return (
+        <Collapsible key={asset.name}>
+          <CollapsibleTrigger>
+            <SidebarMenuButton onClick={() => setEntity(asset)}>
+              {asset.name}
+            </SidebarMenuButton>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            {filteredResult
+              ? filteredResult.map((child) => (
+                  <EntitySidebarItem key={child.name} asset={child} />
+                ))
+              : null}
+          </CollapsibleContent>
+        </Collapsible>
+      );
+    } else {
+      return (
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            className="flex items-center gap-2"
+            onClick={() => setEntity(asset)}
+          >
+            {checkedEntities.includes(asset) ? (
+              <CheckSquare className="text-blue" onClick={handleCheck} />
+            ) : (
+              <SquareDashed className="text-blue" onClick={handleCheck} />
+            )}
+            {asset.name}
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      );
+    }
+  }
+}
+
+export function EntitySidebarProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [searchTerm, setSearchTerm] = useState("");
-  const filteredEntities = searchTerm
-    ? Object.entries(placedEntities)
-        .map(([key, entities]) => {
-          const results = fuzzysort.go(searchTerm, entities.data, {
-            key: "name",
-          });
-          return [
-            key,
-            {
-              ...entities,
-              data: results.map((result) => result.obj) as Entity[],
-            },
-          ] as [string, { data: Entity[]; label: string }];
-        })
-        .filter(([, entities]) => entities.data.length > 0)
-    : (Object.entries(placedEntities) as [
-        string,
-        { data: Entity[]; label: string },
-      ][]);
+
+  return (
+    <EntitySidebarContext.Provider value={{ searchTerm, setSearchTerm }}>
+      {children}
+    </EntitySidebarContext.Provider>
+  );
+}
+
+export function EntitySidebar() {
+  const usemap = useUsemapStore((state) => state.usemap);
+  const { searchTerm, setSearchTerm } = useEntitySidebar();
+
+  if (!usemap) return null;
+
+  const filteredResult = searchTerm
+    ? usemap.entities.children!.filter((entity) =>
+        filterEntity(searchTerm, entity),
+      )
+    : usemap.entities.children;
+  console.log(filteredResult);
 
   return (
     <Sidebar className="h-full bg-background-secondary">
@@ -89,50 +198,9 @@ export function EntitySidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarMenu>
-            {filteredEntities.map(([key, entities]) => (
-              <Collapsible key={key} className="group/collapsible">
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton>
-                      {entities.label}{" "}
-                      <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
-                      <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarGroupContent>
-                      <SidebarMenuSub>
-                        {entities.data.map((entity, index) => (
-                          <SidebarMenuSubItem key={`${key}-${index}`}>
-                            <SidebarMenuSubButton
-                              onClick={() => toggleCheckedEntity(entity)}
-                              className="justify-start"
-                            >
-                              {checkedEntities.includes(entity) ? (
-                                <CheckSquare className="text-blue" />
-                              ) : (
-                                <SquareDashed className="text-blue" />
-                              )}
-                            </SidebarMenuSubButton>
-                            <SidebarMenuSubButton
-                              onClick={() => {
-                                console.log(entity);
-                                setEntity(entity);
-                              }}
-                              isActive={entity === currentEntity}
-                            >
-                              {entity.name}
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </SidebarGroupContent>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
-            ))}
-          </SidebarMenu>
+          {filteredResult!.map((result) => (
+            <EntitySidebarItem key={result.id} asset={result as AssetType} />
+          ))}
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
