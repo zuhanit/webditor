@@ -226,6 +226,52 @@ class MapConverter:
       for id, sprite in enumerate(self.chk.sprites)
     ]
 
+  @cached_property
+  def default_unit_entities(self):
+    from app.models.entities.unit import Unit
+
+    return [
+      Unit(
+        id=id,
+        name=unit_definition.name,
+        transform=TransformComponent(
+          position=Position2D(x=0, y=0),
+          size=Size(width=1, height=1),
+        ),
+        kind="Unit",
+        owner=self.players[0],
+        unit_definition=unit_definition,
+        unit_state=0,
+        relation_type=0,
+        related_unit=0,
+        special_properties=0,
+        valid_properties=0,
+        resource_amount=0,
+        hangar=0,
+      )
+      for id, unit_definition in enumerate(self.unit_definitions)
+    ]
+
+  @cached_property
+  def default_sprite_entities(self):
+    from app.models.entities.sprite import Sprite
+
+    return [
+      Sprite(
+        id=id,
+        name=sprite.name,
+        transform=TransformComponent(
+          position=Position2D(x=0, y=0),
+          size=Size(width=1, height=1),
+        ),
+        kind="Sprite",
+        owner=self.players[0],
+        definition=sprite,
+        flags=0,
+      )
+      for id, sprite in enumerate(self.sprite_definitions)
+    ]
+
   """
   Definition section processing
   """
