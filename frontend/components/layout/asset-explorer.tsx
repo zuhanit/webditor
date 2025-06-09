@@ -112,7 +112,7 @@ export function AssetExplorer() {
       } grid max-h-full w-full auto-rows-max grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-2 overflow-auto p-2`}
     >
       {currentAsset?.children?.map((child) => {
-        return <AssetCard key={child.name} asset={child} />;
+        return <AssetCard key={child.name + child.id} asset={child} />;
       })}
     </div>
   );
