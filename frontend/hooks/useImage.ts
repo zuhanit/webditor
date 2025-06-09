@@ -19,6 +19,9 @@ import {
   getPlacedUnitImage,
 } from "@/lib/scimage";
 import { Unit } from "@/types/schemas/entities/Unit";
+import { Sprite } from "@/types/schemas/entities/Sprite";
+import { Tile } from "@/types/schemas/entities/Tile";
+import { AssetType } from "@/types/asset";
 
 const safeGet = async <T>(promise: Promise<{ data: T }>) => {
   try {
@@ -149,7 +152,9 @@ export function useViewportImage(): ViewportImageBundle {
 
     terrainImage.current = getTerrainImage(
       usemap.terrain,
-      usemap.entities.find((entity) => entity.name === "Tile")!.children!.map((tile) => tile.data),
+      usemap.entities
+        .children!.find((entity: AssetType) => entity.name === "Tile")!
+        .children!.map((tile: AssetType) => tile.data as Tile),
       tileGroup,
       tilesetData,
     );
@@ -158,14 +163,21 @@ export function useViewportImage(): ViewportImageBundle {
   const requiredImageIDs = useMemo(() => {
     const result = new Set<number>();
     if (usemap) {
-      const unitEntities = usemap.entities.find((entity) => entity.name === "Unit")!.children!;
-      const spriteEntities = usemap.entities.find((entity) => entity.name === "Sprite")!.children!;
+      const unitEntities = usemap.entities.children!.find(
+        (entity) => entity.name === "Unit",
+      )!.children;
+      const spriteEntities = usemap.entities.children!.find(
+        (entity) => entity.name === "Sprite",
+      )!.children;
 
-      unitEntities.forEach((unit) => {
-        result.add(unit.data.unit_definition.specification.graphics.sprite.image.id);
+      unitEntities.forEach((unit: AssetType) => {
+        console.log(unit);
+        result.add(
+          unit.data.unit_definition.specification.graphics.sprite.image.id,
+        );
       });
 
-      spriteEntities.forEach((sprite) => {
+      spriteEntities.forEach((sprite: AssetType) => {
         result.add(sprite.data.definition.image.id);
       });
     }
@@ -179,7 +191,9 @@ export function useViewportImage(): ViewportImageBundle {
     (async () => {
       const bmp = await getPlacedUnitImage(
         usemap.terrain,
-        usemap.entities.find((entity) => entity.name === "Unit")!.children!.map((unit) => unit.data),
+        usemap.entities
+          .children!.find((entity) => entity.name === "Unit")!
+          .children!.map((unit: AssetType) => unit.data as Unit),
         imagesData,
       );
       setUnitImage(bmp);
@@ -192,7 +206,9 @@ export function useViewportImage(): ViewportImageBundle {
     (async () => {
       const bmp = await getPlacedSpriteImages(
         usemap.terrain,
-        usemap.entities.find((entity) => entity.name === "Sprite")!.children!.map((sprite) => sprite.data),
+        usemap.entities
+          .children!.find((entity) => entity.name === "Sprite")!
+          .children!.map((sprite: AssetType) => sprite.data as Sprite),
         imagesData,
       );
       setSpriteImage(bmp);
@@ -203,7 +219,9 @@ export function useViewportImage(): ViewportImageBundle {
     if (!usemap) return;
     locationImage.current = getLocationImage(
       usemap.terrain,
-      usemap.entities.find((entity) => entity.name === "Location")!.children!.map((location) => location.data),
+      usemap.entities
+        .children!.find((entity) => entity.name === "Location")!
+        .children!.map((location: AssetType) => location.data as Location),
     );
   }, [usemap?.entities]);
 
