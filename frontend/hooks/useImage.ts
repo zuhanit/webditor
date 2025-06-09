@@ -21,7 +21,7 @@ import {
 import { Unit } from "@/types/schemas/entities/Unit";
 import { Sprite } from "@/types/schemas/entities/Sprite";
 import { Tile } from "@/types/schemas/entities/Tile";
-import { AssetType } from "@/types/asset";
+import { Location } from "@/types/schemas/entities/Location";
 
 const safeGet = async <T>(promise: Promise<{ data: T }>) => {
   try {
@@ -152,9 +152,7 @@ export function useViewportImage(): ViewportImageBundle {
 
     terrainImage.current = getTerrainImage(
       usemap.terrain,
-      usemap.entities
-        .children!.find((entity: AssetType) => entity.name === "Tile")!
-        .children!.map((tile: AssetType) => tile.data as Tile),
+      usemap.entities.filter((entity) => entity.data && entity.data.kind === "Tile").map(e => e.data) as Tile[],
       tileGroup,
       tilesetData,
     );
@@ -163,22 +161,16 @@ export function useViewportImage(): ViewportImageBundle {
   const requiredImageIDs = useMemo(() => {
     const result = new Set<number>();
     if (usemap) {
-      const unitEntities = usemap.entities.children!.find(
-        (entity) => entity.name === "Unit",
-      )!.children;
-      const spriteEntities = usemap.entities.children!.find(
-        (entity) => entity.name === "Sprite",
-      )!.children;
+      const unitEntities = usemap.entities.filter((entity) => entity.data && entity.data.kind === "Unit").map(e => e.data) as Unit[];
+      const spriteEntities = usemap.entities.filter((entity) => entity.data && entity.data.kind === "Sprite").map(e => e.data) as Sprite[];
 
-      unitEntities.forEach((unit: AssetType) => {
-        console.log(unit);
-        result.add(
-          unit.data.unit_definition.specification.graphics.sprite.image.id,
-        );
+      console.log(unitEntities);
+      unitEntities.forEach((unit) => {
+        result.add(unit.unit_definition.specification.graphics.sprite.image.id);
       });
 
-      spriteEntities.forEach((sprite: AssetType) => {
-        result.add(sprite.data.definition.image.id);
+      spriteEntities.forEach((sprite) => {
+        result.add(sprite.definition.image.id);
       });
     }
     return result;
@@ -192,8 +184,7 @@ export function useViewportImage(): ViewportImageBundle {
       const bmp = await getPlacedUnitImage(
         usemap.terrain,
         usemap.entities
-          .children!.find((entity) => entity.name === "Unit")!
-          .children!.map((unit: AssetType) => unit.data as Unit),
+          .filter((entity) => entity.data && entity.data.kind === "Unit").map(e => e.data) as Unit[],
         imagesData,
       );
       setUnitImage(bmp);
@@ -207,8 +198,7 @@ export function useViewportImage(): ViewportImageBundle {
       const bmp = await getPlacedSpriteImages(
         usemap.terrain,
         usemap.entities
-          .children!.find((entity) => entity.name === "Sprite")!
-          .children!.map((sprite: AssetType) => sprite.data as Sprite),
+          .filter((entity) => entity.data && entity.data.kind === "Sprite").map(e => e.data) as Sprite[],
         imagesData,
       );
       setSpriteImage(bmp);
@@ -220,8 +210,7 @@ export function useViewportImage(): ViewportImageBundle {
     locationImage.current = getLocationImage(
       usemap.terrain,
       usemap.entities
-        .children!.find((entity) => entity.name === "Location")!
-        .children!.map((location: AssetType) => location.data as Location),
+        .filter((entity) => entity.data && entity.data.kind === "Location").map(e => e.data) as Location[],
     );
   }, [usemap?.entities]);
 
