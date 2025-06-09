@@ -2,6 +2,7 @@
 
 import { useContext, createContext, useState } from "react";
 import { Slot } from "./slot";
+import { twMerge } from "tailwind-merge";
 
 interface CollapsibleContextProps {
   open: boolean;
@@ -46,7 +47,7 @@ export function Collapsible({
       }}
     >
       <div
-        className={className}
+        className={twMerge("w-full", className)}
         data-state={open ? "open" : "closed"}
         {...props}
       >
