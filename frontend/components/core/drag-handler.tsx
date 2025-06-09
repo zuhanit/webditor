@@ -60,6 +60,7 @@ export function DragHandler() {
   useDndMonitor({
     onDragStart(event) {
       setDraggingAsset({
+        id: event.active.id as number,
         name: event.active.id as string,
         type: "file",
         data: event.active.data.current!,
