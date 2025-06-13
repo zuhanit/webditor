@@ -18,7 +18,7 @@ import uuid
 
 
 def create_items(items: list | dict) -> list[Asset]:
-  id_gen = count(0)
+  id_gen = count(-1)
 
   def create_folder(name: str, parent_id: int) -> Asset:
     return Asset(
