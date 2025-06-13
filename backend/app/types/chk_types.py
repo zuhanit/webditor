@@ -234,7 +234,7 @@ class TechRestriction:
 @dataclass
 class Upgrade:
   id: int
-  uses_default: bool
+  use_default: bool
   base_cost: Cost
   factor_cost: Cost
 

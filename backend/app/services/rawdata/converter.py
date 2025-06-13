@@ -286,7 +286,7 @@ class MapConverter:
       Upgrade(
         id=id,
         name=reverse_tbl_dict(DefUpgradeDict)[id],
-        use_default=self.chk.upgrade_settings[id].uses_default,
+        use_default=self.chk.upgrade_settings[id].use_default,
         base_cost=Cost(
           mineral=self.chk.upgrade_settings[id].base_cost.mineral,
           gas=self.chk.upgrade_settings[id].base_cost.gas,
