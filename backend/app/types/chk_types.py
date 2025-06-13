@@ -247,7 +247,7 @@ class CostWithEnergy(Cost):
 @dataclass
 class Technology:
   id: int
-  use_default: list[bool]
+  use_default: bool
   cost: CostWithEnergy
 
 
