@@ -86,7 +86,7 @@ class CHK:
 
   @cached_property
   def unit_definitions(self) -> list[chk_types.UnitSetting]:
-    from eudplib.core.rawtrigger.strdict.stattxt import DefStatTextDict
+    from eudplib.core.rawtrigger.strdict import DefUnitDict
 
     result: list[chk_types.UnitSetting] = []
 
@@ -96,7 +96,7 @@ class CHK:
       unit_name = (
         self.strings[unitname_id].content
         if unitname_id != 0
-        else reverse_tbl_dict(DefStatTextDict)[id + 1]
+        else reverse_tbl_dict(DefUnitDict)[id]
       )
       stat = chk_types.Stat(
         hit_points=unpacked[id + 228],
