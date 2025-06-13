@@ -101,18 +101,18 @@ class CHK:
       stat = chk_types.Stat(
         hit_points=unpacked[id + 228],
         shield_points=unpacked[id + (228 * 2)],
-        energy_points=unpacked[id + (228 * 3)],
+        armor_points=unpacked[id + (228 * 3)],
       )
       cost = chk_types.Cost(
-        mineral=unpacked[id + (228 * 6)],
-        gas=unpacked[id + (228 * 5)],
         time=unpacked[id + (228 * 4)],
+        mineral=unpacked[id + (228 * 5)],
+        gas=unpacked[id + (228 * 6)],
       )
       result.append(
         chk_types.UnitSetting(
           id=id,
           name=unit_name,
-          use_default=unpacked[0],
+          use_default=unpacked[id],
           stat=stat,
           cost=cost,
           string=self.strings[unitname_id],
@@ -144,12 +144,12 @@ class CHK:
           valid_properties=chk_types.ValidPropertiesFlag(unit[6]),
           owner=self.players[unit[7]],
           stat=chk_types.Stat(
-            hit_points=unit[8], shield_points=unit[9], armor_points=unit[10]
+            hit_points=unit[8], shield_points=unit[9], energy_points=unit[10]
           ),
           resource_amount=unit[11],
           hangar=unit[12],
           unit_state=chk_types.UnitStateFlag(unit[13]),
-          related_unit=unit[14],
+          related_unit=unit[15],
         )
       )
 
@@ -174,11 +174,11 @@ class CHK:
           valid_properties=chk_types.ValidPropertiesFlag(uprp[1]),
           owner=0,  # Always be NULL in UPRP section,
           stats=chk_types.Stat(
-            hit_points=uprp[2], shield_points=uprp[3], armor_points=uprp[4]
+            hit_points=uprp[3], shield_points=uprp[4], energy_points=uprp[5]
           ),
-          resource_amount=uprp[5],
-          hangar=uprp[6],
-          flags=chk_types.SpecialPropertiesFlag(uprp[7]),
+          resource_amount=uprp[6],
+          hangar=uprp[7],
+          flags=chk_types.SpecialPropertiesFlag(uprp[8]),
         )
       )
 
@@ -614,7 +614,7 @@ class CHK:
       result.append(
         chk_types.Upgrade(
           id=i,
-          uses_default=UPGx[USES_DEFAULT_OFFSET + i],
+          use_default=UPGx[USES_DEFAULT_OFFSET + i],
           base_cost=chk_types.Cost(
             mineral=UPGx[BASE_MINERAL_OFFSET + i],
             gas=UPGx[BASE_GAS_OFFSET + i],
@@ -733,7 +733,7 @@ class CHKBuilder:
   def find_string_by_content(self, content: str):
     ref = next((s for s in self.map.string if s.content == content), None)
     if ref is None:
-      raise IndexError("Cannot find string on table.")
+      raise IndexError(f"Cannot find string {content} on table.")
 
     return ref
 
@@ -776,15 +776,21 @@ class CHKBuilder:
   def MTXM(self) -> bytes:
     from app.models.entities.tile import Tile
 
-    b = bytearray()
+    tiles = [t.data for t in self.map.entities if isinstance(t.data, Tile)]
+    self.logger.info(f"Attemping to pack {len(tiles)} tiles")
 
-    tiles = [t for t in self.map.entities if isinstance(t, Tile)]
+    tile_map = {
+      (tile.transform.position.x, tile.transform.position.y): (
+        (tile.group << 4) | (tile.tile_id & 0xF)
+      )
+      for tile in tiles
+    }
+    b = bytearray()
 
     for y in range(self.map.terrain.size.height):
       for x in range(self.map.terrain.size.width):
-        tile = tiles[y * self.map.terrain.size.width + x]
-        value = (tile.group << 4) | (tile.id & 0xF)
-        b += struct.pack("<H", value)
+        v = tile_map.get((x, y)) if tile_map.get((x, y)) is not None else 0
+        b += struct.pack("<H", v)
 
     return section("MTXM", b)
 
@@ -794,7 +800,9 @@ class CHKBuilder:
 
     b = bytearray()
 
-    restrictions = [_ for _ in self.map.assets if isinstance(_, UnitRestriction)]
+    restrictions = [
+      r.data for r in self.map.assets if isinstance(r.data, UnitRestriction)
+    ]
     availability = [struct.pack("<12B", *v.availability) for v in restrictions]
     global_availability = [
       struct.pack("<B", v.global_availability) for v in restrictions
@@ -811,12 +819,15 @@ class CHKBuilder:
   def UPGx(self) -> bytes:
     from app.models.definitions.tech import Upgrade
 
-    upgrade_settings = [_ for _ in self.map.assets if isinstance(_, Upgrade)]
+    upgrade_settings = [
+      _a.data for _a in self.map.assets if isinstance(_a.data, Upgrade)
+    ]
+    self.logger.info(f"Attemping to pack {len(upgrade_settings)} upgrades")
 
     b = struct.pack(
       f"<61B B {6 * 61}H",
       *[u.use_default for u in upgrade_settings],
-      0,
+      0x72,
       *[u.base_cost.mineral for u in upgrade_settings],
       *[u.factor_cost.mineral for u in upgrade_settings],
       *[u.base_cost.gas for u in upgrade_settings],
@@ -833,7 +844,9 @@ class CHKBuilder:
 
     b = bytearray()
 
-    restrictions = [_ for _ in self.map.assets if isinstance(_, TechRestriction)]
+    restrictions = [
+      r.data for r in self.map.assets if isinstance(r.data, TechRestriction)
+    ]
     b += b"".join([struct.pack("<12B", *v.player_availability) for v in restrictions])
     b += b"".join(
       [struct.pack("<12B", *v.player_already_researched) for v in restrictions]
@@ -852,7 +865,7 @@ class CHKBuilder:
 
     b = bytearray()
 
-    units = [u for u in self.map.entities if isinstance(u, Unit)]
+    units = [u.data for u in self.map.entities if isinstance(u.data, Unit)]
 
     for unit in units:
       unit_ref = unit.unit_definition
@@ -861,7 +874,7 @@ class CHKBuilder:
         unit.serial_number if unit.serial_number is not None else 0,
         unit.transform.position.x,
         unit.transform.position.y,
-        unit.id,
+        unit_ref.id,
         unit.relation_type,
         unit.special_properties,
         unit.valid_properties,
@@ -888,15 +901,15 @@ class CHKBuilder:
 
     b = bytearray()
 
-    sprites = [s for s in self.map.entities if isinstance(s, Sprite)]
+    sprites = [s.data for s in self.map.entities if isinstance(s.data, Sprite)]
 
     for sprite in sprites:
       b += struct.pack(
         "<3H2BH",
-        sprite.id,
+        sprite.definition.id,
         sprite.transform.position.x,
         sprite.transform.position.y,
-        sprite.owner,
+        sprite.owner.id,
         0,
         sprite.flags,
       )
@@ -909,8 +922,7 @@ class CHKBuilder:
 
     b = bytearray()
     height, width = self.map.terrain.size.height, self.map.terrain.size.width
-    masks = [_ for _ in self.map.entities if isinstance(_, Mask)]
-    print("masks")
+    masks = [m.data for m in self.map.entities if isinstance(m.data, Mask)]
 
     for y in range(height):
       for x in range(width):
@@ -949,11 +961,10 @@ class CHKBuilder:
 
   @property
   def UPRP(self) -> bytes:
-    from app.models.entities.unit import UnitProperty
-
     b = bytearray()
 
-    properties = [_ for _ in self.map.assets if isinstance(_, UnitProperty)]
+    properties = self.map.unit_properties
+    self.logger.info(f"Attemping to pack {len(properties)} unit properties")
 
     for uproperty in properties:
       b += struct.pack(
@@ -961,8 +972,8 @@ class CHKBuilder:
         uproperty.special_properties,
         uproperty.valid_properties,
         0,  # Owner in UPRP section always NULL
-        uproperty.hit_point_percent * 100,
-        uproperty.shield_point_percent * 100,
+        uproperty.hit_point_percent,
+        uproperty.shield_point_percent,
         uproperty.energy_point_percent,
         uproperty.resource_amount,
         uproperty.units_in_hangar,
@@ -979,7 +990,9 @@ class CHKBuilder:
     b = bytearray()
 
     locations = [
-      location for location in self.map.entities if isinstance(location, Location)
+      location.data
+      for location in self.map.entities
+      if isinstance(location.data, Location)
     ]
 
     for location in locations:
@@ -992,6 +1005,10 @@ class CHKBuilder:
         self.find_string_by_content(location.name).id,
         location.elevation_flags,
       )
+
+    # Packing padding, Total size of MRGN section is 5100bytes.
+    while len(b) // struct.calcsize("<4I2H") < 255:
+      b += struct.pack("<4I2H", 0, 0, 0, 0, 0, 0)
 
     return section("MRGN", b)
 
@@ -1035,7 +1052,9 @@ class CHKBuilder:
   def PUPx(self) -> bytes:
     from app.models.definitions.tech import UpgradeRestriction
 
-    restrictions = [_ for _ in self.map.assets if isinstance(_, UpgradeRestriction)]
+    restrictions = [
+      r.data for r in self.map.assets if isinstance(r.data, UpgradeRestriction)
+    ]
     b = struct.pack(
       f"{61 * 12}B {61 * 12}B {61 * 2}B {61 * 12}B",
       *[b for v in restrictions for b in v.player_maximum_level],
@@ -1051,13 +1070,16 @@ class CHKBuilder:
   def UNIx(self) -> bytes:
     from app.models.definitions.unit import UnitDefinition
     from app.models.definitions.weapon import WeaponDefinition
+    from eudplib.core.rawtrigger.strdict import DefUnitDict
 
-    units = [_ for _ in self.map.assets if isinstance(_, UnitDefinition)]
-    weapons = [_ for _ in self.map.assets if isinstance(_, WeaponDefinition)]
+    units = [u.data for u in self.map.assets if isinstance(u.data, UnitDefinition)]
+    weapons = [w.data for w in self.map.assets if isinstance(w.data, WeaponDefinition)]
+    self.logger.info(f"Attemping to pack {len(units)} units and {len(weapons)} weapons")
+    # self.logger.info(f"assets: {self.map.assets}")
 
     b = struct.pack(
       f"228B 228I 228H 228B {4 * 228}H {2 * 130}H",
-      *[u.id for u in units],
+      *[u.use_default for u in units],
       *[u.stats.hit_points.max for u in units],
       *[u.stats.shield_points.max for u in units],
       *[u.stats.armor_points for u in units],
@@ -1065,7 +1087,9 @@ class CHKBuilder:
       *[u.cost.cost.mineral for u in units],
       *[u.cost.cost.gas for u in units],
       *[
-        self.find_string_by_content(u.name).id if not u.use_default else 0
+        self.find_string_by_content(u.name).id
+        if not u.use_default and u.name != reverse_tbl_dict(DefUnitDict)[u.id]
+        else 0
         for u in units
       ],
       # FIXME: Use weapons.dat
@@ -1079,7 +1103,8 @@ class CHKBuilder:
   def TECx(self) -> bytes:
     from app.models.definitions.tech import Technology
 
-    technologies = [_ for _ in self.map.assets if isinstance(_, Technology)]
+    technologies = [t.data for t in self.map.assets if isinstance(t.data, Technology)]
+    self.logger.info(f"Attemping to pack {len(technologies)} technologies")
 
     b = struct.pack(
       f"44B {4 * 44}H",
