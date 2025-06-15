@@ -1,5 +1,5 @@
-import { Item } from "@/types/item";
-import { ChangeEvent } from "react";
+import { EditorItem } from "@/types/item";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -13,19 +13,29 @@ import {
   SidebarMenuSub,
 } from "../ui/sidebar";
 import { ChevronRight } from "lucide-react";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useUsemapStore } from "@/components/pages/editor-page";
 
-function EditorMenu({
+function UsemapEditorMenu({
   label,
   value,
   path,
+  id,
+  handleChange,
 }: {
   label: string;
   value: any;
-  path: (string | number)[];
+  id: number;
+  path: string[];
+  handleChange: (path: string[], value: any) => void;
 }) {
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log("onChange", e.target.value);
+    const timeout = setTimeout(() => {
+      handleChange(path, e.target.value);
+    }, 500);
+    return () => clearTimeout(timeout);
   };
+
   const fixedLabel = label
     .replace(/_/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
@@ -43,11 +53,13 @@ function EditorMenu({
           <CollapsibleContent>
             <SidebarMenuSub>
               {Object.entries(value).map(([key, value]) => (
-                <EditorMenu
+                <UsemapEditorMenu
                   key={key}
                   label={key}
                   value={value}
+                  id={id}
                   path={[...path, key]}
+                  handleChange={handleChange}
                 />
               ))}
             </SidebarMenuSub>
@@ -103,11 +115,34 @@ function EditorMenu({
   );
 }
 
-export function Editor({ item }: { item: Item }) {
+export function UsemapEditor({ kind, label, asset, icon }: EditorItem) {
+  const { usemap, updateEntity, updateAsset } = useUsemapStore(
+    (state) => state,
+  );
+  const handleChange = (path: string[], value: any) => {
+    if (kind === "entities") {
+      updateEntity(asset.id, path, value);
+    } else if (kind === "assets") {
+      updateAsset(asset.id, path, value);
+      console.log("Usemap", usemap?.assets);
+      console.log("Usemap asset:", usemap?.assets[asset.id]);
+      console.log("Asset:", asset);
+    }
+  };
+
   return (
     <SidebarMenu>
-      {Object.entries(item.properties).map(([key, value]) => (
-        <EditorMenu key={key} label={key} value={value} path={[key]} />
+      {icon}
+      {label}
+      {Object.entries(asset.data).map(([key, value]) => (
+        <UsemapEditorMenu
+          key={key}
+          label={key}
+          value={value}
+          id={asset.id}
+          path={[key]}
+          handleChange={handleChange}
+        />
       ))}
     </SidebarMenu>
   );
