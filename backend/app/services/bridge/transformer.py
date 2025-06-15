@@ -137,7 +137,7 @@ class Transformer:
       unit.sightRange = rawunit.weapons.sight_range
 
       "Basic Specification"
-      unit.flingy = rawunit.specification.graphics
+      unit.flingy = rawunit.specification.graphics.id
       unit.subUnit = rawunit.specification.subunit1
       if rawunit.specification.infestation:
         ...  # TODO: Infestation is not supported current version of eudplib, so have to deal with manually.
