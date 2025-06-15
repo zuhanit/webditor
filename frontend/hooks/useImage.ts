@@ -164,7 +164,6 @@ export function useViewportImage(): ViewportImageBundle {
       const unitEntities = usemap.entities.filter((entity) => entity.data && entity.data.kind === "Unit").map(e => e.data) as Unit[];
       const spriteEntities = usemap.entities.filter((entity) => entity.data && entity.data.kind === "Sprite").map(e => e.data) as Sprite[];
 
-      console.log(unitEntities);
       unitEntities.forEach((unit) => {
         result.add(unit.unit_definition.specification.graphics.sprite.image.id);
       });
