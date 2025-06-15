@@ -2,7 +2,7 @@
 
 import { Asset } from "@/types/asset";
 import { DragOverlay, UniqueIdentifier, useDndMonitor } from "@dnd-kit/core";
-import { ReactElement, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { DroppableContextKind } from "@/types/dnd";
 import { useUsemapStore } from "@/components/pages/editor-page";
 import { Viewport } from "@/types/viewport";
@@ -39,39 +39,34 @@ export function DragHandler() {
   const { usemap, addEntity, updateEntity } = useUsemapStore((state) => state);
 
   const placeEntity = (item: Entity, { x, y }: { x: number; y: number }) => {
-    const unitParse = UnitSchema.safeParse(item);
-    if (unitParse.success) {
-      const unit = Object.assign({}, item) as Unit;
-      unit.transform.position.x = x;
-      unit.transform.position.y = y;
+    const copiedEntity = structuredClone(item);
+    copiedEntity.transform.position.x = x;
+    copiedEntity.transform.position.y = y;
+
       addEntity({
-        id: unit.id,
-        name: unit.name,
+      id: copiedEntity.id,
+      name: copiedEntity.name,
         type: "file",
-        data: unit,
-        parent_id: 0,
+      data: copiedEntity,
+      parent_id: -1,
         preview: null,
       });
-    }
   };
+
+  useEffect(() => {
+    if (draggingAsset) {
+      const isEntity = EntitySchema.safeParse(draggingAsset.data).success;
+      if (isEntity) {
+        setDraggingAssetKind(draggingAsset.data.kind);
+      }
+    }
+  }, [draggingAsset]);
 
   useDndMonitor({
     onDragStart(event) {
-      setDraggingAsset({
-        id: event.active.id as number,
-        name: event.active.id as string,
-        type: "file",
-        data: event.active.data.current!,
-      });
-
-      const isEntity = EntitySchema.safeParse(
-        event.active.data.current,
-      ).success;
-      if (isEntity) {
-        const entity = event.active.data.current as Entity;
-        setDraggingAssetKind(entity.kind);
-      }
+      setDraggingAsset(event.active.data.current as Asset);
     },
+
     onDragEnd(event) {
       setDraggingAsset(null);
       if (event.active.id.toString().startsWith("asset-editor")) {
@@ -105,6 +100,11 @@ export function DragHandler() {
         }
 
         if (dropStartsWith(event.over.id, "viewport")) {
+          if (!draggingAsset) return;
+
+          const parsed = EntitySchema.safeParse(draggingAsset.data);
+          if (!parsed.success) return;
+
           const localX =
             event.active.rect.current.translated!.left - event.over.rect.left;
           const localY =
@@ -114,15 +114,10 @@ export function DragHandler() {
           const placementX = Math.floor(localX + viewport.startX * TILE_SIZE);
           const placementY = Math.floor(localY + viewport.startY * TILE_SIZE);
 
-          const parsed = EntitySchema.safeParse(event.active.data.current);
-          if (parsed.success) {
-            const entity = event.active.data.current as Entity;
-            setDraggingAssetKind(entity.kind);
-            placeEntity(entity, {
+          placeEntity(draggingAsset.data, {
               x: placementX,
               y: placementY,
             });
-          }
         }
       }
     },
