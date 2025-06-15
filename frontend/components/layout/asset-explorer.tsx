@@ -29,7 +29,6 @@ export function AssetCard({
   const handleFileDoubleClick = () => {
     if (!isEditorOpen) openEditor();
     if (assets.find((openedAsset) => openedAsset.name === asset.name)) {
-      console.log("ae", asset, assets);
       setActivatedAsset(asset);
     } else {
       setAssets([...assets, asset]);
@@ -37,7 +36,6 @@ export function AssetCard({
   };
 
   const handleFolderDoubleClick = () => {
-    console.log(asset);
     setCurrentAsset(asset);
   };
 
@@ -99,8 +97,6 @@ export function AssetExplorer() {
     id: "AssetContainer",
     kind: "asset-container",
   });
-
-  console.log(gameMap?.assets);
 
   if (gameMap === null) return <div>Loading...</div>;
 

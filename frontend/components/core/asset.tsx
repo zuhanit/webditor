@@ -30,7 +30,6 @@ export function AssetEditorImage({ asset }: { asset: AssetType }) {
   useEffect(() => {
     if (!usemap) return;
 
-    console.log(result.data);
     if (result.data?.type === "file") {
       if (result.data.preview) {
         setImage(
