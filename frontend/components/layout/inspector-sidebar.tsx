@@ -7,7 +7,7 @@ import {
   SidebarMenu,
 } from "../ui/sidebar";
 import { useEntityStore } from "@/store/entityStore";
-import { Editor } from "../core/editor";
+import { UsemapEditor } from "../core/usemap-editor";
 
 export function InspectorSidebar() {
   const entity = useEntityStore((state) => state.entity);
@@ -23,13 +23,7 @@ export function InspectorSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            <Editor
-              item={{
-                label: entity.name,
-                path: [],
-                properties: entity.data,
-              }}
-            />
+            <UsemapEditor kind="entities" label={entity.name} asset={entity} />
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
