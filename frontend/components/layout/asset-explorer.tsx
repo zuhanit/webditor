@@ -4,7 +4,7 @@ import { useUsemapStore } from "@/components/pages/editor-page";
 import React from "react";
 import { useDroppableContext } from "@/hooks/useDraggableAsset";
 import { useAssetExplorerStore } from "@/store/assetExplorerStore";
-import { AssetType } from "@/types/asset";
+import { Asset } from "@/types/schemas/asset/Asset";
 import { useDraggable } from "@dnd-kit/core";
 import { twMerge } from "tailwind-merge";
 import { useAsseEditortStore } from "@/store/assetEditorStore";
@@ -15,12 +15,12 @@ export function AssetCard({
   asset,
   className,
 }: {
-  asset: AssetType;
+  asset: Asset & { children?: Asset[] };
   className?: string;
 }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: asset.name,
-    data: asset.data,
+    data: asset.data as any,
   });
   const { assets, setAssets, isEditorOpen, openEditor, setActivatedAsset } =
     useAsseEditortStore((state) => state);
