@@ -70,6 +70,7 @@ class Transformer:
   @EUDMethod
   def allocate_placed_units(self):
     from wengine.entities.unit import Unit
+    from app.models.entities.unit import Unit as UnitEntity
 
     @EUDTypedFunc([Unit], [])
     def on_burrow(unit: Unit):
@@ -82,15 +83,19 @@ class Transformer:
     def event_tick(unit: Unit):
       f_println("Unit address: {}", unit.ptr)
 
-    for rawunit in self.map.placed_unit:
-      if rawunit.serial_number is not None:
-        unit = Unit.alloc(rawunit.serial_number)
+    placed_units = [u.data for u in self.map.entities if isinstance(u.data, UnitEntity)]
+
+    id_without_start_location = 0
+    for rawunit in placed_units:
+      if rawunit.id is not None and rawunit.unit_definition.id != 214:
+        unit = Unit.alloc(id_without_start_location)
+        id_without_start_location += 1
         cunit = CUnit.from_ptr(unit.ptr)
         cunit.unitID = rawunit.unit_definition.id
+        self.logger.info(f"Allocating unit {rawunit.id}: {rawunit.name}")
         self.logger.info(
-          f"Allocating unit {rawunit.serial_number}: {rawunit.name}, ptr: {unit.ptr._vartrigger._initval}"
+          f"Unit definition id: {rawunit.unit_definition.id}, serial_number: {rawunit.serial_number}"
         )
-        self.logger.info(f"Unit definition id: {rawunit.unit_definition.id}")
 
         # unit.on_burrow = EUDFuncPtr(1, 0)(on_burrow)
         unit.on_burrow = EUDTypedFuncPtr([Unit], [])(on_burrow)
@@ -99,7 +104,7 @@ class Transformer:
         unit.allocate()
 
     self.logger.info(
-      f"Allocating placed units were succesful. Total allocated {len(self.map.placed_unit)}"
+      f"Allocating placed units were succesful. Total allocated {id_without_start_location}"
     )
 
   @EUDMethod
