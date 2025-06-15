@@ -8,7 +8,7 @@ import {
   ImageVersion,
 } from "@/types/SCImage";
 import axios from "axios";
-import { useUsemapStore } from "@/store/mapStore";
+import { useUsemapStore } from "@/components/pages/editor-page";
 import useTileGroup from "./useTileGroup";
 import useTilesetData from "./useTilesetData";
 import { useEffect, useMemo, useRef, useState } from "react";
