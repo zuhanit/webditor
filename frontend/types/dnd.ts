@@ -1,8 +1,8 @@
 export type DroppableContextKind =
   | "inspector"
-  | "inspector-content"
-  | "asset-container"
   | "asset-editor"
-  | "viewport";
+  | "asset-container"
+  | "viewport"
+  | "editor-content";
 
 export type DraggableAssetKind = "asset" | "sidebar-item" | "asset-editor";
