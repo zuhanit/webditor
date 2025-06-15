@@ -15,6 +15,35 @@ import {
 import { ChevronRight } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUsemapStore } from "@/components/pages/editor-page";
+import {
+  useDraggableAsset,
+  useDroppableContext,
+} from "@/hooks/useDraggableAsset";
+import { z } from "zod";
+
+function createSchemaFromValue(value: unknown): z.ZodType {
+  if (value === null) return z.null();
+  switch (typeof value) {
+    case "string":
+      return z.string();
+    case "number":
+      return z.number();
+    case "boolean":
+      return z.boolean();
+    case "object":
+      if (Array.isArray(value)) {
+        if (value.length === 0) return z.array(z.any());
+        return z.array(createSchemaFromValue(value[0]));
+      }
+      const shape: Record<string, z.ZodType> = {};
+      for (const [k, v] of Object.entries(value as object)) {
+        shape[k] = createSchemaFromValue(v);
+      }
+      return z.object(shape);
+    default:
+      return z.any();
+  }
+}
 
 function UsemapEditorMenu({
   label,
@@ -41,6 +70,44 @@ function UsemapEditorMenu({
     .replace(/\b\w/g, (char) => char.toUpperCase());
 
   if (typeof value === "object" && value !== null) {
+    if (
+      Object.keys(value).includes("ref_type") &&
+      value.ref_type == "Definition"
+    ) {
+      const schema = createSchemaFromValue(value);
+      const { isOver, setNodeRef } = useDroppableContext({
+        kind: "editor-content",
+        id: id,
+        data: {
+          schema: schema,
+          handleChange: handleChange,
+          path: path,
+        },
+      });
+
+      return (
+        <Collapsible className="group/collapsible">
+          <SidebarMenuItem>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuButton className="font-bold">
+                {fixedLabel}
+                <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              </SidebarMenuButton>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarInput
+                type="button"
+                value={value.name}
+                className={`hover:bg-surface-primary ${
+                  isOver && "bg-surface-primary"
+                }`}
+                ref={setNodeRef}
+              />
+            </CollapsibleContent>
+          </SidebarMenuItem>
+        </Collapsible>
+      );
+    }
     return (
       <Collapsible className="group/collapsible">
         <SidebarMenuItem>
@@ -124,9 +191,6 @@ export function UsemapEditor({ kind, label, asset, icon }: EditorItem) {
       updateEntity(asset.id, path, value);
     } else if (kind === "assets") {
       updateAsset(asset.id, path, value);
-      console.log("Usemap", usemap?.assets);
-      console.log("Usemap asset:", usemap?.assets[asset.id]);
-      console.log("Asset:", asset);
     }
   };
 

@@ -12,6 +12,7 @@ import { Entity, EntitySchema } from "@/types/schemas/entities/Entity";
 import { SCImageRenderer } from "./renderer";
 import { Sprite } from "@/types/schemas/entities/Sprite";
 import { useAsseEditortStore } from "@/store/assetEditorStore";
+import { z } from "zod";
 
 type DraggingAssetKind =
   | "Asset"
@@ -43,14 +44,14 @@ export function DragHandler() {
     copiedEntity.transform.position.x = x;
     copiedEntity.transform.position.y = y;
 
-      addEntity({
+    addEntity({
       id: copiedEntity.id,
       name: copiedEntity.name,
-        type: "file",
+      type: "file",
       data: copiedEntity,
       parent_id: -1,
-        preview: null,
-      });
+      preview: null,
+    });
   };
 
   useEffect(() => {
@@ -82,21 +83,20 @@ export function DragHandler() {
           //
         }
 
-        if (dropStartsWith(event.over.id, "asset-editor")) {
-          handleChange(
-            event.over.data.current as any,
-            event.active.data.current,
-          );
-        }
-
         if (dropStartsWith(event.over.id, "inspector")) {
           //
         }
-        if (dropStartsWith(event.over.id, "inspector-content")) {
-          handleChange(
-            event.over.data.current as any,
-            event.active.data.current,
-          );
+        if (dropStartsWith(event.over.id, "editor-content")) {
+          if (!draggingAsset) return;
+          const { schema, handleChange, path } = event.over.data.current! as {
+            schema: z.ZodType;
+            handleChange: (path: string[], value: any) => void;
+            path: string[];
+          };
+          const parsed = schema.safeParse(draggingAsset.data);
+          if (parsed.success) {
+            handleChange(path, parsed.data);
+          }
         }
 
         if (dropStartsWith(event.over.id, "viewport")) {
@@ -115,9 +115,9 @@ export function DragHandler() {
           const placementY = Math.floor(localY + viewport.startY * TILE_SIZE);
 
           placeEntity(draggingAsset.data, {
-              x: placementX,
-              y: placementY,
-            });
+            x: placementX,
+            y: placementY,
+          });
         }
       }
     },
