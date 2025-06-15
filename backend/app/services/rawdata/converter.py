@@ -187,6 +187,7 @@ class MapConverter:
     return [
       Unit(
         id=id,
+        serial_number=unit.serial_number,
         name=self.chk.unit_definitions[unit.unit_id].name,
         transform=TransformComponent(
           position=Position2D(x=unit.position.x, y=unit.position.y),
@@ -195,6 +196,7 @@ class MapConverter:
         kind="Unit",
         owner=self.players[unit.owner.id],
         unit_definition=self.unit_definitions[unit.unit_id],
+        # FIXME: Unit Stat(HP, Energy) will not stored only UnitDefinition, need to fix this
         unit_state=unit.unit_state,
         relation_type=unit.relation_type,
         related_unit=unit.related_unit,
@@ -314,7 +316,7 @@ class MapConverter:
       Technology(
         id=id,
         name=reverse_tbl_dict(DefTechDict)[id],
-        use_default=False,
+        use_default=self.chk.technologies[id].use_default,
         cost=TechCost(
           mineral=self.chk.technologies[id].cost.mineral,
           gas=self.chk.technologies[id].cost.gas,
@@ -532,6 +534,7 @@ class MapConverter:
             current=self.chk.unit_definitions[id].stat.energy_points or 0,
             max=self.chk.unit_definitions[id].stat.energy_points or 0,
           ),
+          armor_points=self.chk.unit_definitions[id].stat.armor_points or 0,
           armor_upgrade=UnitsDat.result[id]["armor_upgrade"],
           rank=UnitsDat.result[id]["rank"],
           elevation_level=UnitsDat.result[id]["elevation_level"],
