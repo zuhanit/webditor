@@ -83,21 +83,20 @@ def get_build_map(map: Usemap):
   try:
     map_bytes = build_map(map)
   except Exception as e:
-    build_logger.critical(f"Building map was failed, because of {e}")
+    build_logger.critical(f"Building map was failed, because of {e}.")
+    timestamp = datetime.datetime.now(datetime.UTC).strftime("%Y%m%d_%H%M%S")
+    json_path = f"logs/map_{timestamp}.json"
+    os.makedirs("logs", exist_ok=True)
+
+    with open(json_path, mode="a", newline="") as f:
+      import json
+
+      json.dump(map.model_dump(mode="json"), f, indent=2)
+      build_logger.info(f"Map structure saved in {json_path}")
     raise HTTPException(status_code=500, detail=str(e))
 
   buffer = io.BytesIO(map_bytes)
   buffer.seek(0)
-
-  timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d_%H%M%S")
-  json_path = f"logs/map_{timestamp}.json"
-  os.makedirs("logs", exist_ok=True)
-
-  with open(json_path, mode="a", newline="") as f:
-    import json
-
-    json.dump(map.model_dump(mode="json"), f, indent=2)
-    build_logger.info(f"Map structure saved in {json_path}")
 
   build_logger.info("Building was succesful.")
 
