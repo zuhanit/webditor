@@ -1,6 +1,8 @@
-export interface Item {
+import { Asset } from "./asset";
+
+export interface EditorItem {
   label: string;
   icon?: React.ReactNode;
-  path: (string | number)[];
-  properties: Record<string, any>;
+  asset: Asset;
+  kind: "entities" | "assets";
 }
