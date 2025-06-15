@@ -113,8 +113,10 @@ class Transformer:
     `Transformer.alloc_units()`
     """
     from eudplib import TrgUnit
+    from app.models.definitions.unit import UnitDefinition
 
-    for rawunit in self.map.unit_definitions:
+    units = [a.data for a in self.map.assets if isinstance(a.data, UnitDefinition)]
+    for rawunit in units:
       unit = TrgUnit(rawunit.id)
 
       "Weapon"
@@ -188,8 +190,10 @@ class Transformer:
   def initialize_tech_specification(self):
     """Initialize technology specificaiton"""
     from eudplib import Tech
+    from app.models.definitions.tech import Technology
 
-    for rawtech in self.map.technologies:
+    technologies = [a.data for a in self.map.assets if isinstance(a.data, Technology)]
+    for rawtech in technologies:
       tech = Tech(rawtech.id)
 
       tech.icon = rawtech.icon
@@ -197,14 +201,18 @@ class Transformer:
       tech.race = rawtech.race
 
     self.logger.info(
-      f"Initializing tech specifications was succesful. Total initialized {len(self.map.technologies)}"
+      f"Initializing tech specifications was succesful. Total initialized {len(technologies)}"
     )
 
   @EUDMethod
   def initialize_upgrade_specification(self):
     from eudplib import Upgrade
+    from app.models.definitions.tech import Upgrade as UpgradeDefinition
 
-    for rawupgrade in self.map.upgrades:
+    upgrades = [
+      a.data for a in self.map.assets if isinstance(a.data, UpgradeDefinition)
+    ]
+    for rawupgrade in upgrades:
       upgrade = Upgrade(rawupgrade.id)
 
       upgrade.icon = rawupgrade.icon
@@ -212,14 +220,16 @@ class Transformer:
       upgrade.race = rawupgrade.race
 
     self.logger.info(
-      f"Initializing upgrade specifications was succesful. Total initialized {len(self.map.upgrades)}"
+      f"Initializing upgrade specifications was succesful. Total initialized {len(upgrades)}"
     )
 
   @EUDMethod
   def initialize_weapon_specification(self):
     from eudplib import Weapon
+    from app.models.definitions.weapon import WeaponDefinition
 
-    for rawweapon in self.map.weapons:
+    weapons = [a.data for a in self.map.assets if isinstance(a.data, WeaponDefinition)]
+    for rawweapon in weapons:
       weapon = Weapon(rawweapon.id)
 
       weapon.cooldown = rawweapon.cooldown
@@ -248,18 +258,20 @@ class Transformer:
       weapon.splashOuterRadius = rawweapon.splash.outer
 
     self.logger.info(
-      f"Initializing weapon specifications was succesful. Total initialized {len(self.map.weapons)}"
+      f"Initializing weapon specifications was succesful. Total initialized {len(weapons)}"
     )
 
   @EUDMethod
   def initialize_sprite_speicification(self):
     from eudplib import Sprite
+    from app.models.definitions.sprite import SpriteDefinition
 
-    for rawsprite in self.map.sprite:
+    sprites = [a.data for a in self.map.assets if isinstance(a.data, SpriteDefinition)]
+    for rawsprite in sprites:
       sprite = Sprite(rawsprite.id)
 
-      sprite.image = rawsprite.image
-      if rawsprite.health_bar:
+      sprite.image = rawsprite.image.id
+      if rawsprite.health_bar_id:
         """
         TODO: health_bar, selection_circle_image, selection_circle offset is not supported yet
         current version of eudplib.
@@ -267,14 +279,16 @@ class Transformer:
         ...
 
     self.logger.info(
-      f"Initializing sprite_specfications was succesful. Total initialized {len(self.map.sprite)}"
+      f"Initializing sprite_specfications was succesful. Total initialized {len(sprites)}"
     )
 
   @EUDMethod
   def initialize_image_specifications(self):
     from eudplib import Image
+    from app.models.definitions.image import ImageDefinition
 
-    for rawimage in self.map.images:
+    images = [a.data for a in self.map.assets if isinstance(a.data, ImageDefinition)]
+    for rawimage in images:
       image = Image(rawimage.id)
 
       image.isTurnable = rawimage.turnable
@@ -286,33 +300,37 @@ class Transformer:
       image.useFullIscript = rawimage.use_full_iscript
 
     self.logger.info(
-      f"Initializing image specifications was succesful. Total initialized {len(self.map.images)}"
+      f"Initializing image specifications was succesful. Total initialized {len(images)}"
     )
 
   @EUDMethod
   def initialize_flingy_specifications(self):
     from eudplib import Flingy
+    from app.models.definitions.flingy import FlingyDefinition
 
-    for rawflingy in self.map.flingy:
+    flingys = [a.data for a in self.map.assets if isinstance(a.data, FlingyDefinition)]
+    for rawflingy in flingys:
       flingy = Flingy(rawflingy.id)
 
-      flingy.sprite = rawflingy.sprite
-      flingy.topSpeed = rawflingy.topSpeed
+      flingy.sprite = rawflingy.sprite.id
+      flingy.topSpeed = rawflingy.top_speed
       flingy.acceleration = rawflingy.acceleration
-      flingy.haltDistance = rawflingy.haltDistance
-      flingy.turnSpeed = rawflingy.turnRadius
-      flingy.turnRadius = rawflingy.turnRadius
-      flingy.movementControl = rawflingy.moveControl
+      flingy.haltDistance = rawflingy.halt_distance
+      flingy.turnSpeed = rawflingy.turn_radius
+      flingy.turnRadius = rawflingy.turn_radius
+      flingy.movementControl = rawflingy.move_control
 
     self.logger.info(
-      f"Initializing flingy specifications was succesful. Total initialized {len(self.map.flingy)}"
+      f"Initializing flingy specifications was succesful. Total initialized {len(flingys)}"
     )
 
   @EUDMethod
   def initialize_order_specifications(self):
     from eudplib import UnitOrder
+    from app.models.definitions.order import OrderDefinition
 
-    for raworder in self.map.orders:
+    orders = [a.data for a in self.map.assets if isinstance(a.data, OrderDefinition)]
+    for raworder in orders:
       order = UnitOrder(raworder.id)
 
       order.label = raworder.label
@@ -324,5 +342,5 @@ class Transformer:
       order.obscuredOrder = raworder.obscured_order
 
     self.logger.info(
-      f"Initializing order specifications was succesful. Total initialized {len(self.map.orders)}"
+      f"Initializing order specifications was succesful. Total initialized {len(orders)}"
     )
