@@ -1,7 +1,4 @@
 import { useAsseEditortStore } from "@/store/assetEditorStore";
-import { useDraggable } from "@dnd-kit/core";
-import { Item } from "@/types/item";
-import { Card, CardHeader } from "../ui/card";
 import {
   Sidebar,
   SidebarContent,
@@ -60,7 +57,6 @@ export function AssetEditor() {
     setActivatedAsset,
     editorPosition,
   } = useAsseEditortStore();
-  const { updateUsemap } = useUsemapStore((state) => state);
   const { attributes, listeners, setNodeRef, transform } = useDraggableAsset({
     id: "main",
     kind: "asset-editor",
