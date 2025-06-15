@@ -12,7 +12,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ReactNode, useEffect, useState } from "react";
 import { SCImageRenderer } from "./renderer";
-import { AssetSchema, AssetType } from "@/types/asset";
+import { AssetSchema } from "@/types/schemas/asset/Asset";
 import { Button } from "../ui/button";
 import { UsemapEditor } from "./usemap-editor";
 import { useUsemapStore } from "@/components/pages/editor-page";
@@ -20,9 +20,9 @@ import { Toolbar } from "../ui/toolbar";
 import { Save, X } from "lucide-react";
 import { Resizable } from "re-resizable";
 import { useDraggableAsset } from "@/hooks/useDraggableAsset";
-import { twMerge } from "tailwind-merge";
+import { Asset } from "@/types/asset";
 
-export function AssetEditorImage({ asset }: { asset: AssetType }) {
+export function AssetEditorImage({ asset }: { asset: Asset }) {
   const [image, setImage] = useState<ReactNode | null>(null);
   const usemap = useUsemapStore((state) => state.usemap);
 
@@ -69,7 +69,7 @@ export function AssetEditor() {
   if (!assets.length || !isEditorOpen || !activatedAsset) return null;
 
   // FIXME: Using ID, or something else to identify asset
-  const onClickClose = (asset: AssetType) => {
+  const onClickClose = (asset: Asset) => {
     const currentActivatedAssetIndex = assets.findIndex((a) => a === asset);
     const nextActivatedAssetIndex =
       currentActivatedAssetIndex === assets.length - 1
