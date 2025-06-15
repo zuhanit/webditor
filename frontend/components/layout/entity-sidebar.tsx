@@ -30,7 +30,7 @@ import { SearchForm } from "../form/search-form";
 import { useEntityStore } from "@/store/entityStore";
 import fuzzysort from "fuzzysort";
 import { createContext, useContext, useMemo, useState } from "react";
-import { useUsemapStore } from "@/store/mapStore";
+import { useUsemapStore } from "@/components/pages/editor-page";
 import { Asset } from "@/types/schemas/asset/Asset";
 import { useEntityAssetTree } from "@/hooks/useAssetTree";
 
@@ -175,7 +175,6 @@ export function EntitySidebar() {
   }, [usemap?.entities, searchTerm]);
 
   const tree = useEntityAssetTree(filteredResult || []);
-  console.log(tree, "tree");
 
   return (
     <Sidebar className="h-full bg-background-secondary">

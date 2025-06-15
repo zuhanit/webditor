@@ -9,7 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuSub,
 } from "../ui/sidebar";
-import { useUsemapStore } from "@/store/mapStore";
+import { useUsemapStore } from "@/components/pages/editor-page";
 import { Folder, Minus, Plus } from "lucide-react";
 import {
   Collapsible,

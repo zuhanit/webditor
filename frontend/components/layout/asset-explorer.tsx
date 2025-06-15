@@ -1,6 +1,6 @@
 "use client";
 
-import { useUsemapStore } from "@/store/mapStore";
+import { useUsemapStore } from "@/components/pages/editor-page";
 import React from "react";
 import { useDroppableContext } from "@/hooks/useDraggableAsset";
 import { useAssetExplorerStore } from "@/store/assetExplorerStore";
