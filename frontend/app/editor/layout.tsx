@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import { UsemapStoreProvider } from "@/components/pages/editor-page";
 
 export default function EditorLayout({
   children,
@@ -22,7 +23,7 @@ export default function EditorLayout({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div>{children}</div>
+      <UsemapStoreProvider>{children}</UsemapStoreProvider>
     </QueryClientProvider>
   );
 }
