@@ -44,6 +44,9 @@ importers:
       fuzzysort:
         specifier: ^3.1.0
         version: 3.1.0
+      immer:
+        specifier: ^10.1.1
+        version: 10.1.1
       lucide-react:
         specifier: ^0.456.0
         version: 0.456.0(react@19.0.0-rc-66855b96-20241106)
@@ -76,7 +79,7 @@ importers:
         version: 3.24.3
       zustand:
         specifier: ^5.0.3
-        version: 5.0.3(@types/react@18.3.12)(react@19.0.0-rc-66855b96-20241106)
+        version: 5.0.3(@types/react@18.3.12)(immer@10.1.1)(react@19.0.0-rc-66855b96-20241106)
     devDependencies:
       '@chromatic-com/storybook':
         specifier: ^3
@@ -2471,6 +2474,9 @@ packages:
     resolution: {integrity: sha512-IRqXKlaXwgSMAMtpNzZa1ZAe8m+Sa1770Dhk8VkSsP9LS+iHD62Zd8FQKs8fbPiagBE7BzoFX23cxFnwshpV6w==}
     engines: {node: '>=16.x'}
     hasBin: true
+
+  immer@10.1.1:
+    resolution: {integrity: sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw==}
 
   imurmurhash@0.1.4:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
@@ -6856,6 +6862,8 @@ snapshots:
 
   image-size@2.0.2: {}
 
+  immer@10.1.1: {}
+
   imurmurhash@0.1.4: {}
 
   indent-string@4.0.0: {}
@@ -8415,7 +8423,8 @@ snapshots:
 
   zod@3.24.3: {}
 
-  zustand@5.0.3(@types/react@18.3.12)(react@19.0.0-rc-66855b96-20241106):
+  zustand@5.0.3(@types/react@18.3.12)(immer@10.1.1)(react@19.0.0-rc-66855b96-20241106):
     optionalDependencies:
       '@types/react': 18.3.12
+      immer: 10.1.1
       react: 19.0.0-rc-66855b96-20241106
