@@ -155,12 +155,10 @@ export function AssetEditor() {
                     key={asset.name}
                     value={asset.name}
                   >
-                    <Editor
-                      item={{
-                        label: asset.name,
-                        path: [],
-                        properties: asset.data,
-                      }}
+                    <UsemapEditor
+                      kind="assets"
+                      label={asset.name}
+                      asset={asset}
                     />
                     <AssetEditorImage asset={asset} />
                   </TabsContent>
