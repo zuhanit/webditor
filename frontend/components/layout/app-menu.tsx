@@ -6,7 +6,7 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "../ui/menubar";
-import { useUsemapStore } from "@/store/mapStore";
+import { useUsemapStore } from "@/components/pages/editor-page";
 import api from "@/lib/api";
 import { Usemap } from "@/types/schemas/project/Usemap";
 

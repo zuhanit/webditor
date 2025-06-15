@@ -4,7 +4,7 @@ import { Asset } from "@/types/asset";
 import { DragOverlay, UniqueIdentifier, useDndMonitor } from "@dnd-kit/core";
 import { ReactElement, useState } from "react";
 import { DroppableContextKind } from "@/types/dnd";
-import { useUsemapStore } from "@/store/mapStore";
+import { useUsemapStore } from "@/components/pages/editor-page";
 import { Viewport } from "@/types/viewport";
 import { TILE_SIZE } from "@/lib/scterrain";
 import { Unit, UnitSchema } from "@/types/schemas/entities/Unit";
@@ -36,17 +36,7 @@ export function DragHandler() {
     useState<DraggingAssetKind>("Asset");
   const { setEditorPosition } = useAsseEditortStore((state) => state);
 
-  const usemap = useUsemapStore((state) => state.usemap);
-  const updateUsemap = useUsemapStore((state) => state.updateUsemap); // zustand 또는 context 등
-  const handleChange = (path: (string | number)[], newValue: any) => {
-    updateUsemap((draft: any) => {
-      let target = draft;
-      for (let i = 0; i < path.length - 1; i++) {
-        target = target[path[i]];
-      }
-      target[path[path.length - 1]] = newValue;
-    });
-  };
+  const { usemap, addEntity, updateEntity } = useUsemapStore((state) => state);
 
   const placeEntity = (item: Entity, { x, y }: { x: number; y: number }) => {
     const unitParse = UnitSchema.safeParse(item);
@@ -54,6 +44,14 @@ export function DragHandler() {
       const unit = Object.assign({}, item) as Unit;
       unit.transform.position.x = x;
       unit.transform.position.y = y;
+      addEntity({
+        id: unit.id,
+        name: unit.name,
+        type: "file",
+        data: unit,
+        parent_id: 0,
+        preview: null,
+      });
     }
   };
 
