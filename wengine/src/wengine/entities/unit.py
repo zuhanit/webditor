@@ -10,12 +10,10 @@ class Unit(Entity):
     ]
     entity_type = "Unit"
 
-    def constructor(self, serial_number: int):
+    def constructor(self, index: int):
         super().constructor()
 
-        _unit_ptr = (
-            0x59CCA8 if serial_number == 0 else 0x59CCA8 + 336 * (1700 - serial_number)
-        )
+        _unit_ptr = 0x59CCA8 if index == 0 else 0x59CCA8 + 336 * (1700 - index)
         self.ptr = EUDVariable(_unit_ptr)
 
         """
