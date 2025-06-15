@@ -12,7 +12,43 @@ from .entities.sprite import Sprite
 from .entities.tile import Tile
 from .entities.location import Location
 from .entities.mask import Mask
+from .entities.entity import Entity
+from .definitions import (
+  Definition,
+  Technology,
+  Upgrade,
+  UpgradeRestriction,
+  TechRestriction,
+  UnitRestriction,
+  FlingyDefinition,
+  SpriteDefinition,
+  ImageDefinition,
+  WeaponDefinition,
+  UnitDefinition,
+  OrderDefinition,
+  PortraitDefinition,
+)
+
 import datetime
+
+AssetType = Union[
+  Definition,
+  UnitDefinition,
+  WeaponDefinition,
+  SpriteDefinition,
+  Technology,
+  FlingyDefinition,
+  OrderDefinition,
+  ImageDefinition,
+  UpgradeRestriction,
+  TechRestriction,
+  UnitRestriction,
+  Upgrade,
+  Technology,
+  PortraitDefinition,
+  Unit,
+  Sprite,
+]
 
 
 class ScenarioProperty(BaseModel):
@@ -30,8 +66,8 @@ class Usemap(BaseModel):
   raw_mbrf_triggers: RawTriggerSection
   force: list[Force]
   scenario_property: ScenarioProperty
-  entities: list[Asset[Union[Unit, Sprite, Tile, Location, Mask]]]
-  assets: list[Asset]
+  entities: list[Asset[Union[Entity, Unit, Sprite, Tile, Location, Mask]]]
+  assets: list[Asset[AssetType]]
 
 
 class Project(BaseModel):
