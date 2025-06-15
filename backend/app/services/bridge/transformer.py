@@ -188,7 +188,7 @@ class Transformer:
       unit.transportSpaceRequired = rawunit.cost.space.required
 
     self.logger.info(
-      f"Initializing unit specifications was succesful. Total initialized {len(self.map.unit_definitions)}"
+      f"Initializing unit specifications was succesful. Total initialized {len(units)}"
     )
 
   @EUDMethod
