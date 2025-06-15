@@ -20,7 +20,7 @@ export function AssetCard({
 }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: asset.name,
-    data: asset.data as any,
+    data: asset,
   });
   const { assets, setAssets, isEditorOpen, openEditor, setActivatedAsset } =
     useAsseEditortStore((state) => state);
