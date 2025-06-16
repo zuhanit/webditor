@@ -13,3 +13,20 @@ from .tech import (
 )
 from .unit import UnitDefinition, UnitRestriction
 from .weapon import WeaponDefinition
+
+__all__ = [
+  "Definition",
+  "FlingyDefinition",
+  "ImageDefinition",
+  "OrderDefinition",
+  "PortraitDefinition",
+  "SpriteDefinition",
+  "Technology",
+  "TechRestriction",
+  "Upgrade",
+  "UpgradeRestriction",
+  "UpgradeSetting",
+  "UnitDefinition",
+  "UnitRestriction",
+  "WeaponDefinition",
+]
