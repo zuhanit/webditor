@@ -17,7 +17,6 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 import { useAssetExplorerStore } from "@/store/assetExplorerStore";
-import { useMemo } from "react";
 import { Asset } from "@/types/schemas/asset/Asset";
 import { useAssetTree } from "@/hooks/useAssetTree";
 

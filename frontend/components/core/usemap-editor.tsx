@@ -1,5 +1,5 @@
 import { EditorItem } from "@/types/item";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -13,12 +13,8 @@ import {
   SidebarMenuSub,
 } from "../ui/sidebar";
 import { ChevronRight } from "lucide-react";
-import { useDebounce } from "@/hooks/useDebounce";
 import { useUsemapStore } from "@/components/pages/editor-page";
-import {
-  useDraggableAsset,
-  useDroppableContext,
-} from "@/hooks/useDraggableAsset";
+import { useDroppableContext } from "@/hooks/useDraggableAsset";
 import { z } from "zod";
 
 function createSchemaFromValue(value: unknown): z.ZodType {

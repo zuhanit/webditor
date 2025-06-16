@@ -3,13 +3,11 @@
 import {
   SidebarContent,
   SidebarGroup,
-  SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
-  SidebarMenuSubButton,
   SidebarMenuSubItem,
   Sidebar,
 } from "@/components/ui/sidebar";
@@ -19,7 +17,6 @@ import {
   Minus,
   Plus,
   SquareDashed,
-  Folder,
 } from "lucide-react";
 import {
   Collapsible,
@@ -28,7 +25,6 @@ import {
 } from "../ui/collapsible";
 import { SearchForm } from "../form/search-form";
 import { useEntityStore } from "@/store/entityStore";
-import fuzzysort from "fuzzysort";
 import { createContext, useContext, useMemo, useState } from "react";
 import { useUsemapStore } from "@/components/pages/editor-page";
 import { Asset } from "@/types/schemas/asset/Asset";

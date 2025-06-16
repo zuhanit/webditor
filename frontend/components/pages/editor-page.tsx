@@ -16,7 +16,7 @@ import { Resizable } from "re-resizable";
 import { useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import { AssetEditor } from "@/components/core/asset";
 import { AppToolbar } from "@/components/layout/app-toolbar";
-import { createContext, use, useContext, useEffect, useRef } from "react";
+import { createContext, useContext, useEffect, useRef } from "react";
 import { createUsemapStore, UsemapStore } from "@/store/mapStore";
 import { useStore } from "zustand";
 
