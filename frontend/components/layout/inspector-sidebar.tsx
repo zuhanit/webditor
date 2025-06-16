@@ -16,7 +16,7 @@ export function InspectorSidebar() {
 
   return (
     <Sidebar collapsible="icon" side="right">
-      <SidebarHeader>
+      <SidebarHeader className="flex w-full items-center gap-2">
         <h1>{entity.name}</h1>
       </SidebarHeader>
       <SidebarSeparator />
