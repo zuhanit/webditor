@@ -213,7 +213,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-build
-          path: ${{ secrets.LIVE_SERVER_PATH }}/frontend
+          path: ${{ secrets.LIVE_SERVER_PATH }}/frontend/.next
 
       - name: Download Backend Static Anim Images
         if: needs.preprocess.outputs.rawdata-uploaded == 'true'
