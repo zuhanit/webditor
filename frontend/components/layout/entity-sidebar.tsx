@@ -25,10 +25,10 @@ import {
 } from "../ui/collapsible";
 import { SearchForm } from "../form/search-form";
 import { useEntityStore } from "@/store/entityStore";
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { useUsemapStore } from "@/components/pages/editor-page";
 import { Asset } from "@/types/schemas/asset/Asset";
-import { useEntityAssetTree } from "@/hooks/useAssetTree";
+import { useFilteredAssetTree } from "@/hooks/useAssetTree";
 
 interface EntitySidebarContextProps {
   searchTerm: string;
@@ -164,13 +164,7 @@ export function EntitySidebar() {
   const usemap = useUsemapStore((state) => state.usemap);
   const { searchTerm, setSearchTerm } = useEntitySidebar();
 
-  const filteredResult = useMemo(() => {
-    return searchTerm
-      ? usemap?.entities.filter((entity) => entity.name.includes(searchTerm))
-      : usemap?.entities;
-  }, [usemap?.entities, searchTerm]);
-
-  const tree = useEntityAssetTree(filteredResult || []);
+  const tree = useFilteredAssetTree(usemap?.entities || [], searchTerm);
 
   return (
     <Sidebar className="h-full bg-background-secondary">
@@ -190,8 +184,8 @@ export function EntitySidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          {tree?.map((entity) => (
-            <EntitySidebarItem key={entity.id} asset={entity} />
+          {tree.map((asset) => (
+            <EntitySidebarItem key={asset.id} asset={asset} />
           ))}
         </SidebarGroup>
       </SidebarContent>
