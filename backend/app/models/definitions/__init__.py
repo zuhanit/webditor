@@ -10,7 +10,6 @@ from .tech import (
   Upgrade,
   UpgradeRestriction,
   UpgradeSetting,
-  TechRestriction,
 )
 from .unit import UnitDefinition, UnitRestriction
 from .weapon import WeaponDefinition
