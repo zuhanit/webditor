@@ -1,11 +1,11 @@
-import { AssetType } from "@/types/asset";
+import { Asset } from "@/types/asset"
 import { create } from "zustand";
 
 interface AssetEditorStore {
-  assets: AssetType[];
-  activatedAsset: AssetType | null;
-  setAssets: (assets: AssetType[]) => void;
-  setActivatedAsset: (asset: AssetType) => void;
+  assets: Asset[];
+  activatedAsset: Asset | null;
+  setAssets: (assets: Asset[]) => void;
+  setActivatedAsset: (asset: Asset) => void;
   isEditorOpen: boolean;
   openEditor: () => void;
   closeEditor: () => void;
