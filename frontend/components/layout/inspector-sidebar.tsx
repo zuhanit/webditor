@@ -23,7 +23,7 @@ export function InspectorSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            <UsemapEditor kind="entities" label={entity.name} asset={entity} />
+            <UsemapEditor kind="entities" asset={entity} />
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
