@@ -26,7 +26,7 @@ function createSchemaFromValue(value: unknown): z.ZodType {
       return z.number();
     case "boolean":
       return z.boolean();
-    case "object":
+    case "object": {
       if (Array.isArray(value)) {
         if (value.length === 0) return z.array(z.any());
         return z.array(createSchemaFromValue(value[0]));
@@ -36,6 +36,7 @@ function createSchemaFromValue(value: unknown): z.ZodType {
         shape[k] = createSchemaFromValue(v);
       }
       return z.object(shape);
+    }
     default:
       return z.any();
   }
