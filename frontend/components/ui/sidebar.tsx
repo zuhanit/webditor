@@ -176,7 +176,10 @@ export function SidebarSeparator({
 }: React.ComponentProps<"hr">) {
   return (
     <hr
-      className={twMerge("-mx-1.5 h-px border-0 bg-text-muted", className)}
+      className={twMerge(
+        "-mx-1.5 h-px w-full border-0 bg-text-muted",
+        className,
+      )}
       {...props}
     />
   );
