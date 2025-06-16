@@ -179,9 +179,7 @@ function UsemapEditorMenu({
 }
 
 export function UsemapEditor({ kind, asset }: EditorItem) {
-  const { usemap, updateEntity, updateAsset } = useUsemapStore(
-    (state) => state,
-  );
+  const { updateEntity, updateAsset } = useUsemapStore((state) => state);
   const handleChange = (path: string[], value: any) => {
     if (kind === "entities") {
       updateEntity(asset.id, path, value);
