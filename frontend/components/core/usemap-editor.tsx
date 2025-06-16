@@ -90,8 +90,8 @@ function UsemapEditorMenu({
           <SidebarMenuItem>
             <CollapsibleTrigger asChild>
               <SidebarMenuButton className="font-bold">
-                {fixedLabel}
-                <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                <ChevronRight className="transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                <span className="mr-auto font-bold">{fixedLabel}</span>
               </SidebarMenuButton>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -113,8 +113,8 @@ function UsemapEditorMenu({
         <SidebarMenuItem>
           <CollapsibleTrigger asChild>
             <SidebarMenuButton className="font-bold">
-              {fixedLabel}
-              <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              <ChevronRight className="transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              <span className="mr-auto font-bold">{fixedLabel}</span>
             </SidebarMenuButton>
           </CollapsibleTrigger>
           <CollapsibleContent>
@@ -172,8 +172,8 @@ function UsemapEditorMenu({
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton>
-            <span className="font-bold">{fixedLabel}</span>
-            <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+            <ChevronRight className="transition-transform group-data-[state=open]/collapsible:rotate-90" />
+            <span className="mr-auto font-bold">{fixedLabel}</span>
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>{input}</CollapsibleContent>
