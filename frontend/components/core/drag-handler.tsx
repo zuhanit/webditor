@@ -7,7 +7,7 @@ import { DroppableContextKind } from "@/types/dnd";
 import { useUsemapStore } from "@/components/pages/editor-page";
 import { Viewport } from "@/types/viewport";
 import { TILE_SIZE } from "@/lib/scterrain";
-import { Unit, UnitSchema } from "@/types/schemas/entities/Unit";
+import { Unit } from "@/types/schemas/entities/Unit";
 import { Entity, EntitySchema } from "@/types/schemas/entities/Entity";
 import { SCImageRenderer } from "./renderer";
 import { Sprite } from "@/types/schemas/entities/Sprite";
@@ -37,7 +37,7 @@ export function DragHandler() {
     useState<DraggingAssetKind>("Asset");
   const { setEditorPosition } = useAsseEditortStore((state) => state);
 
-  const { usemap, addEntity, updateEntity } = useUsemapStore((state) => state);
+  const { usemap, addEntity } = useUsemapStore((state) => state);
 
   const placeEntity = (item: Entity, { x, y }: { x: number; y: number }) => {
     const copiedEntity = structuredClone(item);
