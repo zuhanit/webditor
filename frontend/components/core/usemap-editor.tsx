@@ -182,7 +182,7 @@ function UsemapEditorMenu({
   );
 }
 
-export function UsemapEditor({ kind, label, asset, icon }: EditorItem) {
+export function UsemapEditor({ kind, asset }: EditorItem) {
   const { usemap, updateEntity, updateAsset } = useUsemapStore(
     (state) => state,
   );
@@ -196,8 +196,6 @@ export function UsemapEditor({ kind, label, asset, icon }: EditorItem) {
 
   return (
     <SidebarMenu>
-      {icon}
-      {label}
       {Object.entries(asset.data).map(([key, value]) => (
         <UsemapEditorMenu
           key={key}

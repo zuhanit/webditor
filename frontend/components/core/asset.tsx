@@ -151,11 +151,7 @@ export function AssetEditor() {
                     key={asset.name}
                     value={asset.name}
                   >
-                    <UsemapEditor
-                      kind="assets"
-                      label={asset.name}
-                      asset={asset}
-                    />
+                    <UsemapEditor kind="assets" asset={asset} />
                     <AssetEditorImage asset={asset} />
                   </TabsContent>
                 ))}
