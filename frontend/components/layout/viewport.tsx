@@ -8,7 +8,7 @@ import { useDragViewport } from "@/hooks/useDragViewport";
 import { useElementResize } from "@/hooks/useElementResize";
 import { useDroppableContext } from "@/hooks/useDraggableAsset";
 
-export const MapImage = () => {
+export const MapImage = ({ className }: { className: string }) => {
   const viewportCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const { image } = useEntireCanvas();
 
@@ -32,19 +32,24 @@ export const MapImage = () => {
     const viewCtx = viewCanvas.getContext("2d")!;
     const v = viewportRef.current;
 
-    viewCanvas.width = v.tileWidth * TILE_SIZE;
-    viewCanvas.height = v.tileHeight * TILE_SIZE;
+    // 캔버스 크기 제한 (브라우저 한계: 보통 32767px)
+    const maxCanvasSize = 16000;
+    const canvasWidth = Math.min(v.tileWidth * TILE_SIZE, maxCanvasSize);
+    const canvasHeight = Math.min(v.tileHeight * TILE_SIZE, maxCanvasSize);
+
+    viewCanvas.width = canvasWidth;
+    viewCanvas.height = canvasHeight;
 
     viewCtx.drawImage(
       image,
       v.startX * TILE_SIZE,
       v.startY * TILE_SIZE,
-      v.tileWidth * TILE_SIZE,
-      v.tileHeight * TILE_SIZE,
+      canvasWidth,
+      canvasHeight,
       0,
       0,
-      v.tileWidth * TILE_SIZE,
-      v.tileHeight * TILE_SIZE,
+      canvasWidth,
+      canvasHeight,
     );
   }, [image]);
 
@@ -70,7 +75,7 @@ export const MapImage = () => {
   });
 
   return (
-    <div className="w-full" ref={setNodeRef}>
+    <div className={className} ref={setNodeRef}>
       <canvas
         ref={viewportCanvasRef}
         style={{
