@@ -1,8 +1,6 @@
 "use client";
 
 import { DragHandler } from "@/components/core/drag-handler";
-import { AssetExplorer } from "@/components/layout/asset-explorer";
-import { AssetSidebar } from "@/components/layout/asset-sidebar";
 import {
   EntitySidebar,
   EntitySidebarProvider,
@@ -19,6 +17,7 @@ import { AppToolbar } from "@/components/layout/app-toolbar";
 import { createContext, useContext, useEffect, useRef } from "react";
 import { createUsemapStore, UsemapStore } from "@/store/mapStore";
 import { useStore } from "zustand";
+import { AssetContainer } from "../layout/asset-container";
 
 export type UsemapStoreApi = ReturnType<typeof createUsemapStore>;
 
@@ -103,17 +102,8 @@ export function EditorPage() {
                 <MapImage />
                 <Resizable defaultSize={{ width: "25%" }} className="w-full">
                   <InspectorSidebar />
-                </Resizable>
-              </div>
-            </div>
-          </Resizable>
-
-          {/* Bottom Project/Asset Container */}
-          <div className="flex h-full flex-1 overflow-hidden border-t-text-muted">
-            <Resizable className="h-full">
-              <AssetSidebar />
-            </Resizable>
-            <AssetExplorer />
+            <AssetContainer />
+            <AssetEditor />
           </div>
           <AssetEditor />
         </DndContext>
