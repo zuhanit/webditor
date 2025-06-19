@@ -8,6 +8,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarMenuSub,
+  SidebarProvider,
 } from "../ui/sidebar";
 import { useUsemapStore } from "@/components/pages/editor-page";
 import { Folder, Minus, Plus } from "lucide-react";
@@ -92,17 +93,19 @@ export function AssetSidebar() {
   const tree = useAssetTree(usemap?.assets || []);
 
   return (
-    <Sidebar collapsible="offcanvas">
-      <SidebarHeader>Project</SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarMenu>
-            {tree?.map((asset) => (
-              <AssetSidebarItem key={asset.id} asset={asset} />
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
+    <SidebarProvider>
+      <Sidebar collapsible="offcanvas" className="rounded-l-md">
+        <SidebarHeader>Project</SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarMenu>
+              {tree?.map((asset) => (
+                <AssetSidebarItem key={asset.id} asset={asset} />
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+    </SidebarProvider>
   );
 }
