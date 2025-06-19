@@ -19,6 +19,8 @@ jobs:
         node-version: [20]
     outputs:
       rawdata-uploaded: ${{ steps.rawdata_flag.outputs.uploaded }}
+      schemas-generated: ${{ steps.schema_run.outcome == 'success '}}
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -157,8 +159,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('frontend/pnpm-lock.yaml') }}
 
+      - name: Cache Backend Schemas
+        id: cache-schema
+        uses: actions/cache@v3
+        with:
+          path: |
+            frontend/types/schemas
+          key: schema-${{ runner.os }}-${{ hashFiles('backend/app/models/**/*.py')}}
+
       - name: Download processed schemas
-        if: steps.cache-frontend.outputs.cache-hit != 'true'
+        if: steps.cache-schema.outputs.cache-hit != 'true' && needs.preprocess.outputs.schemas-generated == 'true'
         uses: actions/download-artifact@v4
         with:
           name: frontend-schemas
