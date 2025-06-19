@@ -10,9 +10,12 @@ import React, {
 import { twMerge } from "tailwind-merge";
 import { Slot } from "./slot";
 import { Input } from "./input";
+import { PanelLeftIcon } from "lucide-react";
+import { Button } from "./button";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+const SIDEBAR_WIDTH = "16rem";
 
 interface SidebarContextProps {
   state: "expanded" | "collapsed";
@@ -80,7 +83,16 @@ export function SidebarProvider({
 
   return (
     <SidebarContext.Provider value={contextValue}>
-      <div className={className} {...props}>
+      <div
+        data-slot="sidebar-wrapper"
+        style={
+          {
+            "--sidebar-width": SIDEBAR_WIDTH,
+          } as React.CSSProperties
+        }
+        className={twMerge("h-full", className)}
+        {...props}
+      >
         {children}
       </div>
     </SidebarContext.Provider>
@@ -92,30 +104,47 @@ export function Sidebar({
   side = "left",
   variant = "sidebar",
   children,
+  className,
   ...props
 }: React.ComponentProps<"div"> & {
   side?: "left" | "right";
   collapsible?: "offcanvas" | "icon" | "none";
-  variant?: "sidebar" | "floating";
+  variant?: "floating" | "sidebar";
 }) {
   const { state } = useSidebar();
 
   return (
     <div
-      className="group hidden h-full flex-col overflow-auto md:block"
+      className="group hidden h-full transition-[width] duration-200 ease-linear md:block"
       data-state={state}
       data-collapsible={state === "collapsed" ? collapsible : ""}
       data-side={side}
+      data-variant={variant}
     >
       <div
+        data-slot="sidebar-gap"
         className={twMerge(
-          "hidden h-full min-w-0 border-text-muted bg-background-secondary group-data-[collapsible=offcanvas]:w-0 md:flex",
-          "group-data-[side=left]:border-r group-data-[side=right]:border-l",
-          variant === "floating" && "absolute left-0 top-0",
+          "relative w-[var(--sidebar-width)]",
+          "group-data-[collapsible=offcanvas]:w-0",
         )}
-        {...props}
+      ></div>
+      <div
+        data-slot="sidebar-container"
+        className={twMerge(
+          className,
+          "transition-[left, right, width] hidden h-full w-[var(--sidebar-width)] flex-col overflow-auto duration-200 ease-linear md:flex",
+          "group-data-[collapsible=offcanvas]:w-0",
+          variant === "floating"
+            ? "shadow-md"
+            : "group-data-[side=left]:border-r group-data-[side=right]:border-l",
+        )}
       >
-        <div className="flex h-full w-full flex-col items-start justify-start">
+        <div
+          data-sidebar="sidebar"
+          data-slot="sidebar-inner"
+          className="flex h-full flex-col bg-background-secondary group-data-[variant=floating]:rounded-md"
+          {...props}
+        >
           {children}
         </div>
       </div>
@@ -123,10 +152,27 @@ export function Sidebar({
   );
 }
 
-export function SidebarTrigger({ ...props }: React.ComponentProps<"button">) {
+export function SidebarTrigger({
+  onClick,
+  className,
+  ...props
+}: React.ComponentProps<"button">) {
   const { toggleSidebar } = useSidebar();
 
-  return <button onClick={() => toggleSidebar()} {...props}></button>;
+  return (
+    <Button
+      variant="ghost"
+      className={className}
+      onClick={(event) => {
+        onClick?.(event);
+        toggleSidebar();
+      }}
+      {...props}
+    >
+      <PanelLeftIcon />
+      <span className="sr-only">Toggle Sidebar</span>
+    </Button>
+  );
 }
 
 export function SidebarInput({
@@ -151,7 +197,7 @@ export function SidebarHeader({
   return (
     <div
       data-sidebar="header"
-      className={`flex flex-col gap-2 p-2 ${className}`}
+      className={twMerge("flex w-full flex-col gap-2 p-2", className)}
       {...props}
     />
   );
@@ -164,7 +210,7 @@ export function SidebarFooter({
   return (
     <div
       data-sidebar="footer"
-      className={`flex flex-col gap-2 p-2 ${className}`}
+      className={twMerge("flex flex-col gap-2 p-2", className)}
       {...props}
     />
   );
@@ -208,7 +254,10 @@ export function SidebarGroup({
   return (
     <div
       data-sidebar="group"
-      className={`relative flex w-full min-w-0 flex-1 flex-col gap-2 p-2 ${className}`}
+      className={twMerge(
+        "relative flex w-full min-w-0 flex-1 flex-col gap-2 p-2",
+        className,
+      )}
       {...props}
     />
   );
@@ -236,7 +285,7 @@ export function SidebarGroupContent({
   return (
     <div
       data-sidebar="group-content"
-      className={`w-full text-sm ${className}`}
+      className={twMerge("w-full text-sm", className)}
       {...props}
     />
   );
@@ -284,7 +333,7 @@ export function SidebarMenuButton({
       data-sidebar="menu-button"
       data-active={isActive}
       className={twMerge(
-        "flex h-8 w-full rounded-md px-2 transition-all hover:bg-background-primary",
+        "flex h-8 w-full items-center gap-2 overflow-hidden rounded-md px-2 transition-all hover:bg-background-primary",
         "data-[active=true]:bg-surface-primary data-[active=true]:font-bold data-[active=true]:text-blue data-[active=true]:shadow-md",
         className,
       )}
@@ -316,7 +365,7 @@ export function SidebarMenuSubItem({
   return (
     <li
       data-sidebar="menu-sub-item"
-      className={twMerge("flex w-full items-center gap-2", className)}
+      className={twMerge("flex w-full gap-2", className)}
       {...props}
     ></li>
   );
@@ -337,7 +386,7 @@ export function SidebarMenuSubButton({
       data-sidebar="menu-sub-button"
       data-active={isActive}
       className={twMerge(
-        "flex h-8 w-full items-center rounded-md px-2 transition-all hover:bg-background-primary",
+        "flex h-8 w-full rounded-md transition-all hover:bg-background-primary",
         "data-[active=true]:bg-surface-primary data-[active=true]:font-bold data-[active=true]:text-blue data-[active=true]:shadow-md",
       )}
       {...props}
