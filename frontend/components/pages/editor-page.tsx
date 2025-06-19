@@ -7,10 +7,8 @@ import {
 } from "@/components/layout/entity-sidebar";
 import { InspectorSidebar } from "@/components/layout/inspector-sidebar";
 import { MapImage } from "@/components/layout/viewport";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DndContext } from "@dnd-kit/core";
-import { Resizable } from "re-resizable";
 import { useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import { AssetEditor } from "@/components/core/asset";
 import { AppToolbar } from "@/components/layout/app-toolbar";
@@ -69,45 +67,36 @@ export function EditorPage() {
   );
 
   return (
-    <SidebarProvider>
-      <div className="flex h-screen flex-col overflow-hidden">
-        <DndContext sensors={sensors}>
-          <DragHandler />
-          <AppToolbar />
-          {/* Main Content */}
-          <Resizable className="flex flex-1 overflow-hidden">
-            {/* Left Explorer (SideBar) */}
-            <Resizable>
-              <EntitySidebarProvider>
-                <EntitySidebar />
-              </EntitySidebarProvider>
-            </Resizable>
+    <div className="flex h-screen flex-col overflow-hidden">
+      <DndContext sensors={sensors}>
+        <DragHandler />
+        <AppToolbar />
+        {/* Main Content */}
+        <div className="flex w-full flex-1 flex-col gap-2.5">
+          {/* Layer Tab Bar */}
+          <div className="flex w-full justify-center">
+            <div className="bg-fills-primary flex w-[588px] items-center gap-2.5 rounded-[10px] px-2.5 py-1 text-lg font-medium">
+              <ToggleGroup>
+                <ToggleGroupItem label="Terrain" />
+                <ToggleGroupItem label="Unit" />
+                <ToggleGroupItem label="Location" />
+                <ToggleGroupItem label="Sprite" />
+                <ToggleGroupItem label="Doodads" />
+              </ToggleGroup>
+            </div>
+          </div>
 
-            <div className="flex w-full flex-col gap-2.5">
-              {/* Layer Tab Bar */}
-              <div className="flex w-full justify-center">
-                <div className="bg-fills-primary flex w-[588px] items-center gap-2.5 rounded-[10px] px-2.5 py-1 text-lg font-medium">
-                  <ToggleGroup>
-                    <ToggleGroupItem label="Terrain" />
-                    <ToggleGroupItem label="Unit" />
-                    <ToggleGroupItem label="Location" />
-                    <ToggleGroupItem label="Sprite" />
-                    <ToggleGroupItem label="Doodads" />
-                  </ToggleGroup>
-                </div>
-              </div>
-
-              {/* Center Map Viewer */}
-              <div className="flex h-full">
-                <MapImage />
-                <Resizable defaultSize={{ width: "25%" }} className="w-full">
-                  <InspectorSidebar />
+          <div className="relative flex-1">
+            <MapImage className="absolute h-full w-full" />
+            <EntitySidebarProvider>
+              <EntitySidebar />
+            </EntitySidebarProvider>
+            <InspectorSidebar />
             <AssetContainer />
             <AssetEditor />
           </div>
-          <AssetEditor />
-        </DndContext>
-      </div>
-    </SidebarProvider>
+        </div>
+      </DndContext>
+    </div>
   );
 }
