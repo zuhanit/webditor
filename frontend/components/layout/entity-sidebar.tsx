@@ -10,6 +10,8 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   Sidebar,
+  SidebarTrigger,
+  SidebarProvider,
 } from "@/components/ui/sidebar";
 import {
   CheckSquare,
@@ -25,7 +27,7 @@ import {
 } from "../ui/collapsible";
 import { SearchForm } from "../form/search-form";
 import { useEntityStore } from "@/store/entityStore";
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { useUsemapStore } from "@/components/pages/editor-page";
 import { Asset } from "@/types/schemas/asset/Asset";
 import { useFilteredAssetTree } from "@/hooks/useAssetTree";
@@ -49,6 +51,35 @@ function useEntitySidebar() {
   return context;
 }
 
+export function EntitySidebarItemLabel({
+  handleCheck,
+  asset,
+  children,
+  ...props
+}: React.ComponentProps<typeof SidebarMenuButton> & {
+  handleCheck: (e: React.MouseEvent<SVGSVGElement>) => void;
+  asset: Asset;
+}) {
+  const checkedEntities = useEntityStore((state) => state.checkedEntities);
+
+  return (
+    <SidebarMenuButton {...props}>
+      {checkedEntities.includes(asset) ? (
+        <CheckSquare
+          className="size-5 shrink-0 text-blue"
+          onClick={handleCheck}
+        />
+      ) : (
+        <SquareDashed
+          className="size-5 shrink-0 text-blue"
+          onClick={handleCheck}
+        />
+      )}
+      <span className="truncate">{asset.name}</span>
+      {children}
+    </SidebarMenuButton>
+  );
+}
 export function EntitySidebarItem({
   asset,
 }: {
@@ -72,16 +103,14 @@ export function EntitySidebarItem({
         <Collapsible key={asset.name} className="group/collapsible">
           <SidebarMenuItem>
             <CollapsibleTrigger asChild>
-              <SidebarMenuButton className="flex items-center gap-2">
-                {checkedEntities.includes(asset) ? (
-                  <CheckSquare className="text-blue" onClick={handleCheck} />
-                ) : (
-                  <SquareDashed className="text-blue" onClick={handleCheck} />
-                )}
-                {asset.name}
+              <EntitySidebarItemLabel
+                asset={asset}
+                handleCheck={handleCheck}
+                className="flex items-center gap-2"
+              >
                 <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
                 <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
-              </SidebarMenuButton>
+              </EntitySidebarItemLabel>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <SidebarMenuSub>
@@ -128,18 +157,12 @@ export function EntitySidebarItem({
     } else {
       return (
         <SidebarMenuItem>
-          <SidebarMenuButton
-            className="flex items-center gap-2"
+          <EntitySidebarItemLabel
+            asset={asset}
+            handleCheck={handleCheck}
             onClick={() => setEntity(asset)}
             isActive={entity?.id === asset.id}
-          >
-            {checkedEntities.includes(asset) ? (
-              <CheckSquare className="text-blue" onClick={handleCheck} />
-            ) : (
-              <SquareDashed className="text-blue" onClick={handleCheck} />
-            )}
-            {asset.name}
-          </SidebarMenuButton>
+          />
         </SidebarMenuItem>
       );
     }
@@ -167,28 +190,33 @@ export function EntitySidebar() {
   const tree = useFilteredAssetTree(usemap?.entities || [], searchTerm);
 
   return (
-    <Sidebar className="h-full bg-background-secondary">
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <div className="flex items-center gap-2">
-              <GalleryVerticalEnd className="size-4" />
-              <div>
-                <h1 className="font-bold">Webditor</h1>
-                <p className="text-xs">v1.0.0</p>
+    <SidebarProvider className="absolute left-2 top-2 flex h-1/3 gap-2">
+      <Sidebar variant="floating">
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <div className="flex items-center gap-2">
+                <GalleryVerticalEnd className="size-4" />
+                <div>
+                  <h1 className="font-bold">Webditor</h1>
+                  <p className="text-xs">v1.0.0</p>
+                </div>
               </div>
-            </div>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <SearchForm onSearch={setSearchTerm} />
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          {tree.map((asset) => (
-            <EntitySidebarItem key={asset.id} asset={asset} />
-          ))}
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
+            </SidebarMenuItem>
+          </SidebarMenu>
+          <SearchForm className="w-full" onSearch={setSearchTerm} />
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            {tree.map((asset) => (
+              <EntitySidebarItem key={asset.id} asset={asset} />
+            ))}
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarTrigger className="size-10 rounded-md bg-background-primary p-2">
+        Close
+      </SidebarTrigger>
+    </SidebarProvider>
   );
 }
