@@ -8,7 +8,7 @@ import { useDragViewport } from "@/hooks/useDragViewport";
 import { useElementResize } from "@/hooks/useElementResize";
 import { useDroppableContext } from "@/hooks/useDraggableAsset";
 
-export const MapImage = ({ className }: { className: string }) => {
+export const MapImage = ({ className }: { className?: string }) => {
   const viewportCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const { image } = useEntireCanvas();
 
