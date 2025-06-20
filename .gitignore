@@ -17,10 +17,10 @@ backend/*.egg-info
 **/*/secrets/
 /secrets/
 
-**/*/schemas/
-
 **/*/TileSet/
 
+preprocess/preprocess/schemas
+scripts/schemas
 **/*/preprocess/output
 **/*/preprocess/output/**/*
 
