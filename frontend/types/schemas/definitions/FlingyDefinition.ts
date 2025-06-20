@@ -1,0 +1,41 @@
+import { z } from "zod";
+
+export const FlingyDefinitionSchema = z.object({
+  id: z.number().int().default(0),
+  name: z.string().default("Definition"),
+  ref_type: z.literal("Definition").default("Definition"),
+  sprite: z.object({
+    id: z.number().int().default(0),
+    name: z.string().default("Definition"),
+    ref_type: z.literal("Definition").default("Definition"),
+    image: z.object({
+      id: z.number().int().default(0),
+      name: z.string().default("Definition"),
+      ref_type: z.literal("Definition").default("Definition"),
+      graphic: z.number().int(),
+      turnable: z.boolean(),
+      clickable: z.boolean(),
+      use_full_iscript: z.boolean(),
+      draw_if_cloaked: z.boolean(),
+      draw_function: z.number().int(),
+      remapping: z.number().int(),
+      iscript_id: z.number().int(),
+      shield_overlay: z.number().int(),
+      attack_overlay: z.number().int(),
+      damage_overlay: z.number().int(),
+      special_overlay: z.number().int(),
+      landing_dust_overlay: z.number().int(),
+      lift_off_overlay: z.number().int(),
+    }),
+    health_bar_id: z.union([z.number().int(), z.null()]),
+    selection_circle_image_id: z.union([z.number().int(), z.null()]),
+    selection_circle_offset: z.union([z.number().int(), z.null()]),
+  }),
+  top_speed: z.number().int(),
+  acceleration: z.number().int(),
+  halt_distance: z.number().int(),
+  turn_radius: z.number().int(),
+  unused: z.number().int(),
+  move_control: z.number().int(),
+});
+export type FlingyDefinition = z.infer<typeof FlingyDefinitionSchema>;
