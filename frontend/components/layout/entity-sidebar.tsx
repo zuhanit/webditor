@@ -196,10 +196,14 @@ export function EntitySidebar() {
           <SidebarMenu>
             <SidebarMenuItem>
               <div className="flex items-center gap-2">
-                <GalleryVerticalEnd className="size-4" />
+                <GalleryVerticalEnd className="size-4 shrink-0" />
                 <div>
-                  <h1 className="font-bold">Webditor</h1>
-                  <p className="text-xs">v1.0.0</p>
+                  <h1 className="font-bold">
+                    {usemap?.scenario_property.name.content}
+                  </h1>
+                  <p className="text-xs">
+                    {usemap?.scenario_property.description.content}
+                  </p>
                 </div>
               </div>
             </SidebarMenuItem>
