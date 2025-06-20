@@ -52,4 +52,33 @@ jobs:
         run: pnpm install
 
       - name: Run eslint
-        run: pnpm eslint
+        run: pnpm eslint --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif
+
+  type-check:
+    name: type-check
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Uses Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run tsc
+        run: cd frontend && tsc --noEmit 2>&1 | sed 's/&/::error file=/g'
