@@ -33,14 +33,6 @@ jobs:
             backend/static/anim
           key: preprocess-${{ runner.os }}-${{ hashFiles('preprocess/uv.lock', 'preprocess/**/*.py') }}
 
-      - name: Cache Backend Schemas
-        id: cache-schema
-        uses: actions/cache@v3
-        with:
-          path: |
-            frontend/types/schemas
-          key: schema-${{ runner.os }}-${{ hashFiles('backend/app/models/**/*.py')}}
-
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -62,7 +54,7 @@ jobs:
           cache-dependency-glob: "preprocess/uv.lock"
 
       - name: Install the project
-        if: steps.cache-rawdata.outputs.cache-hit != 'true' && steps.cache-schema.outputs.cache-hit != 'true'
+        if: steps.cache-rawdata.outputs.cache-hit != 'true'
         run: |
           cd ./preprocess
           uv sync --locked --all-extras --dev
@@ -114,19 +106,6 @@ jobs:
             echo "uploaded=true"  >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Generate schemas
-        id: schema_run
-        if: steps.cache-schema.outputs.cache-hit != 'true'
-        run: |
-          pnpm run schema
-
-      - name: Upload frontend schemas
-        if: steps.schema_run.outcome == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-schemas
-          path: frontend/types/schemas
-
   build_frontend:
     needs: preprocess
     name: Build Next.js Frontend
@@ -158,21 +137,6 @@ jobs:
           key: ${{ runner.os }}-nextjs-${{ hashFiles('frontend/pnpm-lock.yaml') }}-${{ hashFiles('frontend/**/*.ts', 'frontend/**/*.tsx') }}
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-
-      - name: Cache Backend Schemas
-        id: cache-schema
-        uses: actions/cache@v3
-        with:
-          path: |
-            frontend/types/schemas
-          key: schema-${{ runner.os }}-${{ hashFiles('backend/app/models/**/*.py')}}
-
-      - name: Download processed schemas
-        if: steps.cache-schema.outputs.cache-hit != 'true' && needs.preprocess.outputs.schemas-generated == 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-schemas
-          path: frontend/types/schemas
 
       - name: Install pnpm
         if: steps.cache-frontend.outputs.cache-hit != 'true'
