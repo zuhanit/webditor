@@ -2,9 +2,8 @@ import { useAsseEditortStore } from "@/store/assetEditorStore";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
-  SidebarHeader,
+  SidebarProvider,
 } from "../ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ReactNode, useEffect, useState } from "react";
@@ -14,7 +13,7 @@ import { Button } from "../ui/button";
 import { UsemapEditor } from "./usemap-editor";
 import { useUsemapStore } from "@/components/pages/editor-page";
 import { Toolbar } from "../ui/toolbar";
-import { Save, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Resizable } from "re-resizable";
 import { useDraggableAsset } from "@/hooks/useDraggableAsset";
 import { Asset } from "@/types/asset";
@@ -77,19 +76,6 @@ export function AssetEditor() {
     setActivatedAsset(nextActivatedAsset);
   };
 
-  const onClickSave = () => {
-    if (!activatedAsset) return;
-
-    // updateUsemap((draft: any) => {
-    //   let target = draft;
-    //   for (let i = 0; i < activatedAsset.path.length - 1; i++) {
-    //     target = target[activatedAsset.path[i]];
-    //   }
-    //   target[activatedAsset.path[activatedAsset.path.length - 1]] =
-    //     activatedAsset.properties;
-    // });
-  };
-
   return (
     <div
       ref={setNodeRef}
@@ -109,62 +95,64 @@ export function AssetEditor() {
         }}
         minWidth={800}
         minHeight={800}
+        className="flex flex-col"
       >
-        <Sidebar>
-          <Toolbar
-            className="border-b border-text-muted"
-            {...listeners}
-            {...attributes}
-          >
-            <span className="absolute left-1/2 -translate-x-1/2 text-center text-lg font-medium">
-              Asset Editor
-            </span>
-            <div className="ml-auto flex items-center">
-              <Button variant="ghost" onClick={closeEditor}>
-                <X />
-              </Button>
-            </div>
-          </Toolbar>
-          <Tabs defaultValue={activatedAsset.name} className="w-full">
-            <SidebarHeader>
-              <TabsList>
-                {assets.map((asset) => (
-                  <div key={asset.name} className="flex items-center gap-2">
-                    <TabsTrigger
-                      value={asset.name}
-                      onClick={() => setActivatedAsset(asset)}
-                    >
-                      {asset.name}
-                    </TabsTrigger>
-                    <button onClick={() => onClickClose(asset)}>
-                      <X />
-                    </button>
-                  </div>
-                ))}
-              </TabsList>
-            </SidebarHeader>
-            <SidebarContent>
-              <SidebarGroup>
-                {assets.map((asset) => (
-                  <TabsContent
-                    className="flex"
-                    key={asset.name}
-                    value={asset.name}
-                  >
-                    <UsemapEditor kind="assets" asset={asset} />
-                    <AssetEditorImage asset={asset} />
-                  </TabsContent>
-                ))}
-              </SidebarGroup>
-            </SidebarContent>
-          </Tabs>
-          <SidebarFooter>
-            <Button variant="ghost" onClick={onClickSave}>
-              <Save />
-              Save
+        <Toolbar
+          className="border-b border-text-muted"
+          {...listeners}
+          {...attributes}
+        >
+          <span className="absolute left-1/2 -translate-x-1/2 text-center text-lg font-medium">
+            Asset Editor
+          </span>
+          <div className="ml-auto flex items-center">
+            <Button variant="ghost" onClick={closeEditor}>
+              <X />
             </Button>
-          </SidebarFooter>
-        </Sidebar>
+          </div>
+        </Toolbar>
+        <Tabs
+          defaultValue={activatedAsset.name}
+          className="flex flex-1 flex-col"
+        >
+          <TabsList>
+            {assets.map((asset) => (
+              <div key={asset.name} className="flex items-center gap-2">
+                <TabsTrigger
+                  value={asset.name}
+                  onClick={() => setActivatedAsset(asset)}
+                >
+                  {asset.name}
+                </TabsTrigger>
+                <button onClick={() => onClickClose(asset)}>
+                  <X />
+                </button>
+              </div>
+            ))}
+          </TabsList>
+          <div className="flex h-full">
+            <SidebarProvider>
+              <Sidebar variant="floating">
+                <SidebarContent>
+                  <SidebarGroup>
+                    {assets.map((asset) => (
+                      <TabsContent
+                        className="flex h-0 min-h-0"
+                        key={asset.name}
+                        value={asset.name}
+                      >
+                        <UsemapEditor kind="assets" asset={asset} />
+                      </TabsContent>
+                    ))}
+                  </SidebarGroup>
+                </SidebarContent>
+              </Sidebar>
+            </SidebarProvider>
+            <div className="flex-1">
+              <AssetEditorImage asset={activatedAsset} />
+            </div>
+          </div>
+        </Tabs>
       </Resizable>
     </div>
   );
