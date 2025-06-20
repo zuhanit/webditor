@@ -7,7 +7,6 @@ import {
 } from "@/components/layout/entity-sidebar";
 import { InspectorSidebar } from "@/components/layout/inspector-sidebar";
 import { MapImage } from "@/components/layout/viewport";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DndContext } from "@dnd-kit/core";
 import { useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import { AssetEditor } from "@/components/core/asset";
@@ -74,17 +73,6 @@ export function EditorPage() {
         {/* Main Content */}
         <div className="flex w-full flex-1 flex-col gap-2.5">
           {/* Layer Tab Bar */}
-          <div className="flex w-full justify-center">
-            <div className="bg-fills-primary flex w-[588px] items-center gap-2.5 rounded-[10px] px-2.5 py-1 text-lg font-medium">
-              <ToggleGroup>
-                <ToggleGroupItem label="Terrain" />
-                <ToggleGroupItem label="Unit" />
-                <ToggleGroupItem label="Location" />
-                <ToggleGroupItem label="Sprite" />
-                <ToggleGroupItem label="Doodads" />
-              </ToggleGroup>
-            </div>
-          </div>
 
           <div className="relative flex-1">
             <MapImage className="absolute h-full w-full" />

@@ -2,12 +2,23 @@ import { Toolbar, ToolbarToggleItem } from "../ui/toolbar";
 import { AppMenu } from "./app-menu";
 import { PanelBottom, PanelLeft, PanelRight, Settings } from "lucide-react";
 import { Button } from "../ui/button";
+import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 
 export function AppToolbar() {
   return (
-    <Toolbar className="items-center bg-background-tertiary">
+    <Toolbar className="items-center bg-background-tertiary py-1.5">
       <AppMenu />
-      <span className="ml-auto text-lg font-medium">any-starcraft-map</span>
+      <div className="flex w-full justify-center">
+        <div className="bg-fills-primary flex w-[588px] items-center gap-2.5 rounded-[10px] text-lg font-medium">
+          <ToggleGroup>
+            <ToggleGroupItem label="Terrain" />
+            <ToggleGroupItem label="Unit" />
+            <ToggleGroupItem label="Location" />
+            <ToggleGroupItem label="Sprite" />
+            <ToggleGroupItem label="Doodads" />
+          </ToggleGroup>
+        </div>
+      </div>
       <div className="ml-auto flex items-center gap-2">
         <ToolbarToggleItem
           value="panel-bottom"
