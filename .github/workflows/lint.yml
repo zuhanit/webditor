@@ -78,7 +78,7 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install -r
 
       - name: Run tsc
         run: cd frontend && tsc --noEmit 2>&1 | sed 's/&/::error file=/g'
