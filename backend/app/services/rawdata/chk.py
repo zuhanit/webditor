@@ -413,11 +413,14 @@ class CHK:
 
   @cached_property
   def strings(self) -> list[chk_types.String]:
-    str_bytes = self.chkt.getsection("STRx")
-    string_count = struct.unpack("I", str_bytes[0:4])[0]
+    str_section = "STRx" if "STRx" in self.chkt.sections else "STR "
+    size = 2 if str_section == "STR " else 4
+    format = "H" if str_section == "STR " else "I"
+    str_bytes = self.chkt.getsection(str_section)
+    string_count = struct.unpack(format, str_bytes[0:size])[0]
     offsets = [
-      struct.unpack("I", str_bytes[i : i + 4])[0]
-      for i in range(4, 4 + 4 * string_count, 4)
+      struct.unpack(format, str_bytes[i : i + size])[0]
+      for i in range(size, size + size * string_count, size)
     ]
 
     result: list[chk_types.String] = []
