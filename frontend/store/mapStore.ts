@@ -32,6 +32,7 @@ export type UsemapActions = {
   addEntity: (entity: Asset<Entity>) => void;
   deleteEntity: (entity: Asset<Entity>) => void;
   fetchUsemap: (mapName: string) => Promise<void>;
+  updateEntityAssetName: (id: number, name: string) => void;
   updateEntity: (id: number, path: string[], value: any) => void;
   addAsset: (asset: Asset) => void;
   deleteAsset: (asset: Asset) => void;
@@ -73,6 +74,14 @@ export const createUsemapStore = () => {
             (e: Asset<Entity>) => e.id !== entity.id,
           );
           // maybe can replaced with delete draft.entities[entity.id]?
+        }),
+      })),
+    updateEntityAssetName: (id: number, name: string) =>
+      set((state) => ({
+        usemap: produce(state.usemap, (draft: Usemap) => {
+          draft.entities = draft.entities.map((e) =>
+            e.id === id ? { ...e, name: name } : e,
+          );
         }),
       })),
     updateEntity: (id: number, path: string[], value: any) =>
