@@ -152,7 +152,9 @@ export function useViewportImage(): ViewportImageBundle {
 
     terrainImage.current = getTerrainImage(
       usemap.terrain,
-      usemap.entities.filter((entity) => entity.data && entity.data.kind === "Tile").map(e => e.data) as Tile[],
+      usemap.entities
+        .filter((entity) => entity.data && entity.data.kind === "Tile")
+        .map((e) => e.data) as Tile[],
       tileGroup,
       tilesetData,
     );
@@ -161,8 +163,12 @@ export function useViewportImage(): ViewportImageBundle {
   const requiredImageIDs = useMemo(() => {
     const result = new Set<number>();
     if (usemap) {
-      const unitEntities = usemap.entities.filter((entity) => entity.data && entity.data.kind === "Unit").map(e => e.data) as Unit[];
-      const spriteEntities = usemap.entities.filter((entity) => entity.data && entity.data.kind === "Sprite").map(e => e.data) as Sprite[];
+      const unitEntities = usemap.entities
+        .filter((entity) => entity.data && entity.data.kind === "Unit")
+        .map((e) => e.data) as Unit[];
+      const spriteEntities = usemap.entities
+        .filter((entity) => entity.data && entity.data.kind === "Sprite")
+        .map((e) => e.data) as Sprite[];
 
       unitEntities.forEach((unit) => {
         result.add(unit.unit_definition.specification.graphics.sprite.image.id);
@@ -183,7 +189,8 @@ export function useViewportImage(): ViewportImageBundle {
       const bmp = await getPlacedUnitImage(
         usemap.terrain,
         usemap.entities
-          .filter((entity) => entity.data && entity.data.kind === "Unit").map(e => e.data) as Unit[],
+          .filter((entity) => entity.data && entity.data.kind === "Unit")
+          .map((e) => e.data) as Unit[],
         imagesData,
       );
       setUnitImage(bmp);
@@ -197,7 +204,8 @@ export function useViewportImage(): ViewportImageBundle {
       const bmp = await getPlacedSpriteImages(
         usemap.terrain,
         usemap.entities
-          .filter((entity) => entity.data && entity.data.kind === "Sprite").map(e => e.data) as Sprite[],
+          .filter((entity) => entity.data && entity.data.kind === "Sprite")
+          .map((e) => e.data) as Sprite[],
         imagesData,
       );
       setSpriteImage(bmp);
@@ -209,7 +217,8 @@ export function useViewportImage(): ViewportImageBundle {
     locationImage.current = getLocationImage(
       usemap.terrain,
       usemap.entities
-        .filter((entity) => entity.data && entity.data.kind === "Location").map(e => e.data) as Location[],
+        .filter((entity) => entity.data && entity.data.kind === "Location")
+        .map((e) => e.data) as Location[],
     );
   }, [usemap?.entities]);
 
