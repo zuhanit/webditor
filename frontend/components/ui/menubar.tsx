@@ -171,6 +171,7 @@ export function MenubarItem({
       </li>
     );
   }
+
   return (
     <li className={twMerge("w-full whitespace-nowrap text-sm", className)}>
       <Button {...props}></Button>
