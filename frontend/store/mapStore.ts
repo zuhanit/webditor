@@ -1,6 +1,6 @@
 "use client";
 
-import { Usemap } from "@/types/schemas/project/Usemap";
+import { Usemap, UsemapSchema } from "@/types/schemas/project/Usemap";
 import { createStore } from "zustand";
 import { produce } from "immer";
 import { Entity } from "@/types/schemas/entities/Entity";
@@ -29,6 +29,9 @@ export type UsemapState = {
 };
 
 export type UsemapActions = {
+  fetchUsemap: (mapName: string) => Promise<void>;
+  setUsemap: (usemap: Usemap) => void;
+  openUsemap: (file: File) => Promise<void>;
   addEntity: (entity: Asset<Entity>) => void;
   deleteEntity: (entity: Asset<Entity>) => void;
   fetchUsemap: (mapName: string) => Promise<void>;
@@ -61,6 +64,41 @@ export const createUsemapStore = () => {
         console.error("Failed to fetch usemap:", error);
       }
     },
+      openUsemap: async (file: File) => {
+        try {
+          const extension = file.name.split(".").pop()?.toLowerCase();
+          if (extension === "wproject") {
+            const jsonData = JSON.parse(await file.text());
+
+            // 검증만 하고 원본 데이터 사용
+            const validation = UsemapSchema.safeParse(jsonData);
+            if (!validation.success) {
+              console.warn("Schema validation failed:", validation.error);
+              // 경고만 하고 계속 진행하거나 에러 처리
+            }
+
+            set({ usemap: jsonData }); // 원본 데이터 사용
+          } else if (["chk", "scx", "scm"].includes(extension || "")) {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await api.post("/api/v1/maps/open/", formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            });
+
+            const { raw_map } = response.data;
+            if (raw_map) {
+              set({ usemap: raw_map });
+            }
+          }
+        } catch (error) {
+          console.error("Failed to upload usemap:", error);
+          throw error; // 에러를 다시 던져서 컴포넌트에서 처리할 수 있도록
+        }
+      },
+      setUsemap: (usemap: Usemap) => set({ usemap: usemap }),
     addEntity: (entity: Asset<Entity>) =>
       set((state) => ({
         usemap: produce(state.usemap, (draft: Usemap) => {
