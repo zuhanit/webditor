@@ -62,6 +62,20 @@ async def upload_map(file: UploadFile = File(...), user=Depends(get_current_user
     raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/open")
+async def open_map(file: UploadFile = File(...)):
+  try:
+    content = await file.read()
+    chkt = get_chkt(BytesIO(content))
+    chk = CHK(chkt)
+    dat = DAT()
+
+    raw_map = get_map(chk, dat)
+    return {"file_name": file.filename, "raw_map": raw_map}
+  except Exception as e:
+    raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/test_map")
 async def get_test_map():
   with open("./example/various_units.scx", "rb") as f:
