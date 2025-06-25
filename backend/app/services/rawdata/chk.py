@@ -413,7 +413,7 @@ class CHK:
 
   @cached_property
   def strings(self) -> list[chk_types.String]:
-    str_section = "STRx" if "STRx" in self.chkt.sections else "STR "
+    str_section = "STRx" if b"STRx" in self.chkt.sections else "STR "
     size = 2 if str_section == "STR " else 4
     format = "H" if str_section == "STR " else "I"
     str_bytes = self.chkt.getsection(str_section)
