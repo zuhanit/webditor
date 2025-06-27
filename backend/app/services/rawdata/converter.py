@@ -36,7 +36,12 @@ class MapConverter:
         tile_id=tile.id,
         transform=TransformComponent(
           position=Position2D(x=tile.position.x, y=tile.position.y),
-          size=Size(width=32, height=32),
+          size=RectPosition(
+            left=16,
+            top=16,
+            right=16,
+            bottom=16,
+          ),
         ),
         kind="Tile",
       )
@@ -53,7 +58,12 @@ class MapConverter:
         name=location.string.content,
         transform=TransformComponent(
           position=Position2D(x=location.position.x, y=location.position.y),
-          size=Size(width=1, height=1),
+          size=RectPosition(
+            left=location.size.width // 2,
+            top=location.size.height // 2,
+            right=location.size.width // 2,
+            bottom=location.size.width // 2,
+          ),
         ),
         elevation_flags=location.elevation_flag,
         kind="Location",
@@ -80,7 +90,12 @@ class MapConverter:
         name=f"Mask {id}",
         transform=TransformComponent(
           position=Position2D(x=0, y=0),
-          size=Size(width=1, height=1),
+          size=RectPosition(
+            left=16,
+            top=16,
+            right=16,
+            bottom=16,
+          ),
         ),
         kind="Mask",
         flags=mask.flags,
@@ -191,7 +206,7 @@ class MapConverter:
         name=self.chk.unit_definitions[unit.unit_id].name,
         transform=TransformComponent(
           position=Position2D(x=unit.position.x, y=unit.position.y),
-          size=Size(width=1, height=1),
+          size=self.unit_definitions[unit.unit_id].size.bounds,
         ),
         kind="Unit",
         owner=self.players[unit.owner.id],
@@ -218,7 +233,7 @@ class MapConverter:
         name=self.dat.sprites[id].name,
         transform=TransformComponent(
           position=Position2D(x=sprite.position.x, y=sprite.position.y),
-          size=Size(width=1, height=1),
+          size=RectPosition(left=100, top=100, right=100, bottom=100),
         ),
         kind="Sprite",
         owner=self.players[sprite.owner.id],
@@ -238,7 +253,7 @@ class MapConverter:
         name=unit_definition.name,
         transform=TransformComponent(
           position=Position2D(x=0, y=0),
-          size=Size(width=1, height=1),
+          size=unit_definition.size.bounds,
         ),
         kind="Unit",
         owner=self.players[0],
@@ -264,7 +279,12 @@ class MapConverter:
         name=sprite.name,
         transform=TransformComponent(
           position=Position2D(x=0, y=0),
-          size=Size(width=1, height=1),
+          size=RectPosition(
+            left=100,
+            top=100,
+            bottom=100,
+            right=100,
+          ),
         ),
         kind="Sprite",
         owner=self.players[0],
