@@ -1003,8 +1003,8 @@ class CHKBuilder:
         "<4I2H",
         location.transform.position.x,
         location.transform.position.y,
-        location.transform.position.x + location.transform.size.width,
-        location.transform.position.y + location.transform.size.height,
+        location.transform.position.x + location.transform.size.right,
+        location.transform.position.y + location.transform.size.bottom,
         self.find_string_by_content(location.name).id,
         location.elevation_flags,
       )
