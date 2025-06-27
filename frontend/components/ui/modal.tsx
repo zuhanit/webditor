@@ -6,7 +6,7 @@ export default function ModalContainer() {
 
   return (
     <>
-      {modals.map((modal) => {
+      {Array.from(modals.values()).map((modal) => {
         const { Component, props } = modal;
         return (
           <div key={uuidv4()} className="modal">

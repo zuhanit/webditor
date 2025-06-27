@@ -15,6 +15,7 @@ import { createContext, useContext, useEffect, useRef } from "react";
 import { createUsemapStore, UsemapStore } from "@/store/mapStore";
 import { useStore } from "zustand";
 import { AssetContainer } from "../layout/asset-container";
+import ModalContainer from "../ui/modal";
 
 export type UsemapStoreApi = ReturnType<typeof createUsemapStore>;
 
@@ -66,7 +67,7 @@ export function EditorPage() {
   );
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div className="relative flex h-screen flex-col overflow-hidden">
       <DndContext sensors={sensors}>
         <DragHandler />
         <AppToolbar />
@@ -85,6 +86,7 @@ export function EditorPage() {
           </div>
         </div>
       </DndContext>
+      <ModalContainer />
     </div>
   );
 }

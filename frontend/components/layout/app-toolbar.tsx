@@ -3,10 +3,12 @@ import { AppMenu } from "./app-menu";
 import { PanelBottom, PanelLeft, PanelRight, Settings } from "lucide-react";
 import { Button } from "../ui/button";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
+import { UserAvatar } from "../core/user-avatar";
 
 export function AppToolbar() {
   return (
     <Toolbar className="items-center bg-background-tertiary py-1.5">
+      <UserAvatar />
       <AppMenu />
       <div className="flex w-full justify-center">
         <div className="bg-fills-primary flex w-[588px] items-center gap-2.5 rounded-[10px] text-lg font-medium">
