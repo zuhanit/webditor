@@ -55,9 +55,15 @@ function UsemapEditorMenu({
   path: string[];
   handleChange: (path: string[], value: any) => void;
 }) {
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const onChangeString = (e: ChangeEvent<HTMLInputElement>) => {
     const timeout = setTimeout(() => {
       handleChange(path, e.target.value);
+    }, 500);
+    return () => clearTimeout(timeout);
+  };
+  const onChangeNumber = (e: ChangeEvent<HTMLInputElement>) => {
+    const timeout = setTimeout(() => {
+      handleChange(path, Number(e.target.value));
     }, 500);
     return () => clearTimeout(timeout);
   };
@@ -140,13 +146,17 @@ function UsemapEditorMenu({
         <SidebarInput
           type="checkbox"
           defaultChecked={value}
-          onChange={onChange}
+          onChange={onChangeString}
         />
       );
       break;
     case "number":
       input = (
-        <SidebarInput type="number" defaultValue={value} onChange={onChange} />
+        <SidebarInput
+          type="number"
+          defaultValue={value}
+          onChange={onChangeNumber}
+        />
       );
       break;
     case "string": {
@@ -154,7 +164,7 @@ function UsemapEditorMenu({
         <SidebarInput
           type={typeof value}
           defaultValue={value}
-          onChange={onChange}
+          onChange={onChangeString}
         />
       );
       break;
