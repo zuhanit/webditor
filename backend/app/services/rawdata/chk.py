@@ -366,11 +366,11 @@ class CHK:
       MRGN = struct.unpack(
         CHK_FORMATDICT["MRGN"], mrgn_bytes[i * format_size : (i + 1) * format_size]
       )
-      if (MRGN[0], MRGN[1], MRGN[2], MRGN[3]) != (0, 0, 0, 0):
+      if (MRGN[0], MRGN[1], MRGN[2], MRGN[3]) != (0, 0, 0, 0) and i != 63:
         result.append(
           chk_types.Location(
             id=i,
-            string=self.strings[MRGN[4]],
+            string=self.strings[MRGN[4] - 1],
             position=spatial.Position(x=MRGN[0], y=MRGN[1]),
             size=spatial.Size(width=MRGN[2] - MRGN[0], height=MRGN[3] - MRGN[1]),
             elevation_flag=chk_types.ElevationFlag(MRGN[5]),
