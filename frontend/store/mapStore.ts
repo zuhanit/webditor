@@ -7,6 +7,7 @@ import { produce } from "immer";
 import { Entity } from "@/types/schemas/entities/Entity";
 import { Asset } from "@/types/asset";
 import api from "@/lib/api";
+import { useEntityStore } from "./entityStore";
 
 // export const useUsemapStore = create<UsemapStore>((set, get) => ({
 //   usemap: null,
@@ -106,7 +107,13 @@ export const createUsemapStore = () => {
             draft.entities.push(entity);
           }),
         })),
-      deleteEntity: (entity: Asset<Entity>) =>
+      deleteEntity: (entity: Asset<Entity>) => {
+        // 선택된 엔티티가 삭제되는 엔티티와 같으면 선택 해제
+        const currentSelected = useEntityStore.getState().entity;
+        if (currentSelected && currentSelected.id === entity.id) {
+          useEntityStore.getState().setEntity(null);
+        }
+        
         set((state) => ({
           usemap: produce(state.usemap, (draft: Usemap) => {
             draft.entities = draft.entities.filter(
@@ -114,7 +121,8 @@ export const createUsemapStore = () => {
             );
             // maybe can replaced with delete draft.entities[entity.id]?
           }),
-        })),
+        }));
+      },
       updateEntityAssetName: (id: number, name: string) =>
         set((state) => ({
           usemap: produce(state.usemap, (draft: Usemap) => {

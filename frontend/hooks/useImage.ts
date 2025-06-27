@@ -17,11 +17,13 @@ import {
   getLocationImage,
   getPlacedSpriteImages,
   getPlacedUnitImage,
+  getSelectionHighlightImage,
 } from "@/lib/scimage";
 import { Unit } from "@/types/schemas/entities/Unit";
 import { Sprite } from "@/types/schemas/entities/Sprite";
 import { Tile } from "@/types/schemas/entities/Tile";
 import { Location } from "@/types/schemas/entities/Location";
+import { useEntityStore } from "@/store/entityStore";
 
 const safeGet = async <T>(promise: Promise<{ data: T }>) => {
   try {
@@ -134,17 +136,21 @@ interface ViewportImageBundle {
   unit?: ImageBitmap;
   location?: ImageBitmap;
   sprite?: ImageBitmap;
+  selectionHighlight?: ImageBitmap;
 }
 
 export function useViewportImage(): ViewportImageBundle {
   const usemap = useUsemapStore((store) => store.usemap);
   const tileGroup = useTileGroup();
   const tilesetData = useTilesetData();
+  const selectedEntity = useEntityStore((state) => state.entity);
 
   const terrainImage = useRef<ImageBitmap>();
   const [unitImage, setUnitImage] = useState<ImageBitmap>();
   const [spriteImage, setSpriteImage] = useState<ImageBitmap>();
   const locationImage = useRef<ImageBitmap>();
+  const [selectionHighlightImage, setSelectionHighlightImage] =
+    useState<ImageBitmap>();
 
   /** Create terrain image */
   useEffect(() => {
@@ -212,6 +218,7 @@ export function useViewportImage(): ViewportImageBundle {
     })();
   }, [usemap?.entities, loading]);
 
+  /** Create Location Image */
   useEffect(() => {
     if (!usemap) return;
     locationImage.current = getLocationImage(
@@ -222,17 +229,31 @@ export function useViewportImage(): ViewportImageBundle {
     );
   }, [usemap?.entities]);
 
+  /** Create Selection Highlight Image */
+  useEffect(() => {
+    if (!usemap) {
+      setSelectionHighlightImage(undefined);
+      return;
+    }
+    console.log("yay");
+    setSelectionHighlightImage(
+      getSelectionHighlightImage(usemap.terrain, selectedEntity || undefined),
+    );
+  }, [selectedEntity]);
+
   return {
     terrain: terrainImage.current,
     unit: unitImage,
     sprite: spriteImage,
     location: locationImage.current,
+    selectionHighlight: selectionHighlightImage,
   };
 }
 
 export function useEntireCanvas() {
   const usemap = useUsemapStore((state) => state.usemap);
-  const { terrain, unit, sprite, location } = useViewportImage();
+  const { terrain, unit, sprite, location, selectionHighlight } =
+    useViewportImage();
 
   const [bitmap, setBitmap] = useState<ImageBitmap>();
 
@@ -244,11 +265,16 @@ export function useEntireCanvas() {
     const canvas = new OffscreenCanvas(w, h);
     const ctx = canvas.getContext("2d")!;
 
+    // 캔버스 완전히 지우기
     ctx.clearRect(0, 0, w, h);
+
     if (terrain) ctx.drawImage(terrain, 0, 0);
     if (unit) ctx.drawImage(unit, 0, 0);
     if (sprite) ctx.drawImage(sprite, 0, 0);
     if (location) ctx.drawImage(location, 0, 0);
+    if (selectionHighlight) ctx.drawImage(selectionHighlight, 0, 0);
+
+    console.log("yo", selectionHighlight);
 
     setBitmap(canvas.transferToImageBitmap());
   }, [
@@ -257,6 +283,7 @@ export function useEntireCanvas() {
     unit,
     sprite,
     location,
+    selectionHighlight,
   ]);
 
   return { image: bitmap };

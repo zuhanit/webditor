@@ -12,7 +12,12 @@ export const SpriteSchema = z
           x: z.number().int().default(0),
           y: z.number().int().default(0),
         }),
-        size: z.object({ height: z.number().int(), width: z.number().int() }),
+        size: z.object({
+          left: z.number().int(),
+          top: z.number().int(),
+          right: z.number().int(),
+          bottom: z.number().int(),
+        }),
       })
       .describe("An entity component can have spatial data."),
     kind: z

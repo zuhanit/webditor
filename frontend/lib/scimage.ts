@@ -4,6 +4,8 @@ import { Sprite } from "@/types/schemas/entities/Sprite";
 import { FrameMeta, SCImageBundle } from "@/types/SCImage";
 import { Location } from "@/types/schemas/entities/Location";
 import { TILE_SIZE } from "./scterrain";
+import { Asset } from "@/types/asset";
+import { Entity } from "@/types/schemas/entities/Entity";
 
 type props = { image: Blob; frame: number; meta: FrameMeta };
 export async function fetchFrameImage({ image, frame, meta }: props) {
@@ -11,8 +13,25 @@ export async function fetchFrameImage({ image, frame, meta }: props) {
   if (!rect) throw new Error(`frame ${frame} not found.`);
 
   const bitmap = await createImageBitmap(image);
+  const frameImage = await createImageBitmap(
+    bitmap,
+    rect.x,
+    rect.y,
+    rect.width,
+    rect.height,
+  );
 
-  return createImageBitmap(bitmap, rect.x, rect.y, rect.width, rect.height);
+  // x_offset, y_offset을 고려해서 중심 정렬된 이미지 생성
+  const canvas = new OffscreenCanvas(
+    rect.width + Math.abs(rect.x_offset) * 2,
+    rect.height + Math.abs(rect.y_offset) * 2,
+  );
+  const ctx = canvas.getContext("2d")!;
+
+  // 캔버스 중앙에 이미지를 그려서 offset 효과 적용
+  ctx.drawImage(frameImage, Math.abs(rect.x_offset), Math.abs(rect.y_offset));
+
+  return canvas.transferToImageBitmap();
 }
 
 export function createTeamColorUnitImage(
@@ -96,18 +115,19 @@ export async function getPlacedUnitImage(
 
       ctx.drawImage(
         colored,
-        unit.transform!.position.x,
-        unit.transform!.position.y,
+        unit.transform!.position.x - colored.width / 2,
+        unit.transform!.position.y - colored.height / 2,
       );
     } else {
+      const unitImage = await fetchFrameImage({
+        image: image.diffuse,
+        frame: 0,
+        meta: image.meta,
+      });
       ctx.drawImage(
-        await fetchFrameImage({
-          image: image.diffuse,
-          frame: 0,
-          meta: image.meta,
-        }),
-        unit.transform!.position.x,
-        unit.transform!.position.y,
+        unitImage,
+        unit.transform!.position.x - unitImage.width / 2,
+        unit.transform!.position.y - unitImage.height / 2,
       );
     }
   });
@@ -133,14 +153,15 @@ export async function getPlacedSpriteImages(
     const image = SCImages.get(imageID);
 
     if (!image) return;
+    const spriteFrameImage = await fetchFrameImage({
+      image: image.diffuse,
+      frame: 0,
+      meta: image.meta,
+    });
     ctx.drawImage(
-      await fetchFrameImage({
-        image: image.diffuse,
-        frame: 0,
-        meta: image.meta,
-      }),
-      sprite.transform!.position.x,
-      sprite.transform!.position.y,
+      spriteFrameImage,
+      sprite.transform!.position.x - spriteFrameImage.width / 2,
+      sprite.transform!.position.y - spriteFrameImage.height / 2,
     );
   });
 
@@ -159,8 +180,10 @@ export function getLocationImage(terrain: RawTerrain, locations: Location[]) {
 
   locations.forEach((location) => {
     if (location.id != 63) {
-      const width = location.transform.size.width;
-      const height = location.transform.size.height;
+      const width =
+        location.transform.size.left + location.transform.size.right;
+      const height =
+        location.transform.size.top + location.transform.size.bottom;
       ctx.fillStyle = "rgba(0, 0, 255, 0.15)";
       ctx.fillRect(
         location.transform.position.x,
@@ -184,6 +207,38 @@ export function getLocationImage(terrain: RawTerrain, locations: Location[]) {
       );
     }
   });
+
+  return canvas.transferToImageBitmap();
+}
+
+export function getSelectionHighlightImage(
+  terrain: RawTerrain,
+  selectedEntity?: Asset<Entity>,
+) {
+  const canvas = new OffscreenCanvas(
+    terrain.size.width * TILE_SIZE,
+    terrain.size.height * TILE_SIZE,
+  );
+  const ctx = canvas.getContext("2d")!;
+
+  if (!selectedEntity || !selectedEntity.data) {
+    ctx.clearRect(
+      0,
+      0,
+      terrain.size.width * TILE_SIZE,
+      terrain.size.height * TILE_SIZE,
+    );
+    return canvas.transferToImageBitmap();
+  }
+  const transform = selectedEntity.data?.transform;
+  ctx.strokeStyle = "rgb(0, 255, 0)";
+  ctx.lineWidth = 2;
+  const x = transform.position.x - transform.size.left;
+  const y = transform.position.y - transform.size.top;
+  const width = transform.size.left + transform.size.right;
+  const height = transform.size.top + transform.size.bottom;
+
+  ctx.strokeRect(x, y, width, height);
 
   return canvas.transferToImageBitmap();
 }

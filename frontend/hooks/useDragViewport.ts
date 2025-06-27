@@ -6,17 +6,21 @@ import { Viewport } from "@/types/viewport";
  * Hook for handle dragging viewport.
  * @param vpRef Viewport Ref
  * @param onViewportChange Event handler for viewport changed.
+ * @param onCanvasClick Click handler for canvas clicks (when not dragging)
  * @returns
  */
 export function useDragViewport(
   vpRef: React.MutableRefObject<Viewport>,
   onViewportChange: () => void,
+  onCanvasClick?: (e: React.MouseEvent) => void,
 ) {
   const isDragging = useRef(false);
   const dragStart = useRef<{ x: number; y: number } | null>();
+  const hasDragged = useRef(false);
 
   const onMousedown = (e: React.MouseEvent) => {
     isDragging.current = true;
+    hasDragged.current = false;
     dragStart.current = { x: e.clientX, y: e.clientY };
   };
 
@@ -31,6 +35,7 @@ export function useDragViewport(
     const deltaY = Math.round(dy / TILE_SIZE);
     if (deltaX === 0 && deltaY === 0) return;
 
+    hasDragged.current = true; // 드래그 했음을 기록
     vpRef.current.startX = Math.max(0, vpRef.current.startX - deltaX);
     vpRef.current.startY = Math.max(0, vpRef.current.startY - deltaY);
     dragStart.current = { x: e.clientX, y: e.clientY };
@@ -43,9 +48,18 @@ export function useDragViewport(
     }
   };
 
-  function onMouseUp() {
+  function onMouseUp(e: React.MouseEvent) {
+    const wasDragging = isDragging.current;
+    const didDrag = hasDragged.current;
+    
     isDragging.current = false;
     dragStart.current = null;
+    hasDragged.current = false;
+
+    // 드래그하지 않고 단순 클릭한 경우
+    if (wasDragging && !didDrag && onCanvasClick) {
+      onCanvasClick(e);
+    }
   }
 
   return { onMousedown, onMouseMove, onMouseUp, isDragging };
