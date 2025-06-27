@@ -7,7 +7,7 @@ interface DropdownContextType {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   triggerRef: React.RefObject<HTMLElement>;
-  contentRef: React.RefObject<HTMLElement>;
+  contentRef: React.RefObject<HTMLDivElement>;
 }
 
 const DropdownContext = createContext<DropdownContextType | null>(null);
@@ -21,7 +21,7 @@ export function DropdownMenu({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLElement>(null);
-  const contentRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
@@ -127,14 +127,13 @@ export function DropdownMenuContent({
   sideOffset?: number;
 } & React.ComponentProps<"div">) {
   const context = useContext(DropdownContext);
-  const contentRef = useRef<HTMLDivElement>(null);
   const [adjustedAlign, setAdjustedAlign] = useState(align);
 
   if (!context) {
     throw new Error("DropdownMenuContent must be used within DropdownMenu");
   }
 
-  const { isOpen, triggerRef, contentRef: contextContentRef } = context;
+  const { isOpen, triggerRef, contentRef } = context;
 
   // 화면 경계 확인 및 위치 조정
   useEffect(() => {
@@ -175,10 +174,7 @@ export function DropdownMenuContent({
 
   return (
     <div
-      ref={(el) => {
-        if (contentRef) contentRef.current = el;
-        if (contextContentRef) (contextContentRef as any).current = el;
-      }}
+      ref={contentRef}
       className={twMerge(
         "text-text absolute z-50 min-w-[8rem] overflow-hidden rounded-md border border-overlay-primary bg-background-primary p-1 shadow-lg",
         alignmentClasses[adjustedAlign],
