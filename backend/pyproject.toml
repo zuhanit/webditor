@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-eudplib = { path = "../eudplib-0.80.0-cp310-abi3-macosx_11_0_arm64.whl", marker = "platform_system == 'Linux'" }
+eudplib = { path = "../eudplib-0.80.6-cp310-abi3-linux_x86_64.whl", marker = "platform_system == 'Linux'" }
 wengine = { path = "../wengine", editable = true }
 
 [project.optional-dependencies]
