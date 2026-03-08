@@ -1,4 +1,5 @@
-import api from "@/lib/api";
+import { globalConfig } from "@/utils/globalConfig";
+import axios from "axios";
 import { decompressSync } from "fflate";
 import { useEffect, useState } from "react";
 
@@ -8,8 +9,8 @@ export default function useTilesetData(): Uint8Array | null {
   useEffect(() => {
     (async () => {
       try {
-        const response = await api.get(
-          "/static/terrain/badlands/megatile_color.gz",
+        const response = await axios.get(
+          `${globalConfig.STATIC_BASE_URL}/terrain/badlands/megatile_color.gz`,
           {
             responseType: "arraybuffer",
           },

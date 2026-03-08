@@ -1,4 +1,3 @@
-import api from "@/lib/api";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import {
   SCImageBundle,
@@ -8,6 +7,7 @@ import {
   ImageVersion,
 } from "@/types/SCImage";
 import axios from "axios";
+import { globalConfig } from "@/utils/globalConfig";
 import { useUsemapStore } from "@/components/pages/editor-page";
 import useTileGroup from "./useTileGroup";
 import useTilesetData from "./useTilesetData";
@@ -43,18 +43,18 @@ export function useImage({ version, imageIndex }: SCImage) {
     imageIndex: imageIndex,
   });
 
-  const base = `/static/anim/${v}/${idx}`;
+  const base = `${globalConfig.STATIC_BASE_URL}/anim/${v}/${idx}`;
 
   const { data, isLoading, isSuccess } = useQuery<SCImageBundle>({
     queryKey: ["scImage", v, idx],
     queryFn: async () => {
       const [diffuse, teamColor, meta] = await Promise.all([
-        (await api.get<Blob>(`${base}/diffuse.png`, { responseType: "blob" }))
+        (await axios.get<Blob>(`${base}/diffuse.png`, { responseType: "blob" }))
           .data,
         safeGet(
-          api.get<Blob>(`${base}/team_color.png`, { responseType: "blob" }),
+          axios.get<Blob>(`${base}/team_color.png`, { responseType: "blob" }),
         ),
-        (await api.get<FrameMeta>(`${base}/meta.json`)).data,
+        (await axios.get<FrameMeta>(`${base}/meta.json`)).data,
       ]);
 
       return { diffuse, teamColor, meta };
@@ -70,9 +70,9 @@ export function useImageManifest(version: ImageVersion) {
   return useQuery<Manifest>({
     queryKey: [version, "manifest"],
     queryFn: async () => {
-      const res = await api.get<
+      const res = await axios.get<
         Record<string, { diffuse: boolean; team_color: boolean }>
-      >(`/static/anim/${version}/manifest.json`);
+      >(`${globalConfig.STATIC_BASE_URL}/anim/${version}/manifest.json`);
       const obj = res.data; // already parsed JSON
 
       return new Map(
@@ -91,20 +91,23 @@ export function useImages(imageIDs: Set<number>, version: ImageVersion) {
       enabled: !!manifest?.get(id)?.diffuse, // skip if diffuse missing
       queryKey: ["unitImage", version, id],
       queryFn: async () => {
-        const base = `/static/anim/${version}/${id}`;
+        const base = `${globalConfig.STATIC_BASE_URL}/anim/${version}/${id}`;
 
         // ① diffuse + meta (필수)
         const [diffuse, meta] = await Promise.all([
-          (await api.get<Blob>(`${base}/diffuse.png`, { responseType: "blob" }))
-            .data,
-          (await api.get<FrameMeta>(`${base}/meta.json`)).data,
+          (
+            await axios.get<Blob>(`${base}/diffuse.png`, {
+              responseType: "blob",
+            })
+          ).data,
+          (await axios.get<FrameMeta>(`${base}/meta.json`)).data,
         ]);
 
         // ② team_color (선택)
         let teamColor: Blob | undefined;
         if (manifest?.get(id)?.team_color) {
           teamColor = await safeGet(
-            api.get<Blob>(`${base}/team_color.png`, { responseType: "blob" }),
+            axios.get<Blob>(`${base}/team_color.png`, { responseType: "blob" }),
           );
         }
 
