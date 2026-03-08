@@ -17,6 +17,11 @@ NEXT_PUBLIC_FIREBASE_APP_ID=
 NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=
 ```
 
+3. Add static file URL in .env
+```jsx
+NEXT_PUBLIC_STATIC_BASE_URL=
+```
+
 ### Note: Is it safe to expose Firebase apiKey to the public?
 
 See this Q&A: [Is it safe to expose Firebase apiKey to the public?](https://stackoverflow.com/questions/37482366/is-it-safe-to-expose-firebase-apikey-to-the-public)
