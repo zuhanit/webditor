@@ -15,12 +15,8 @@ COPY backend/ /app/
 # Install dependencies
 RUN uv sync --no-dev
 
-# Copy preprocess output (tileset static data)
-# tileset.py resolves 6 parent dirs up from its location to reach project root
-COPY preprocess/output/ /preprocess/output/
-
 # Create required runtime directories
-RUN mkdir -p /app/output /app/logs /app/static
+RUN mkdir -p /app/output /app/logs
 
 EXPOSE 8000
 

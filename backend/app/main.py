@@ -1,12 +1,10 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from app.api.v1.endpoints import map, user, tileset
+from app.api.v1.endpoints import map, user 
 from app.core.w_logging import get_logger, setup_logging
 from fastapi.responses import JSONResponse
 from firebase_admin import auth as firebase_auth
 from firebase_admin._auth_utils import InvalidIdTokenError
-from starlette.responses import Response
 
 setup_logging()
 
@@ -28,27 +26,6 @@ app.add_middleware(
   allow_methods=["*"],
   allow_headers=["*"],
 )
-
-
-class StaticFilesCache(StaticFiles):
-  """Cached Static Files, see https://stackoverflow.com/questions/66093397/how-to-disable-starlette-static-files-caching"""
-
-  def __init__(
-    self,
-    *args,
-    cachecontrol="public, max-age=31536000, s-maxage=31536000, immutable",
-    **kwargs,
-  ):
-    self.cachecontrol = cachecontrol
-    super().__init__(*args, **kwargs)
-
-  def file_response(self, *args, **kwargs) -> Response:
-    resp: Response = super().file_response(*args, **kwargs)
-    resp.headers.setdefault("Cache-Control", self.cachecontrol)
-    return resp
-
-
-app.mount("/static", StaticFilesCache(directory="static"), name="static")
 
 logger = get_logger("fastapi")
 
@@ -85,7 +62,6 @@ async def log_reqeust(request: Request, call_next):
 
 app.include_router(map.router, prefix="/api/v1/maps", tags=["Maps"])
 app.include_router(user.router, prefix="/api/v1/user", tags=["User"])
-app.include_router(tileset.router, prefix="/api/v1/tileset", tags=["Tileset"])
 
 
 @app.get("/")
