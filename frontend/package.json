@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "bench": "vitest bench --config vitest.bench.config.ts --run"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
