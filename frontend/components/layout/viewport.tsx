@@ -1,159 +1,168 @@
 "use client";
 
-import React, { useCallback, useRef } from "react";
-import { useEntireCanvas } from "@/hooks/useImage";
+import React, { useCallback, useMemo, useRef } from "react";
+import { Application, useApplication } from "@pixi/react";
+import { Viewport as PixiViewport } from "pixi-viewport";
 import { TILE_SIZE } from "@/lib/scterrain";
-import { Viewport } from "@/types/viewport";
-import { useDragViewport } from "@/hooks/useDragViewport";
-import { useElementResize } from "@/hooks/useElementResize";
 import { useDroppableContext } from "@/hooks/useDraggableAsset";
-import { findEntityAtPosition } from "@/lib/entityUtils";
 import { useEntityStore } from "@/store/entityStore";
 import { useUsemapStore } from "../pages/editor-page";
+import { useImages } from "@/hooks/useImage";
+import useTileGroup from "@/hooks/useTileGroup";
+import useTilesetData from "@/hooks/useTilesetData";
+import { Unit } from "@/types/schemas/entities/Unit";
+import { Sprite } from "@/types/schemas/entities/Sprite";
+import { Tile } from "@/types/schemas/entities/Tile";
+import { Location } from "@/types/schemas/entities/Location";
+import { Asset } from "@/types/asset";
+import { Entity } from "@/types/schemas/entities/Entity";
 
-export const MapImage = ({ className }: { className?: string }) => {
-  const viewportCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const { image } = useEntireCanvas();
+import "@/lib/pixi/setup";
+import "@/lib/pixi/types";
 
-  /** Controller for dragging viewport */
-  const viewportRef = useRef<Viewport>({
-    startX: 0,
-    startY: 0,
-    tileWidth: 40,
-    tileHeight: 75,
-  });
-
-  /**
-   * Viewport painting callback.
-   * when user dragging, or touch-moved viewport, viewport will be changed and
-   * entire viewport image need to repainted.
-   *  */
-  const paint = useCallback(() => {
-    const viewCanvas = viewportCanvasRef.current;
-    if (!viewCanvas || !image) return;
-
-    const viewCtx = viewCanvas.getContext("2d")!;
-    const v = viewportRef.current;
-
-    // 캔버스 크기 제한 (브라우저 한계: 보통 32767px)
-    const maxCanvasSize = 16000;
-    const canvasWidth = Math.min(v.tileWidth * TILE_SIZE, maxCanvasSize);
-    const canvasHeight = Math.min(v.tileHeight * TILE_SIZE, maxCanvasSize);
-
-    viewCanvas.width = canvasWidth;
-    viewCanvas.height = canvasHeight;
-
-    // 캔버스 완전히 지우기
-    viewCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-    viewCtx.drawImage(
-      image,
-      v.startX * TILE_SIZE,
-      v.startY * TILE_SIZE,
-      canvasWidth,
-      canvasHeight,
-      0,
-      0,
-      canvasWidth,
-      canvasHeight,
-    );
-  }, [image]);
-
+function MapContent({
+  viewportInstanceRef,
+}: {
+  viewportInstanceRef: React.MutableRefObject<PixiViewport | null>;
+}) {
+  const { app } = useApplication();
   const usemap = useUsemapStore((state) => state.usemap);
   const setEntity = useEntityStore((state) => state.setEntity);
   const selectedEntity = useEntityStore((state) => state.entity);
-  const deleteEntity = useUsemapStore((state) => state.deleteEntity);
 
-  const handleCanvasClick = useCallback(
-    (event: React.MouseEvent) => {
-      if (!usemap) return;
+  const tileGroup = useTileGroup();
+  const tilesetData = useTilesetData();
 
-      // Canvas 요소의 bounding rect 가져오기
-      const canvasRect = viewportCanvasRef.current!.getBoundingClientRect();
+  const tiles = useMemo(() => {
+    if (!usemap) return [];
+    return usemap.entities
+      .filter((e) => e.data?.kind === "Tile")
+      .map((e) => e.data) as Tile[];
+  }, [usemap?.entities]);
 
-      // Canvas 내에서의 상대 좌표
-      const relativeX = event.clientX - canvasRect.left;
-      const relativeY = event.clientY - canvasRect.top;
+  const unitAssets = useMemo(() => {
+    if (!usemap) return [];
+    return usemap.entities.filter(
+      (e) => e.data?.kind === "Unit",
+    ) as Asset<Unit>[];
+  }, [usemap?.entities]);
 
-      // Canvas 스케일 팩터 계산 (실제 크기 vs CSS 크기)
-      const scaleX =
-        viewportCanvasRef.current!.width /
-        viewportCanvasRef.current!.clientWidth;
-      const scaleY =
-        viewportCanvasRef.current!.height /
-        viewportCanvasRef.current!.clientHeight;
+  const spriteAssets = useMemo(() => {
+    if (!usemap) return [];
+    return usemap.entities.filter(
+      (e) => e.data?.kind === "Sprite",
+    ) as Asset<Sprite>[];
+  }, [usemap?.entities]);
 
-      // 스케일 팩터를 고려한 실제 캔버스 좌표
-      const scaledX = relativeX * scaleX;
-      const scaledY = relativeY * scaleY;
+  const locationAssets = useMemo(() => {
+    if (!usemap) return [];
+    return usemap.entities.filter(
+      (e) => e.data?.kind === "Location",
+    ) as Asset<Location>[];
+  }, [usemap?.entities]);
 
-      // Viewport offset을 고려한 실제 맵 좌표
-      const mapX = scaledX + viewportRef.current.startX * TILE_SIZE;
-      const mapY = scaledY + viewportRef.current.startY * TILE_SIZE;
+  const requiredImageIDs = useMemo(() => {
+    const ids = new Set<number>();
+    for (const asset of unitAssets) {
+      ids.add(
+        asset.data!.unit_definition.specification.graphics.sprite.image.id,
+      );
+    }
+    for (const asset of spriteAssets) {
+      ids.add(asset.data!.definition.image.id);
+    }
+    return ids;
+  }, [unitAssets, spriteAssets]);
 
-      const units = usemap.entities.filter((e) => e.data?.kind === "Unit");
+  const { data: imagesData } = useImages(requiredImageIDs, "sd");
 
-      const clickedEntity = findEntityAtPosition(mapX, mapY, units);
-
-      if (clickedEntity) {
-        setEntity(clickedEntity);
-      }
+  const handleSelect = useCallback(
+    (entity: Asset<Entity>) => {
+      setEntity(entity);
     },
-    [usemap],
+    [setEntity],
   );
 
-  const handleDelete = () => {
-    console.log("yay");
-    if (selectedEntity) {
-      deleteEntity(selectedEntity);
-    }
-  };
-  const handleKeydown = (e: React.KeyboardEvent) => {
-    switch (e.key) {
-      case "Delete": {
-        console.log("ya");
-        handleDelete();
-      }
-    }
-  };
+  const mapWidth = usemap?.terrain.size.width ?? 0;
+  const mapHeight = usemap?.terrain.size.height ?? 0;
 
-  /**
-   * Viewport dragging handling hook.
-   */
-  const { onMouseMove, onMouseUp, onMousedown, isDragging } = useDragViewport(
-    viewportRef,
-    paint,
-    handleCanvasClick, // 클릭 핸들러 전달
+  if (!usemap || !app) return null;
+
+  return (
+    <pixiViewport
+      ref={(ref: PixiViewport | null) => {
+        viewportInstanceRef.current = ref;
+        if (ref && !ref.plugins.get("drag")) {
+          ref.drag().pinch().wheel().decelerate();
+          ref.clamp({
+            left: 0,
+            top: 0,
+            right: mapWidth * TILE_SIZE,
+            bottom: mapHeight * TILE_SIZE,
+          });
+        }
+      }}
+      events={app.renderer.events}
+      screenWidth={app.renderer.width}
+      screenHeight={app.renderer.height}
+      worldWidth={mapWidth * TILE_SIZE}
+      worldHeight={mapHeight * TILE_SIZE}
+    >
+      <terrainLayer
+        tiles={tiles}
+        tileGroup={tileGroup ?? []}
+        tilesetData={tilesetData}
+      />
+      <unitLayer
+        units={unitAssets}
+        images={imagesData}
+        selectedId={selectedEntity?.data?.id ?? null}
+        onSelect={handleSelect}
+      />
+      <spriteLayer
+        sprites={spriteAssets}
+        images={imagesData}
+        selectedId={selectedEntity?.data?.id ?? null}
+        onSelect={handleSelect}
+      />
+      <locationLayer
+        locations={locationAssets}
+        selectedId={selectedEntity?.data?.id ?? null}
+        onSelect={handleSelect}
+      />
+    </pixiViewport>
   );
+}
+
+export const MapImage = ({ className }: { className?: string }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const viewportInstanceRef = useRef<PixiViewport | null>(null);
 
   const { setNodeRef } = useDroppableContext({
     id: "viewport",
     kind: "viewport",
-    data: viewportRef.current,
+    data: { viewportInstance: viewportInstanceRef },
   });
 
-  useElementResize(viewportCanvasRef, (entry) => {
-    const { width, height } = entry.contentRect;
-    viewportRef.current.tileWidth = Math.floor(width / TILE_SIZE);
-    viewportRef.current.tileHeight = Math.floor(height / TILE_SIZE);
-    paint();
-  });
+  const combinedRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      (containerRef as React.MutableRefObject<HTMLDivElement | null>).current =
+        node;
+      setNodeRef(node);
+    },
+    [setNodeRef],
+  );
 
   return (
-    <div className={className} ref={setNodeRef}>
-      <canvas
-        ref={viewportCanvasRef}
-        style={{
-          cursor: isDragging.current ? "grabbing" : "grab",
-        }}
-        className="h-full w-full"
-        onMouseDown={onMousedown}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseUp}
-        onKeyDown={handleKeydown}
-        tabIndex={0}
-      />
+    <div
+      className={className}
+      ref={combinedRef}
+      tabIndex={0}
+      style={{ cursor: "grab" }}
+    >
+      <Application resizeTo={containerRef as React.RefObject<HTMLDivElement>}>
+        <MapContent viewportInstanceRef={viewportInstanceRef} />
+      </Application>
     </div>
   );
 };

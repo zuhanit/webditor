@@ -5,8 +5,8 @@ import { DragOverlay, UniqueIdentifier, useDndMonitor } from "@dnd-kit/core";
 import { ReactElement, useEffect, useState } from "react";
 import { DroppableContextKind } from "@/types/dnd";
 import { useUsemapStore } from "@/components/pages/editor-page";
-import { Viewport } from "@/types/viewport";
-import { TILE_SIZE } from "@/lib/scterrain";
+import type { Viewport as PixiViewport } from "pixi-viewport";
+import type React from "react";
 import { Unit } from "@/types/schemas/entities/Unit";
 import { Entity, EntitySchema } from "@/types/schemas/entities/Entity";
 import { SCImageRenderer } from "./renderer";
@@ -105,18 +105,22 @@ export function DragHandler() {
           const parsed = EntitySchema.safeParse(draggingAsset.data);
           if (!parsed.success) return;
 
+          const viewportRef = event.over.data.current?.viewportInstance as
+            | React.MutableRefObject<PixiViewport | null>
+            | undefined;
+          const viewport = viewportRef?.current;
+          if (!viewport) return;
+
           const localX =
             event.active.rect.current.translated!.left - event.over.rect.left;
           const localY =
             event.active.rect.current.translated!.top - event.over.rect.top;
 
-          const viewport = event.over.data.current as Viewport;
-          const placementX = Math.floor(localX + viewport.startX * TILE_SIZE);
-          const placementY = Math.floor(localY + viewport.startY * TILE_SIZE);
+          const worldPos = viewport.toWorld(localX, localY);
 
           placeEntity(draggingAsset.data, {
-            x: placementX,
-            y: placementY,
+            x: Math.floor(worldPos.x),
+            y: Math.floor(worldPos.y),
           });
         }
       }
