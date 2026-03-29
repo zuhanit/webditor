@@ -1,21 +1,160 @@
-import { Container, Texture, Sprite as PixiSprite, Graphics } from "pixi.js";
+import {
+  Container,
+  Texture,
+  Graphics,
+  AnimatedSprite,
+  Rectangle,
+  TextureSource,
+  Filter,
+  GlProgram,
+  UniformGroup,
+} from "pixi.js";
 import { Unit } from "@/types/schemas/entities/Unit";
-import { SCImageBundle } from "@/types/SCImage";
+import { SCImageBundle, FrameRect } from "@/types/SCImage";
 import { Asset } from "@/types/asset";
 import { Entity } from "@/types/schemas/entities/Entity";
 
+// Those shader code are generate by AI. But I think it can be simplified.
+// See https://github.com/saintofidiocy/SCR-Graphics. It will be helpful.
+// Also we need to deal with another states(like Cloack, Hallucinated, etc).
+
+const TEAM_COLOR_VERT = `
+in vec2 aPosition;
+out vec2 vTextureCoord;
+out vec2 vFilterCoord;
+
+uniform vec4 uInputSize;
+uniform vec4 uOutputFrame;
+uniform vec4 uOutputTexture;
+
+vec4 filterVertexPosition(void) {
+    vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+    position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+    position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+    return vec4(position, 0.0, 1.0);
+}
+
+vec2 filterTextureCoord(void) {
+    return aPosition * (uOutputFrame.zw * uInputSize.zw);
+}
+
+void main(void) {
+    gl_Position = filterVertexPosition();
+    vTextureCoord = filterTextureCoord();
+    vFilterCoord = aPosition;
+}
+`;
+
+const TEAM_COLOR_FRAG = `
+in vec2 vTextureCoord;
+in vec2 vFilterCoord;
+out vec4 finalColor;
+
+uniform sampler2D uTexture;
+uniform sampler2D uMaskTexture;
+uniform vec3 uTeamColor;
+uniform vec4 uMaskFrame;
+
+void main() {
+    vec4 diffuse = texture(uTexture, vTextureCoord);
+    vec2 maskUV = uMaskFrame.xy + vFilterCoord * uMaskFrame.zw;
+    vec4 mask = texture(uMaskTexture, maskUV);
+
+    bool applyTeamColor = mask.r > 0.5;
+
+    if (applyTeamColor) {
+        finalColor = vec4(uTeamColor * diffuse.rgb, diffuse.a);
+    } else {
+        finalColor = diffuse;
+    }
+}
+`;
+
+class TeamColorFilter extends Filter {
+  private maskFrameRects: FrameRect[];
+  private maskWidth: number;
+  private maskHeight: number;
+
+  constructor(
+    teamColor: [number, number, number],
+    maskSource: TextureSource,
+    maskFrameRects: FrameRect[],
+  ) {
+    const glProgram = GlProgram.from({
+      vertex: TEAM_COLOR_VERT,
+      fragment: TEAM_COLOR_FRAG,
+      name: "team-color-filter",
+    });
+
+    const teamUniforms = new UniformGroup({
+      uTeamColor: {
+        value: new Float32Array([
+          teamColor[0] / 255,
+          teamColor[1] / 255,
+          teamColor[2] / 255,
+        ]),
+        type: "vec3<f32>",
+      },
+      uMaskFrame: {
+        value: new Float32Array([0, 0, 1, 1]),
+        type: "vec4<f32>",
+      },
+    });
+
+    super({
+      glProgram,
+      resources: {
+        teamUniforms,
+        uMaskTexture: maskSource,
+        uMaskSampler: maskSource.style,
+      },
+      padding: 0,
+    });
+
+    this.maskFrameRects = maskFrameRects;
+    this.maskWidth = maskSource.width;
+    this.maskHeight = maskSource.height;
+    this.updateFrame(0);
+  }
+
+  updateFrame(index: number) {
+    const rect = this.maskFrameRects[index];
+    if (!rect) return;
+    const maskFrame = this.resources.teamUniforms.uniforms
+      .uMaskFrame as Float32Array;
+    maskFrame[0] = rect.x / this.maskWidth;
+    maskFrame[1] = rect.y / this.maskHeight;
+    maskFrame[2] = rect.width / this.maskWidth;
+    maskFrame[3] = rect.height / this.maskHeight;
+  }
+}
+
 class UnitSprite extends Container {
   readonly data: Asset<Unit>;
-  private sprite: PixiSprite;
+  private sprite: AnimatedSprite;
   private selectionBorder: Graphics;
   private _selected = false;
 
-  constructor(texture: Texture, data: Asset<Unit>) {
+  constructor(
+    textures: Texture[],
+    data: Asset<Unit>,
+    teamColorFilter?: TeamColorFilter,
+  ) {
     super();
     this.data = data;
 
-    this.sprite = new PixiSprite(texture);
+    this.sprite = new AnimatedSprite(textures, true);
+    this.sprite.animationSpeed = 0.4; // 24 / 60
+    this.sprite.play();
     this.sprite.anchor.set(0.5);
+
+    if (teamColorFilter) {
+      this.sprite.filters = [teamColorFilter];
+      this.sprite.onFrameChange = (frame: number) => {
+        teamColorFilter.updateFrame(frame);
+      };
+    }
+
     this.addChild(this.sprite);
 
     this.selectionBorder = new Graphics();
@@ -37,23 +176,14 @@ class UnitSprite extends Container {
     if (value) {
       const unit = this.data.data!;
       const { left, top, right, bottom } = unit.transform.size;
-      const [radiusX, radiusY] = [
-        unit.unit_definition.size.placement_box_size.width,
-        unit.unit_definition.size.placement_box_size.height,
-      ];
 
-      console.log(
-        unit.transform.position.x,
-        unit.transform.position.y,
-        radiusX,
-        radiusY,
-      );
+      // FIXME: Use selection circle image instead of drawing rect. This can referenced by:
+      // unit.unit_definition.specification.graphics.sprite.selection_circle_image_id
       this.selectionBorder
         .clear()
         .setStrokeStyle({ width: 2, color: 0x00ff00 })
-        .ellipse(0, 0, radiusX, radiusY)
+        .rect(-left, -top, left + right, top + bottom)
         .stroke();
-      // this.selectionBorder.rect(-left, -top, left + right, top + bottom);
     }
   }
 
@@ -68,72 +198,20 @@ class UnitSprite extends Container {
 
 async function createTextureFromBundle(
   bundle: SCImageBundle,
-  teamColor?: [number, number, number],
-): Promise<Texture> {
-  const frame0 = bundle.meta[0];
-  if (!frame0) throw new Error("Frame 0 not found in bundle meta");
-
+): Promise<Texture[]> {
   const diffuseBitmap = await createImageBitmap(bundle.diffuse);
-  const frameBitmap = await createImageBitmap(
-    diffuseBitmap,
-    frame0.x,
-    frame0.y,
-    frame0.width,
-    frame0.height,
-  );
+  const diffuseSource = TextureSource.from(diffuseBitmap);
 
-  if (bundle.teamColor && teamColor) {
-    const tcBitmap = await createImageBitmap(bundle.teamColor);
-    const tcFrameBitmap = await createImageBitmap(
-      tcBitmap,
-      frame0.x,
-      frame0.y,
-      frame0.width,
-      frame0.height,
-    );
-
-    const canvas = new OffscreenCanvas(frame0.width, frame0.height);
-    const ctx = canvas.getContext("2d")!;
-    ctx.drawImage(frameBitmap, 0, 0);
-
-    const tcCanvas = new OffscreenCanvas(frame0.width, frame0.height);
-    const tcCtx = tcCanvas.getContext("2d")!;
-    tcCtx.drawImage(tcFrameBitmap, 0, 0);
-
-    const imageData = ctx.getImageData(0, 0, frame0.width, frame0.height);
-    const tcData = tcCtx.getImageData(0, 0, frame0.width, frame0.height);
-    const pixels = imageData.data;
-    const tcPixels = tcData.data;
-
-    for (let i = 0; i < pixels.length; i += 4) {
-      const tcR = tcPixels[i];
-      const tcG = tcPixels[i + 1];
-      const tcB = tcPixels[i + 2];
-      const tcA = tcPixels[i + 3];
-
-      if (tcR > 127 && tcG > 127 && tcB > 127 && tcA > 0) {
-        const wR = pixels[i] / 255;
-        const wG = pixels[i + 1] / 255;
-        const wB = pixels[i + 2] / 255;
-
-        pixels[i] = Math.round(teamColor[0] * wR);
-        pixels[i + 1] = Math.round(teamColor[1] * wG);
-        pixels[i + 2] = Math.round(teamColor[2] * wB);
-      }
-    }
-
-    ctx.putImageData(imageData, 0, 0);
-    const result = canvas.transferToImageBitmap();
-    return Texture.from({
-      resource: result,
-      alphaMode: "premultiply-alpha-on-upload",
-    });
+  const frameTextures: Texture[] = [];
+  for (const rect of Object.values(bundle.meta)) {
+    const frame = new Rectangle(rect.x, rect.y, rect.width, rect.height);
+    frameTextures.push(new Texture({ source: diffuseSource, frame }));
   }
 
-  return Texture.from({
-    resource: frameBitmap,
-    alphaMode: "premultiply-alpha-on-upload",
-  });
+  if (frameTextures.length === 0)
+    throw new Error("Cannot find frame image in bundle.");
+
+  return frameTextures;
 }
 
 export class UnitLayer extends Container {
@@ -199,11 +277,20 @@ export class UnitLayer extends Container {
 
       // Create new unit sprite
       try {
-        const color = unit.owner?.rgb_color as
-          | [number, number, number]
-          | undefined;
-        const texture = await createTextureFromBundle(bundle, color);
-        const sprite = new UnitSprite(texture, asset);
+        const textures = await createTextureFromBundle(bundle);
+
+        let filter: TeamColorFilter | undefined;
+        if (bundle.teamColor) {
+          const color = (unit.owner?.rgb_color as
+            | [number, number, number]
+            | undefined) ?? [255, 255, 255];
+          const teamColorBitmap = await createImageBitmap(bundle.teamColor);
+          const teamColorSource = TextureSource.from(teamColorBitmap);
+          const maskFrameRects = Object.values(bundle.meta);
+          filter = new TeamColorFilter(color, teamColorSource, maskFrameRects);
+        }
+
+        const sprite = new UnitSprite(textures, asset, filter);
 
         sprite.on("pointertap", () => {
           if (this._onSelect) {
